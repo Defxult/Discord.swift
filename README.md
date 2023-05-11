@@ -4,8 +4,12 @@ Discord.swift has been a passion project for me. I've noticed that there are Dis
 
 This project is currently in pre-alpha, and I plan on improving the library over time and I could use all the help I can get 😄. Thank you for taking the time to read.
 
+Join the Discord server: https://discord.gg/TYDZeruQ7N
+
 ## Basic Example
 ```swift
+import Discord
+
 class MyListener : EventListener {
     override func onMessageCreate(message: Message) async {
         // Don't respond to our own message
@@ -20,7 +24,16 @@ class MyListener : EventListener {
 }
 
 let bot = Discord(token: "...", intents: Intents.default)
-try await bot.addListeners(MyListener(name: "example"))
+try bot.addListeners(MyListener(name: "example"))
 try await bot.connect()
 ```
-Join the Discord server: https://discord.gg/TYDZeruQ7N
+## Swift Package Manager
+```swift
+dependencies: [
+    .package(url: "https://github.com/Defxult/Discord.swift", branch: "main")
+]
+// ...
+dependencies: [
+    .product(name: "Discord", package: "Discord.swift")
+]
+```
