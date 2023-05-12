@@ -41,8 +41,7 @@ public struct Asset {
     // ----------------------
 
     static func determineImageTypeURL(hash: String) -> String {
-        if hash.starts(with: "a_") { return hash + ".gif" }
-        else { return hash + ".png" }
+        hash.starts(with: "a_") ? hash + ".gif" : hash + ".png"
     }
 
     init(hash: String, fullURL: String) {
