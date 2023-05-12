@@ -148,9 +148,15 @@ public enum ChannelType : Int, CaseIterable {
 
 /// Represents a channel that's in a guild.
 public protocol GuildChannel : Channel {
+    
+    /// The ID of the last message sent in this channel.
     var lastMessageId: Snowflake? { get }
+    
+    /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will return `nil`.
     var overwrites: [PermissionOverwrites]? { get }
     var guild: Guild { get }
+    
+    /// The channel name.
     var name: String { get }
     var mention: String { get }
 }
@@ -215,13 +221,10 @@ extension GuildChannel {
         try await bot!.http.deleteChannelPermission(channelId: id, userOrRoleId: item.id, reason: reason)
     }
     
-    /**
-     Get the channel overwrites.
-     
-     - Parameter for: The ``Member`` or ``Role`` to retrieve the overwrites for.
-     - Returns: The overwrites matching the parameters.
-     - Note: The function is only available for non-thread channels.
-     */
+    /// Get the channel overwrites.
+    /// - Parameter for: The ``Member`` or ``Role`` to retrieve the overwrites for.
+    /// - Returns: The overwrites matching the parameters.
+    /// - Note: The function is only available for non-thread channels.
     public func getOverwrites(for item: Object) -> PermissionOverwrites? {
         overwrites?.first(where: { $0.target.id == item.id })
     }
@@ -578,13 +581,10 @@ public class TextChannel : GuildChannelMessageable, Hashable {
         return try await bot!.http.modifyChannel(channelId: id, json: payload, reason: reason) as! TextChannel
     }
     
-    /**
-     Follow the text channel.
-     
-     - Parameter sendUpdatesTo: The channel where messages will be sent when they are published.
-     - Returns: A webhook assoiciated with the announcement channel.
-     - Throws: `HTTPError.badRequest`:  Attempted to follow a non-announcement channel.
-     */
+    /// Follow the text channel.
+    /// - Parameter sendUpdatesTo: The channel where messages will be sent when they are published.
+    /// - Returns: A webhook assoiciated with the announcement channel.
+    /// - Throws: `HTTPError.badRequest`:  Attempted to follow a non-announcement channel.
     public func follow(sendUpdatesTo: TextChannel) async throws -> Webhook {
         // The discord error message isn't helpful here (invalid form body)
         if type != .guildAnnouncement { throw HTTPError.badRequest("Cannot follow non-announcement channels") }
