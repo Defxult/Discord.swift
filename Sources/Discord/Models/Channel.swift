@@ -154,14 +154,15 @@ public protocol GuildChannel : Channel {
     
     /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will return `nil`.
     var overwrites: [PermissionOverwrites]? { get }
-    var guild: Guild { get }
     
     /// The channel name.
     var name: String { get }
-    var mention: String { get }
 }
 
 extension GuildChannel {
+    
+    /// The guild this channel belongs to.
+    var guild: Guild { getGuildFromBot(bot: bot!, channelId: id) }
     
     /// Mention the channel.
     public var mention: String { Conversions.mention(.channel, id: id) }
@@ -257,9 +258,6 @@ public protocol GuildChannelMessageable: GuildChannel, Messageable { }
 
 extension GuildChannelMessageable {
     
-    /// The direct URL for the channel.
-    public var jumpUrl: String { "https://discord.com/channels/\(guild.id)/\(id)" }
-    
     /**
      Create a webhook for the channel.
      
@@ -291,9 +289,6 @@ public class CategoryChannel : GuildChannel, Hashable {
 
     /// The channel type.
     public let type: ChannelType
-
-    /// The guild this category belongs to.
-    public var guild: Guild { getGuildFromBot(bot: bot!, channelId: id) }
 
     /// Sorting position of the channel.
     public internal(set) var position: Int
@@ -420,9 +415,6 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     
     /// The channel type.
     public let type: ChannelType
-    
-    /// The guild this channel belongs to.
-    public var guild: Guild { getGuildFromBot(bot: bot!, channelId: id) }
     
     /// Sorting position of the channel.
     public internal(set) var position: Int
@@ -700,9 +692,6 @@ public class ForumChannel : GuildChannel, Hashable {
     
      /// The channel type.
     public let type: ChannelType
-    
-    /// The guild this channel belongs to.
-    public var guild: Guild { getGuildFromBot(bot: bot!, channelId: id) } // Note: Guild ID is missing from the gateway payload
 
     /// Sorting position of the channel.
     public internal(set) var position: Int
@@ -1061,9 +1050,6 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
     
     /// The channel type.
     public let type: ChannelType
-    
-    /// The guild this channel belongs to.
-    public var guild: Guild { getGuildFromBot(bot: bot!, channelId: id) }
     
     /// Sorting position of the channel.
     public internal(set) var position: Int
