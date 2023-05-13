@@ -2,9 +2,14 @@
 
 Discord.swift has been a passion project for me. I've noticed that there are Discord API wrappers for many languages, but there wasn't any for Swift that were kept up-to-date with the latest features, so I decided to make this one. This project has came a long way since I've started on it. I've been programming for quite some time, but I'm on the newer side when it comes to Swift so forgive me if you see a lot of code that can be improved.
 
-This project is currently in pre-alpha, and I plan on improving the library over time and I could use all the help I can get 😄. Thank you for taking the time to read.
+This project is currently in pre-alpha, but I have almost everything implemented that the Discord API has to offer. I plan on improving the library over time and I could use all the help I can get 😄. Thank you for taking the time to read.
 
 Join the Discord server: https://discord.gg/TYDZeruQ7N
+
+## Key Features
+- Asynchronous programming using `async` and `await`.
+- Full application command support.
+- Implementation of the latest Discord API updates.
 
 ## Basic Example
 ```swift
