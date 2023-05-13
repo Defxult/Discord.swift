@@ -68,7 +68,7 @@ public class Embed {
     public private(set) var fields = [Field]()
     
     /// Converts the embed into a dictionary.
-    public var dict: [String: Any] { get { convert() } }
+    public var dict: [String: Any] { convert() }
     
     /// Creates a copy of the embed.
     public var copy: Embed {
@@ -187,12 +187,9 @@ public class Embed {
         return self
     }
 
-    /**
-    Sets the title of the embed. Up to 256 characters.
-
-    - Parameter title: The title.
-    - Returns: The embed instance.
-    */
+    /// Sets the title of the embed. Up to 256 characters.
+    /// - Parameter title: The title.
+    /// - Returns: The embed instance.
     @discardableResult
     public func setTitle(_ title: String) -> Self {
         self.title = title
@@ -207,12 +204,9 @@ public class Embed {
         return self
     }
 
-    /**
-    Sets the description of the embed. Up to 4096 characters
-    
-    - Parameter description: The description.
-    - Returns: The embed instance.
-    */
+    /// Sets the description of the embed. Up to 4096 characters
+    /// - Parameter description: The description.
+    /// - Returns: The embed instance.
     @discardableResult
     public func setDescription(_ description: String) -> Self {
         self.description = description
@@ -227,12 +221,9 @@ public class Embed {
         return self
     }
 
-    /**
-    Sets the title URL of the embed.
-    
-    - Parameter url: The URL.
-    - Returns: The embed instance.
-    */
+    /// Sets the title URL of the embed.
+    /// - Parameter url: The URL.
+    /// - Returns: The embed instance.
     @discardableResult
     public func setUrl(_ url: String) -> Self {
         self.url = url
@@ -247,12 +238,9 @@ public class Embed {
         return self
     }
 
-    /**
-    Sets a custom time for the embed timestamp.
-    
-    - Parameter timestamp: The timestamp.
-    - Returns: The embed instance.
-    */
+    /// Sets a custom time for the embed timestamp.
+    /// - Parameter timestamp: The timestamp.
+    /// - Returns: The embed instance.
     @discardableResult
     public func setTimestamp(_ date: Date = .now) -> Self {
         timestamp = date
@@ -267,12 +255,9 @@ public class Embed {
         return self
     }
 
-    /**
-    Sets the color of the embed.
-    
-    - Parameter color: The color.
-    - Returns: The embed instance.
-    */
+    /// Sets the color of the embed.
+    /// - Parameter color: The color.
+    /// - Returns: The embed instance.
     @discardableResult
     public func setColor(_ color: Color) -> Self {
         self.color = color
@@ -310,10 +295,23 @@ public class Embed {
     }
 
     /**
-    Sets the image for the embed.
-
-    - Parameter url: The URL for the image that will be displayed in the center. Only supports HTTP(S).
-    - Returns: The embed instance.
+     Sets the image for the embed.
+     
+     You can use a local image in the embed by doing the following:
+     ```swift
+     let file = try File(name: "image.png", path: "/path/to/file/image.png")
+     
+     // Once you have the file, you must use the specialized attachment
+     // URL in order to access the image:
+     let embed = Embed()
+         .setImage(url: "attachment://image.png")
+     
+     // Send the message and the image will be attached to the embed.
+     try await channel.send(embeds: [embed], files: [file])
+     ```
+     
+     - Parameter url: The URL for the image that will be displayed in the center. Only supports HTTP(S).
+     - Returns: The embed instance.
     */
     @discardableResult
     public func setImage(url: String) -> Self {
@@ -330,10 +328,23 @@ public class Embed {
     }
 
     /**
-    Sets the thumbnail for the embed.
+     Sets the thumbnail for the embed.
+     
+     You can use a local image in the embed by doing the following:
+     ```swift
+     let file = try File(name: "image.png", path: "/path/to/file/image.png")
+     
+     // Once you have the file, you must use the specialized attachment
+     // URL in order to access the image:
+     let embed = Embed()
+         .setThumbnail(url: "attachment://image.png")
+     
+     // Send the message and the image will be attached to the embed.
+     try await channel.send(embeds: [embed], files: [file])
+     ```
 
-    - Parameter url: The URL for the thumbnail that will be displayed in the top right corner. Only supports HTTP(S).
-    - Returns: The embed instance.
+     - Parameter url: The URL for the thumbnail that will be displayed in the top right corner. Only supports HTTP(S).
+     - Returns: The embed instance.
     */
     @discardableResult
     public func setThumbnail(url: String) -> Self {
@@ -387,12 +398,9 @@ public class Embed {
         return self
     }
 
-    /**
-    Removes a field at the specified index.
-
-    - Parameter index: The index position to remove the field from.
-    - Returns: The embed instance.
-    */
+    /// Removes a field at the specified index.
+    /// - Parameter index: The index position to remove the field from.
+    /// - Returns: The embed instance.
     @discardableResult
     public func removeFieldAtIndex(_ index: Int) -> Self {
         fields.remove(at: index)
@@ -411,7 +419,6 @@ public class Embed {
     Transform a dictionary into an `Embed`.
 
     - Parameter data: The information the embed is bound to.
-    
     - Note: *All* keys in the dictionary should be presented as if it was pure json. For example, fields should be presented as:
     ```swift
     {
@@ -424,7 +431,6 @@ public class Embed {
         }]
     }
     ```
-
     - Returns: An `Embed` object with it's properties set according to the data provided.
     */
     public static func fromDict(_ data: [String: Any]) -> Embed {
