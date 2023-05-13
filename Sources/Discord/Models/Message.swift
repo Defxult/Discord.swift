@@ -378,7 +378,7 @@ public class Message : Object, Hashable, Updateable {
                 if let embeds { payload["embeds"] = Embed.convert(embeds) }
             
             case .allowedMentions(let allowedMentions):
-                payload["allowed_mentions"] = allowedMentions.convert(content: content)
+                payload["allowed_mentions"] = allowedMentions.convert()
                 
             case .files(let files):
                 if files.isEmpty {
@@ -498,6 +498,7 @@ public class Message : Object, Hashable, Updateable {
         - tts: Whether this message should be sent as a TTS message.
         - embeds: Embeds attached to the message.
         - allowedMentions: Controls the mentions allowed when this message is sent.
+        - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
         - files: Files to attach to the message.
      - Returns: The message that was sent.
      - Throws: `HTTPError.forbidden` You don't have the proper permissions to send a message. `HTTPError.base` Sending the message failed.
@@ -508,9 +509,10 @@ public class Message : Object, Hashable, Updateable {
         tts: Bool = false,
         embeds: [Embed]? = nil,
         allowedMentions: AllowedMentions = Discord.allowedMentions,
+        ui: UI? = nil,
         files: [File]? = nil
     ) async throws -> Message {
-        return try await channel.send(content, tts: tts, embeds: embeds, allowedMentions: allowedMentions, files: files, reference: asReference)
+        return try await channel.send(content, tts: tts, embeds: embeds, allowedMentions: allowedMentions, ui: ui, files: files, reference: asReference)
     }
     
     /// Unpin the message from the channel.
@@ -846,7 +848,7 @@ public struct AllowedMentions {
         exemptRoles = roles
     }
     
-    func convert(content: String) -> JSON {
+    func convert() -> JSON {
         var parse = [String]()
         
         if users { parse.append("users") }

@@ -142,12 +142,9 @@ public class Webhook : Object {
         avatarUrl: String? = nil
     ) async throws -> Message {
         if let token {
-            var payload: JSON = ["tts": tts]
+            var payload: JSON = ["tts": tts, "allowed_mentions": allowedMentions.convert()]
             
-            if let content {
-                payload["content"] = content
-                payload["allowed_mentions"] = allowedMentions.convert(content: content)
-            }
+            if let content { payload["content"] = content }
             if let embeds { payload["embeds"] = Embed.convert(embeds) }
             if let ui { payload["components"] = try ui.convert() }
             if let threadName { payload["thread_name"] = threadName }

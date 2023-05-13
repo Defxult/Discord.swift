@@ -721,12 +721,9 @@ public class Interaction {
         ui: UI? = nil,
         files: [File]? = nil
     ) async throws -> Message {
-        var payload: JSON = ["tts": tts]
+        var payload: JSON = ["tts": tts, "allowed_mentions": allowedMentions.convert()]
 
-        if let content {
-            payload["content"] = content
-            payload["allowed_mentions"] = allowedMentions.convert(content: content)
-        }
+        if let content { payload["content"] = content }
         if let embeds { payload["embeds"] = Embed.convert(embeds) }
         if let ui { payload["components"] = try ui.convert() }
 
@@ -773,14 +770,12 @@ public class Interaction {
         files: [File]? = nil
     ) async throws -> Message? {
         if let followupMessageId {
-            var payload: JSON = [:]
+            var payload: JSON = ["allowed_mentions": allowedMentions.convert()]
+            
             var threadId: Snowflake? = nil
             if let thread = channel as? ThreadChannel { threadId = thread.id }
 
-            if let content {
-                payload["content"] = content
-                payload["allowed_mentions"] = allowedMentions.convert(content: content)
-            }
+            if let content { payload["content"] = content }
             if let embeds { payload["embeds"] = Embed.convert(embeds) }
             if let ui { payload["components"] = try ui.convert() }
 
@@ -837,15 +832,12 @@ public class Interaction {
             throw UIError.noResponse("Cannot edit the original response of a \(type) when the interaction was never responded to.")
         }
 
-        var payload: JSON = [:]
+        var payload: JSON = ["allowed_mentions": allowedMentions.convert()]
 
         var threadId: Snowflake? = nil
         if let thread = channel as? ThreadChannel { threadId = thread.id }
 
-        if let content {
-            payload["content"] = content
-            payload["allowed_mentions"] = allowedMentions.convert(content: content)
-        }
+        if let content { payload["content"] = content }
         if let embeds { payload["embeds"] = Embed.convert(embeds) }
         if let ui { payload["components"] = try ui.convert() }
 
@@ -952,12 +944,9 @@ public class Interaction {
 
         // [MESSAGE] https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-messages
         // NOTE: Stickers aren't supported
-        var callbackData: JSON = ["tts": tts]
+        var callbackData: JSON = ["tts": tts, "allowed_mentions": allowedMentions.convert()]
 
-        if let content {
-            callbackData["content"] = content
-            callbackData["allowed_mentions"] = allowedMentions.convert(content: content)
-        }
+        if let content { callbackData["content"] = content }
         if let embeds { callbackData["embeds"] = Embed.convert(embeds) }
         if ephemeral { callbackData["flags"] = Message.Flags.ephemeral.rawValue }
         if let ui { callbackData["components"] = try ui.convert() }

@@ -125,13 +125,9 @@ extension Messageable {
         stickers: [GuildSticker]? = nil,
         reference: Message.Reference? = nil
     ) async throws -> Message {
-        var payload: JSON = ["tts": tts]
+        var payload: JSON = ["tts": tts, "allowed_mentions": allowedMentions.convert() ]
         
-        if let content {
-            payload["content"] = content
-            payload["allowed_mentions"] = allowedMentions.convert(content: content)
-        }
-        
+        if let content { payload["content"] = content }
         if let embeds { payload["embeds"] = Embed.convert(embeds) }
         if let reference { payload["message_reference"] = reference.convert() }
         if let ui { payload["components"] = try ui.convert() }

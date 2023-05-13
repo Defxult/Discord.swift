@@ -827,11 +827,9 @@ public class ForumChannel : GuildChannel, Hashable {
         if let appliedTags { payload["applied_tags"] = appliedTags.map({ $0.id }) }
         
         // Message is required
-        var messageObj: JSON = [:]
-        if let content {
-            messageObj["content"] = content
-            messageObj["allowed_mentions"] = allowedMentions.convert(content: content)
-        }
+        var messageObj: JSON = ["allowed_mentions": allowedMentions.convert()]
+        
+        if let content { messageObj["content"] = content }
         if let embeds { messageObj["embeds"] = embeds.map({ $0.convert() }) }
         if let ui { messageObj["components"] = try ui.convert() }
         if let stickers { messageObj["sticker_ids"] = stickers.map({ $0.id }) }
