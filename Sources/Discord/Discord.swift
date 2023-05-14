@@ -58,8 +58,7 @@ public class Discord {
     /// - Warning: The token should be kept private. Unauthorized access to your token could have devastating consequences.
     public let token: String
     
-    /// The global allowed mentions. Every function that's capable of sending a message has an `allowedMentions` parameter with its default value set to this variable.
-    /// If you want all of those functions `allowedMentions` to be the same, set this to your prefered allowed mentions.
+    /// The global allowed mentions.
     public static var allowedMentions: AllowedMentions = .default
     
     var pendingApplicationCommands = [PendingAppCommand]()
@@ -86,7 +85,7 @@ public class Discord {
         self.token = token
         self.intents = intents
         self.sharding = sharding
-        messagesCacheMaxSize = maxMessagesCache < 0 ? 0 : maxMessagesCache
+        messagesCacheMaxSize = max(0, maxMessagesCache)
         http = .init(bot: self, token: token, version: version)
     }
     
@@ -139,6 +138,7 @@ public class Discord {
     }
     
     /// Retrieve all global application commands.
+    /// - Returns: All global application commands.
     public func applicationCommands() async throws -> [ApplicationCommand] {
         return try await http.getGlobalApplicationCommands(botId: try await getClientID())
     }
@@ -311,7 +311,7 @@ public class Discord {
     
     /// Add event listeners to the bot.
     /// - Parameter listeners: The event listeners to add.
-    /// - Throws: `DiscordError.generic` All event listener names were not unique.
+    /// - Throws: `DiscordError.generic` - All event listener names were not unique.
     public func addListeners(_ listeners: EventListener...) throws {
         for addedListener in listeners {
             let currentListenerNames = self.listeners.map({ $0.name })
@@ -330,7 +330,6 @@ public class Discord {
     
     /// Retrieves the bots application information.
     /// - Returns: The bots application information.
-    /// - Throws: `HTTPError.base` Retrieving the application information failed.
     public func applicationInfo() async throws -> Application {
         return try await http.getCurrentBotApplicationInformation()
     }
@@ -469,8 +468,9 @@ public class Discord {
      - Parameters:
         - id: The guild ID.
         - withCounts: If `true`, the returned guild will have properties ``Guild/approximateMemberCount`` and ``Guild/approximatePresenceCount`` available.
-     - Returns: The requested guild.
+     - Throws: `HTTPError.notFound`- The guild could not be found.
      - Note: Using this method, the returned guild will not contain ``Guild/channels``, ``Guild/members``, ``Guild/threads``, ``Guild/voiceStates`` amongst other data that might be missing.
+     - Returns: The requested guild.
      */
     public func requestGuild(_ id: Snowflake, withCounts: Bool = true) async throws -> Guild {
         return try await http.getGuild(guildId: id, withCounts: withCounts)
@@ -478,6 +478,7 @@ public class Discord {
     
     /// Request a discord invite.
     /// - Parameter code: The invite code
+    /// - Throws: `HTTPError.notFound` - The invite could not be found.
     /// - Returns: The partial invite information.
     public func requestInvite(code: String) async throws -> PartialInvite {
         return try await http.getInvite(code: code)
@@ -491,6 +492,7 @@ public class Discord {
     
     /// Request a sticker.
     /// - Parameter id: ID of the sticker.
+    /// - Throws: `HTTPError.notFound`- The sticker could not be found.
     /// - Returns: The sticker matching the given ID.
     public func requestSticker(_ id: Snowflake) async throws -> Sticker {
         return try await http.getSticker(stickerId: id)
@@ -498,6 +500,7 @@ public class Discord {
     
     /// Request a user. Unlike ``getUser(_:)`` this is an API call.
     /// - Parameter id: ID of the user.
+    /// - Throws: `HTTPError.notFound` - The user could not be found.
     /// - Returns: The user matching the given ID.
     public func requestUser(_ id: Snowflake) async throws -> User {
         return try await http.getUser(userId: id)
@@ -505,6 +508,7 @@ public class Discord {
     
     /// Request a guild template based on the provided code. The code is the last parameter of the template URL.
     /// Template URLs look like the following: `https://discord.new/VhauskbbByvn` , where "VhauskbbByvn" is the code.
+    /// - Throws: `HTTPError.notFound` - The guild template could not be found.
     /// - Returns: The template matching the given code.
     public func requestTemplate(code: String) async throws -> Guild.Template {
         return try await http.getGuildTemplate(code: code)
@@ -512,6 +516,7 @@ public class Discord {
     
     /// Request a webhook by its ID.
     /// - Parameter id: The webhooks ID.
+    /// - Throws: `HTTPError.notFound` - The webhook could not be found.
     /// - Returns: The webhook matching the given ID.
     public func requestWebhookFrom(id: Snowflake) async throws -> Webhook {
         return try await http.getWebhook(webhookId: id)
@@ -519,6 +524,7 @@ public class Discord {
     
     /// Request a webhook by its URL. Unlike ``requestWebhookFrom(id:)``, this does not require authentification. Meaning this can be called prior to connecting to Discord via ``connect()``.
     /// - Parameter url: The webhooks URL.
+    /// - Throws: `DiscordError.generic` - The URL was not a Discord webhook URL. `HTTPError.notFound` - The webhook was not found.
     /// - Returns: The webhook matching the given URL.
     public func requestWebhookFrom(url: String) async throws -> Webhook {
         let webhookUrlRegex = #/https:\/\/discord[.]com\/api\/webhooks\/[0-9]{17,20}\/.+/#
@@ -584,22 +590,10 @@ public struct Version : CustomStringConvertible {
     public var description: String { "\(major).\(minor).\(patch) \(releaseLevel)" }
     
     var gateway: (lib: String, os: String) {
-            get {
-                var sys = String.empty
-                #if os(macOS)
-                sys = "macOS"
-                #elseif os(Linux)
-                sys = "Linux"
-                #elseif os(iOS)
-                sys = "iOS"
-                #elseif os(tvOS)
-                sys = "tvOS"
-                #elseif os(watchOS)
-                sys = "watchOS"
-                #endif
-                return ("Discord.swift v\(description)", "\(sys) \(ProcessInfo().operatingSystemVersionString)")
-            }
+        get {
+            return ("Discord.swift v\(description)", "macOS \(ProcessInfo().operatingSystemVersionString)")
         }
+    }
 }
 
 /// The current release level of the library.
