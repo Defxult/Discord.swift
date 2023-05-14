@@ -63,7 +63,6 @@ public class Discord {
     
     var pendingApplicationCommands = [PendingAppCommand]()
     var pendingModals = [String: (Interaction) async -> Void]()
-    var internalListener = InternalListener(name: String.empty)
     let messagesCacheMaxSize: Int
     var usersCache = [Snowflake: User]()
     var guildsCache = [Snowflake: Guild]()
@@ -536,46 +535,6 @@ public class Discord {
         let webhookToken = split[1].description
         
         return try await http.getWebhookWithToken(webhookId: webhookId, webhookToken: webhookToken)
-    }
-}
-
-class InternalListener : EventListener {
-    
-    override func onInteractionCreate(interaction: Interaction) async {
-        switch interaction.type {
-        case .ping:
-            break
-        case .applicationCommand, .applicationCommandAutocomplete:
-            let appData = interaction.data as! ApplicationCommandData
-            if let appCmd = interaction.bot!.pendingApplicationCommands.first(where: { $0.name == appData.name && $0.guildId == appData.guildId && $0.type == appData.type }) {
-                if interaction.type == .applicationCommand {
-                    await appCmd.onInteraction(interaction)
-                } else {
-                    // Find the options and it's suggestion that matches the currently dispatched
-                    if let dataOptions = appData.options {
-                        let autocompleteName = dataOptions.last!.name
-                        if let cmdOptions = appCmd.options {
-                            if let cmdOptionMatch = cmdOptions.first(where: { $0.name == autocompleteName }) {
-                                try! await interaction.respondWithAutocomplete(choices: cmdOptionMatch.suggestions!)
-                            }
-                        }
-                    }
-                }
-            }
-        case .messageComponent:
-            if let cachedMsg = interaction.bot!.getMessage(interaction.message!.id) {
-                // Reset the onTimeout timer. With each interaction this is reset because I don't want the
-                // components to be disabled (by default) when components are in active use
-                cachedMsg.ui?.startOnTimeoutTimer()
-                
-                await cachedMsg.ui?.onInteraction(interaction)
-            }
-        case .modalSubmit:
-            let modalSubmitData = interaction.data as! ModalSubmitData
-            if let pending = interaction.bot!.pendingModals.first(where: { $0.key == modalSubmitData.customId }) {
-                await pending.value(interaction)
-            }
-        }
     }
 }
 

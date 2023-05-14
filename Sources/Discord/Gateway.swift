@@ -319,6 +319,44 @@ class WSGateway {
         return DiscordEvent(rawValue: name)!
     }
     
+    /// Handles the process of calling the `onInteraction` closures set by the users for interactions
+    private func handleInteractions(interaction: Interaction) async {
+        switch interaction.type {
+        case .ping:
+            break
+        case .applicationCommand, .applicationCommandAutocomplete:
+            let appData = interaction.data as! ApplicationCommandData
+            if let appCmd = interaction.bot!.pendingApplicationCommands.first(where: { $0.name == appData.name && $0.guildId == appData.guildId && $0.type == appData.type }) {
+                if interaction.type == .applicationCommand {
+                    await appCmd.onInteraction(interaction)
+                } else {
+                    // Find the options and it's suggestion that matches the currently dispatched
+                    if let dataOptions = appData.options {
+                        let autocompleteName = dataOptions.last!.name
+                        if let cmdOptions = appCmd.options {
+                            if let cmdOptionMatch = cmdOptions.first(where: { $0.name == autocompleteName }) {
+                                try! await interaction.respondWithAutocomplete(choices: cmdOptionMatch.suggestions!)
+                            }
+                        }
+                    }
+                }
+            }
+        case .messageComponent:
+            if let cachedMsg = interaction.bot!.getMessage(interaction.message!.id) {
+                // Reset the onTimeout timer. With each interaction this is reset because I don't want the
+                // components to be disabled (by default) when components are in active use
+                cachedMsg.ui?.startOnTimeoutTimer()
+                
+                await cachedMsg.ui?.onInteraction(interaction)
+            }
+        case .modalSubmit:
+            let modalSubmitData = interaction.data as! ModalSubmitData
+            if let pending = interaction.bot!.pendingModals.first(where: { $0.key == modalSubmitData.customId }) {
+                await pending.value(interaction)
+            }
+        }
+    }
+    
     private func createAndUpdate(data: JSON, event: DiscordEvent) async {
         
         func getGuildIdFromJSON(_ data: JSON) -> Snowflake {
@@ -330,7 +368,6 @@ class WSGateway {
         }
         
         let dispatch = bot.listeners.forEachAsync
-        let internalDispatch = bot.internalListener
         
         switch event {
         case .ready:
@@ -703,7 +740,7 @@ class WSGateway {
         case .interactionCreate:
             let interaction = Interaction(bot: bot, interactionData: data)
             dispatch({ await $0.onInteractionCreate(interaction: interaction) })
-            Task { await internalDispatch.onInteractionCreate(interaction: interaction) }
+            Task { await handleInteractions(interaction: interaction) }
             
         case .inviteCreate:
             let inv = Invite(bot: bot, inviteData: data)
