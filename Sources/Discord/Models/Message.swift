@@ -54,7 +54,7 @@ public class Message : Object, Hashable, Updateable {
         return nil
     }
     
-    /// The author of this message.
+    /// The author of this message. If you need the `Member` object instead, see the ``member`` property.
     public let author: User
     
     /// Contents of the message.
@@ -167,6 +167,10 @@ public class Message : Object, Hashable, Updateable {
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
     // ------------------------------ API Separated -----------------------------------
+    
+    /// The author of this message but optionally returns the ``Member`` object instead. This depends on whether the member has been cached in the guild.
+    /// If the member is not cached, the proper ``Discord/intents`` were not set. You can also get the member object via ``Guild/requestMember(_:)``.
+    public var member: Member? { guild?.getMember(author.id) }
 
     /// Whether the message was sent in a DM.
     public var isDmMessage: Bool { guild == nil }
