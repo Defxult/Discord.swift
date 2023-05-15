@@ -8,7 +8,8 @@ Join the Discord server: https://discord.gg/TYDZeruQ7N
 
 ## Key Features
 - Asynchronous programming using `async` and `await`.
-- Full application command support.
+- Full application command support (slash, user, and message commands).
+- Full message components support (buttons, select menus, modals/text input)
 - Implementation of the latest Discord API updates.
 
 ## Application Commands Example
