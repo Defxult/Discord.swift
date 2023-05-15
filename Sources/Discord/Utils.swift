@@ -53,13 +53,11 @@ public func clean(_ text: String) -> String {
     })
 }
 
-
 /// Suspend execution for the provided amount of time.
 /// - Parameter milliseconds: The amount of milliseconds to suspend execution.
 public func sleep(_ milliseconds: Int) async {
     try? await Task.sleep(nanoseconds: UInt64(milliseconds * 1_000_000))
 }
-
 
 /// Convert the snowflake to the date it represents.
 /// - Parameter snowflake: The snowflake to convert.
@@ -106,7 +104,8 @@ public enum TimestampStyle : String {
     case R = "R"
 }
 
-// Global extensions
+// MARK: Global extensions
+
 extension String {
     
     /// An empty string.
@@ -143,9 +142,7 @@ extension Sequence<EventListener> {
     }
 }
 
-
-
-
+// MARK: Conversions
 
 struct Conversions {
     
@@ -216,6 +213,8 @@ struct Conversions {
         }
     }
 }
+
+// MARK: Log
 
 struct Log {
     static private var enabled: Bool { ProcessInfo.processInfo.environment["D.SWIFT_INTERNAL_LOG"] != nil ? true : false }

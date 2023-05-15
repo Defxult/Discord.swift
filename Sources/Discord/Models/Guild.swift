@@ -792,72 +792,51 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.modifyGuildRolePositions(guildId: id, positions: positions, reason: reason)
     }
     
-    /**
-    Retrieve a channel from this guilds internal cache.
-     
-    - Parameter id: ID of the channel to retrieve.
-    - Returns: The channel that matches the given ID, or `nil` if not found.
-    */
+    /// Retrieve a channel from this guilds internal cache.
+    /// - Parameter id: ID of the channel to retrieve.
+    /// - Returns: The channel that matches the given ID, or `nil` if not found.
     public func getChannel(_ id: Snowflake) -> GuildChannel? {
         return channelsCache[id]
     }
     
-    /**
-     Retrieve an emoji from this guilds internal cache.
-     
-     - Parameter id: ID of the emoji.
-     - Returns: The emoji matching the provided ID, or `nil` if not found.
-     */
+    /// Retrieve an emoji from this guilds internal cache.
+    /// - Parameter id: ID of the emoji.
+    /// - Returns: The emoji matching the provided ID, or `nil` if not found.
     public func getEmoji(_ id: Snowflake) -> Emoji? {
         return emojis.first(where: { $0.id == id })
     }
     
-    /**
-    Retrieve a member from this guilds internal cache.
-     
-    - Parameter id: ID of the member to retrieve.
-    - Returns: The member that matches the given ID, or `nil` if not found.
-    */
+    /// Retrieve a member from this guilds internal cache.
+    /// - Parameter id: ID of the member to retrieve.
+    /// - Returns: The member that matches the given ID, or `nil` if not found.
     public func getMember(_ id: Snowflake) -> Member? {
         return membersCache[id]
     }
     
-    /**
-    Retrieve a role from this guilds internal cache.
-     
-    - Parameter id: ID of the role to retrieve.
-    - Returns: The role that matches the given ID, or `nil` if not found.
-    */
+    /// Retrieve a role from this guilds internal cache.
+    /// - Parameter id: ID of the role to retrieve.
+    /// - Returns: The role that matches the given ID, or `nil` if not found.
     public func getRole(_ id: Snowflake) -> Role? {
         return roles.first(where: { $0.id == id })
     }
     
-    /**
-     Retrieve a sticker from this guilds internal cache.
-      
-     - Parameter id: ID of the sticker to retrieve.
-     - Returns: The sticker that matches the given ID, or `nil` if not found.
-     */
+    /// Retrieve a sticker from this guilds internal cache.
+    /// - Parameter id: ID of the sticker to retrieve.
+    /// - Returns: The sticker that matches the given ID, or `nil` if not found.
     public func getSticker(_ id: Snowflake) -> GuildSticker? {
         return stickers.first(where: { $0.id == id })
     }
     
-    /**
-     Retrieve a scheduled event from the guilds internal cache.
-     
-     - Parameter id: ID of the scheduled event.
-     - Returns: The scheduled event that matches the given ID, or `nil` if not found.
-     */
+    /// Retrieve a scheduled event from the guilds internal cache.
+    /// - Parameter id: ID of the scheduled event.
+    /// - Returns: The scheduled event that matches the given ID, or `nil` if not found.
     public func getScheduledEvent(_ id: Snowflake) -> ScheduledEvent? {
         return scheduledEvents.first(where: { $0.id == id })
     }
     
-    /**
-     Retrieve a thread from the guilds internal cache.
-     
-     - Parameter id: ID of the thread.
-     - Returns: The thread that matches the given ID, or `nil` if not found.
-     */
+    /// Retrieve a thread from the guilds internal cache.
+    /// - Parameter id: ID of the thread.
+    /// - Returns: The thread that matches the given ID, or `nil` if not found.
     public func getThread(_ id: Snowflake) -> ThreadChannel? {
         return threads.first(where: { $0.id == id })
     }
@@ -987,12 +966,9 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getActiveGuildThreads(guildId: id)
     }
     
-    /**
-     Request a member. Compared to `getMember()`, this is an API call. For general use purposes, use `guild.getMember()` instead if you have the `Intents.guildMembers` intent enabled.
-     
-     - Parameter id: The ID of the member.
-     - Returns: The requested member.
-     */
+    /// Request a member. Compared to ``getMember(_:)``, this is an API call. For general use purposes, use ``getMember(_:)`` instead if you have the ``Intents/guildMembers`` intent enabled.
+    /// - Parameter id: The ID of the member.
+    /// - Returns: The requested member.
     public func requestMember(_ id: Snowflake) async throws -> Member {
         return try await bot!.http.getGuildMember(guildId: self.id, userId: id)
     }
@@ -1023,7 +999,7 @@ public class Guild : Object, Hashable, Updateable  {
         if !(bot!.intents.contains(.guildMembers)) { return nil }
         
         if var limit {
-            limit = (limit < 1 ? 1 : limit)
+            limit = max(1, limit)
             return Guild.AsyncMembers(guild: self, limit: limit, after: after)
         } else {
             return Guild.AsyncMembers(guild: self, limit: nil, after: after)
@@ -1162,7 +1138,7 @@ public class Guild : Object, Hashable, Updateable  {
         }
     }
     
-    /// Retrieve the guilds vanity invite. The guild needs to have `Feature.vanityUrl`.
+    /// Retrieve the guilds vanity invite. The guild needs to have feature ``Guild/Feature/vanityUrl``.
     ///  - Returns: The vanity invite. If the guild does not have one, `code`
     public func vanityInvite() async throws -> Invite {
         return try await bot!.http.getGuildVanityUrl(guildId: id)
@@ -2059,7 +2035,7 @@ extension Guild {
         }
         
         /**
-         Edit the scheduled event..
+         Edit the scheduled event.
          
          - Parameters:
             - edits: Values that should be changed.
@@ -2301,7 +2277,7 @@ extension Guild.ScheduledEvent {
         case guildOnly = 2
     }
 
-    /// Represents the values that should be edited in a `Guild.ScheduledEvent`.
+    /// Represents the values that should be edited in a ``Guild/ScheduledEvent``.
     public enum Edit {
         
         /// The new channel of the scheduled event.
@@ -2319,7 +2295,7 @@ extension Guild.ScheduledEvent {
         /// The new description of the scheduled event. Can be set to `nil` to remove the description.
         case description(String?)
         
-        /// The entity type of the scheduled event. If updating entity type to `EntityType.external`, `location` and  `endTime` must be provided.
+        /// The entity type of the scheduled event. If updating entity type to ``Guild/ScheduledEvent/EntityType-swift.enum/external``, `location` and  `endTime` must be provided.
         case entityType(EntityType, channelId: Snowflake? = nil, location: String? = nil, endTime: Date? = nil)
         
         /// The status of the scheduled event.

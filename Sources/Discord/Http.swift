@@ -1,9 +1,7 @@
 import Foundation
 
 
-/// The basis of this is pretty simple. The AF library doesn't provide a "simple" way to pass a JSON `null` (some HTTP requests expects the VALUE `null`).
-/// Within a dictionary, we could provide `null` as `[String: Any?]`, but AF's parameter is `[String: Any]`.
-/// This simply returns `NSNull()` to represent the value of `nil`, which also satisfies AF `Any` parameter and the server recognizes `NSNull()` as a JSON `null`.
+/// Some HTTP requests expects the JSON *value* to be `null`. This simply returns `NSNull()` to represent the value of `nil`.
 func nullable(_ value: Any?) -> Any { value == nil ? NSNull() : value! }
 
 let NIL = NSNull()
@@ -757,7 +755,6 @@ class HTTPClient {
         _ = try await request(.delete, route("/guilds/\(guildId)/emojis/\(emojiId)"), additionalHeaders: withReason(reason))
     }
     
-    /// ✅
     /// Get guild.
     /// https://discord.com/developers/docs/resources/guild#get-guild
     func getGuild(guildId: Snowflake, withCounts: Bool) async throws -> Guild {
@@ -1620,8 +1617,8 @@ class HTTPClient {
             message.guildId = cached.guildId
         }
         
-        // Alternatively, if the message was not found in the cache, this endpoint provides the channel_id. So grab the `guildId`
-        // based on the channel.
+        // Alternatively, if the message was not found in the cache (expired or `Discord.messagesCacheMaxSize` is zero)
+        // this endpoint provides the channel_id. So grab the `guildId` based on the channel.
         else {
             if let channel = bot.getChannel(message.channelId) as? GuildChannel {
                 message.guildId = channel.guild.id

@@ -24,7 +24,7 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 
-/// Represents a guild emoji.
+/// Represents a Discord guild emoji.
 public struct Emoji : Object, CustomStringConvertible, Hashable {
     
     /// Emoji ID.
@@ -82,7 +82,7 @@ public struct Emoji : Object, CustomStringConvertible, Hashable {
     /// The URL of the emoji.
     public let url: String
     
-    /// The `PartialEmoji` representation of the emoji.
+    /// The ``PartialEmoji`` representation of the emoji.
     public var asPartial: PartialEmoji { PartialEmoji(id: id, name: name, animated: animated) }
     
     // --------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ public struct Emoji : Object, CustomStringConvertible, Hashable {
 
 extension Emoji {
     
-    /// Represents the values that should be edited in a `Emoji`.
+    /// Represents the values that should be edited in a ``Emoji``.
     public enum Edit {
         
         /// The emoji name.
@@ -161,15 +161,15 @@ extension Emoji {
 /// Represents a partial emoji on Discord.
 public struct PartialEmoji {
     
-    /// Guild emoji ID. If created via `PartialEmoji(_:)`, this will be `nil`.
+    /// Guild emoji ID. If created via ``PartialEmoji/init(_:)``, this will be `nil`.
     public let id: Snowflake?
     
-    /// Emoji name. If created via `DiscordEvent.messageReactionAdd` or `DiscordEvent.messageReactionRemove`, this
+    /// Emoji name. If created via ``DiscordEvent/messageReactionAdd`` or ``DiscordEvent/messageReactionRemove``, this
     /// property may be `nil` when custom emoji data is not available (for example, if it was deleted from the guild).
     public let name: String?
     
-    /// Whether this emoji is animated. If created via `PartialEmoji(_:)`, this will be `nil`. This is typically available
-    /// when this was created via `DiscordEvent.messageReactionAdd`.
+    /// Whether this emoji is animated. If created via ``PartialEmoji/init(_:)``, this will be `nil`. This is typically available
+    /// when this was created via ``DiscordEvent/messageReactionAdd``.
     public private(set) var animated: Bool?
     
     /// Returns the raw representation of the partial emoji.
@@ -230,12 +230,9 @@ public struct PartialEmoji {
         return payload
     }
 
-    /**
-     Converts a string into a `PartialEmoji`.
-     
-     - Parameter emoji: A guild emoji or a standard unicode emoji.
-     - Returns: The converted string.
-    */
+    /// Converts a string into a `PartialEmoji`.
+    /// - Parameter emoji: A guild emoji or a standard unicode emoji.
+    /// - Returns: The converted string.
     public static func fromString(_ emoji: String) -> PartialEmoji {
         
         // Guild emoji

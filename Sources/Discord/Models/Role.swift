@@ -29,7 +29,7 @@ public class Role : Object, Hashable {
     public let id: Snowflake
 
     /// The guild the role belongs to.
-    public var guild: Guild { get { bot!.getGuild(guildId)! } }
+    public var guild: Guild { bot!.getGuild(guildId)! }
     
     /// Role name.
     public internal(set) var name: String
@@ -183,8 +183,8 @@ extension Role {
             isPremiumSubscriber = tagData.contains(where: { $0.key == "premium_subscriber" })
         }
     }
-
-    /// Represents the values that should be edited in a `Role`.
+    
+    /// Represents the values that should be edited in a ``Role``.
     public enum Edit {
         
         /// The role name.
