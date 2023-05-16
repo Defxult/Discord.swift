@@ -22,36 +22,46 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 */
 
+/// Represents an error typically thrown by the library itself and usually isn't the result of an API error.
 public enum DiscordError : Error {
+    
+    /// A generic error. Usually thrown when the library requires something that was not provided.
     case generic(_ message: String)
 }
 
+/// Represents an error releated to a ``File``.
 public enum FileError : Error {
+    
+    /// The file was not found.
     case notFound(_ message: String)
-    case downloadFailed(_ message: String)
 }
 
+/// Represnts an error that occured when attempting to interact with the Discord API.
 public enum HTTPError : Error {
     
-    ///
-    case badRequest(_ message: String) // 400
+    /// The request was improperly formatted or the server did not understand it (error code 400).
+    case badRequest(_ message: String)
     
-    ///
-    case unauthorized(_ message: String) // 401
+    /// The bots authorization was not valid (error code 401).
+    case unauthorized(_ message: String)
     
-    /// You don't have the proper permissions.
-    case forbidden(_ message: String) // 403
+    /// You don't have the proper permissions (error code 403).
+    case forbidden(_ message: String)
     
-    ///
-    case notFound(_ message: String) // 404
+    /// The resource for the endpoint doesn't exist (error code 404).
+    case notFound(_ message: String)
     
-    ///
-    case methodNotAllowed(_ message: String) // 405
+    /// The HTTP method used is not valid for the endpoint (error code 405).
+    case methodNotAllowed(_ message: String)
     
-    /// Something went wrong.
-    case base(_ message: String) // 5XX
+    /// There was not a gateway available to process the request. Wait a bit and retry (error code 502).
+    case gatewayUnavailable(_ message: String)
+    
+    /// Something went wrong (error code 5xx).
+    case base(_ message: String)
 }
 
+/// Represents a Discord gateway error.
 public enum GatewayError : Error {
     case unknownError(_ message: String)
     case unknownOpcode(_ message: String)
@@ -69,15 +79,15 @@ public enum GatewayError : Error {
     case disallowedIntents(_ message: String)
 }
 
-// Interaction Errors
+/// Represents an error related to message components.
 public enum UIError : Error {
     
     /// Occurs when there are too many components attached to a message.
     case invalidUI(_ message: String)
     
-    /// Occurs when a `Button` doesn't have the proper values set.
+    /// Occurs when a ``Button`` doesn't have the proper values set.
     case invalidButton(_ message: String)
     
-    /// Occurs when an interaction message
+    /// Occurs when an interaction was never responded to.
     case noResponse(_ message: String)
 }

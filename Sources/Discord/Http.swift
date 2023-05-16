@@ -1768,8 +1768,10 @@ class HTTPClient {
             Log.notification("You are being ratelimited! (retrying after: \(retryAfter)s) Via endpoint: \(method.rawValue) \(endpoint)", level: .warning)
             try await Task.sleep(for: .seconds(retryAfter))
             return try await makeRequest(method, endpoint, json: json, jsonArray: jsonArray, files: files, mpUploadType: mpUploadType, additionalHeaders: allHeaders)
+        case 502:
+            throw HTTPError.gatewayUnavailable(errorMessage)
         default:
-            throw HTTPError.base("HTTPError - Status Code \(response.statusCode)")
+            throw HTTPError.base("HTTPError - Status Code (\(response.statusCode)) - \(errorMessage)")
         }
 
         // Update/set the rate limit information
