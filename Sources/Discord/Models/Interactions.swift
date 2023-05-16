@@ -369,7 +369,7 @@ public struct ApplicationCommandOption {
         - type: Type of option.
         - name: 1-32 character name.
         - description: 1-100 character description.
-        - required: If the parameter is required. If `true`, this option must be before all other options that are not required.
+        - required: If the parameter is required. If `true`, this option must be before all other options that are not required. This is not utilized if the `type` is ``ApplicationCommandOptionType/subCommand`` or ``ApplicationCommandOptionType/subCommandGroup``.
         - choices: The choices available for the user to pick from. If you specify choices, they are the **only** valid values for a user to pick.
         - channelTypes: If the option is a channel type, the channels shown will be restricted to these types.
         - options: If the option is a subcommand or subcommand group type, these nested options will be the parameters.
@@ -401,7 +401,7 @@ public struct ApplicationCommandOption {
             self.type = type
             self.name = ApplicationCommand.verifyName(name)
             self.description = description
-            self.required = required
+            // self.required is set below
             self.choices = choices
             self.channelTypes = channelTypes
             self.options = options
@@ -413,6 +413,14 @@ public struct ApplicationCommandOption {
             self.maxLength = maxLength
             self.autocomplete = autocomplete
             self.suggestions = suggestions
+            
+            // HTTPError.badRequest("Invalid form body") if `required` is set to `true` when
+            // the `type` is `.subCommand` or `.subCommandGroup`. Required isn't utilized in subcommands
+            // and subcommand groups (as noted in the init documentation now), but just in case (and to make it less of a headache)
+            // just set `required` to `false`.
+            let subs = [ApplicationCommandOptionType.subCommand, ApplicationCommandOptionType.subCommandGroup]
+            if subs.contains(type) { self.required = false }
+            else { self.required = required }
             
             // Discord: "autocomplete may not be set to true if choices are present."
             if let _ = choices { self.autocomplete = false }
@@ -1020,7 +1028,7 @@ public struct ApplicationCommandData : InteractionData {
     /// The type of the invoked command.
     public let type: ApplicationCommandType
     
-    /// Options for the interaction data,
+    /// Options for the interaction data.
     public private(set) var options: [ApplicationCommandInteractionDataOption]?
     
     /// The ID of the guild the command is registered to.
@@ -1099,16 +1107,23 @@ public class ApplicationCommandInteractionDataOption {
 public struct Resolved {
     
     /// The IDs of the users that were selected in the application command/message component.
-    public private(set) var users: [Snowflake] = []
+    public private(set) var users = [Snowflake]()
     
     /// The IDs of the roles that were selected in the application command/message component.
-    public private(set) var roles: [Snowflake] = []
+    public private(set) var roles = [Snowflake]()
     
     /// The IDs of the channels that were selected in the application command/message component.
-    public private(set) var channels: [Snowflake] = []
+    public private(set) var channels = [Snowflake]()
     
     /// The attachments that were uploaded in the application command/message component.
-    public private(set) var attachments: [Message.Attachment] = []
+    public private(set) var attachments = [Message.Attachment]()
+    
+    // ---------- API Separated ----------
+    
+    /// The choices that were selected. This is typically used if a select menu is of type ``SelectMenu/MenuType-swift.enum/text``.
+    public internal(set) var texts = [String]()
+    
+    // -----------------------------------
     
     init(resolvedData: JSON) {
         if !resolvedData.isEmpty {
@@ -1131,17 +1146,14 @@ public struct Resolved {
 /// Represents the values from a message component.
 public struct MessageComponentData : InteractionData {
     
-    /// The custom ID  of the component.
+    /// The custom ID of the component.
     public let customId: String
     
     /// The type of the component.
     public let componentType: ComponentType
     
     /// The values resulting from the end users choices.
-    public let results: Resolved
-    
-    /// The raw results from the end users choices. This is typically used if a select menu is of type ``SelectMenu/MenuType-swift.enum/text``.
-    public private(set) var rawResults: [String] = []
+    public private(set) var results: Resolved
     
     init(_ messageComponentData: JSON) {
         customId = messageComponentData["custom_id"] as! String
@@ -1150,7 +1162,7 @@ public struct MessageComponentData : InteractionData {
         
         // Easier access for `.text` types
         if let rawValue = messageComponentData["values"] as? [String] {
-            rawResults.append(contentsOf: rawValue.map({ $0 }))
+            results.texts.append(contentsOf: rawValue.map({ $0 }))
         }
     }
 }
