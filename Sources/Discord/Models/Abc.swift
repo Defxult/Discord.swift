@@ -138,8 +138,24 @@ extension Messageable {
         return message
     }
     
-    /// Trigger the typing indicator in the channel. Each trigger lasts 10 seconds unless a message is sent sooner.
-    public func triggerTyping() async throws {
-        try await bot!.http.triggerTypingIndicator(channelId: id)
+    /// Trigger the typing indicator in the channel. Each trigger lasts 10 seconds unless a message is sent sooner. If you need more than 10 seconds, use the `while` parameter.
+    /// - Parameter while: Code block to execute. This will continuously display the typing indicator until a message is sent.
+    public func triggerTyping(while: (() async -> Void)? = nil) async throws {
+        if let closure = `while` {
+            let task = Task {
+                while true {
+                    try await bot!.http.triggerTypingIndicator(channelId: id)
+                    
+                    // The delay isn't 10s because once it hits the 10s mark, the "is typing"
+                    // disappears and reappears. To avoid that just trigger the typing indicator
+                    // just a little bit sooner so that it's continuous.
+                    await sleep(9500)
+                }
+            }
+            await closure()
+            task.cancel()
+        } else {
+            try await bot!.http.triggerTypingIndicator(channelId: id)
+        }
     }
 }
