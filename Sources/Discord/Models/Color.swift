@@ -121,12 +121,11 @@ public struct Color {
         value = Color.verifyValue(convertedRGB)
     }
     
-    /// If the HTTP POST request color value is < 0 or > `Color.maximumColorValue`, an HTTP bad request error occurs (invalid form body).
-    /// This function simply verifies/corrects the value so that doesn't occur
+    // If the HTTP POST request color value is < 0 or > `.maximumColorValue`
+    // an HTTP bad request error occurs (invalid form body). This function simply
+    // verifies/corrects the value so that doesn't occur.
     private static func verifyValue(_ value: Int) -> Int {
-        if value < 0 { return 0 }
-        else if value > Color.maximumColorValue { return Color.maximumColorValue }
-        else { return value }
+        value < 0 ? 0 : min(value, maximumColorValue)
     }
 
     static func getPayloadColor(value: Int?) -> Color? {
