@@ -184,6 +184,7 @@ public class Embed {
         removeThumbnail()
         removeDescription()
         removeAllFields()
+        removeTimestamp()
         return self
     }
 
