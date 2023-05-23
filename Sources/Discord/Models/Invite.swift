@@ -37,7 +37,7 @@ public class PartialInvite {
     public private(set) var channel: PartialInviteChannel?
     
     /// The user who created the invite.
-    public let inviter: User?
+    public private(set) var inviter: User?
 
     /// The type of target for a voice channel invite.
     public private(set) var targetType: Invite.Target?
@@ -72,8 +72,9 @@ public class PartialInvite {
             channel = PartialInviteChannel(partialInviteChannelData: partialChannelObj)
         }
         
-        let inviterObj = partialInviteData["inviter"] as! JSON
-        inviter = User(userData: inviterObj)
+        if let inviterObj = partialInviteData["inviter"] as? JSON {
+            inviter = User(userData: inviterObj)
+        }
 
         if let targetTypeValue = partialInviteData["target_type"] as? Int {
             targetType = Invite.Target(rawValue: targetTypeValue)
