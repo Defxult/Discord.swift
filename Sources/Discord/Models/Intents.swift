@@ -224,7 +224,13 @@ public enum Intents : Int, CaseIterable {
     case autoModerationExecution = 2097152
     
     /// Enables all intents.
-    public static var all: Set<Intents> { Set<Intents>().union(Intents.allCases) }
+    public static let all: Set<Intents> = Set<Intents>().union(Intents.allCases)
+    
+    /// All intents enabled except ``dmTyping``, & ``guildMessageTyping``.
+    public static let `default`: Set<Intents> = Intents.all(except: [.dmTyping, .guildMessageTyping])
+    
+    /// Disables all intents.
+    public static let none: Set<Intents> = []
     
     /// Enables all intents except the ones specified.
     /// - Parameter except: The intents to exclude.
@@ -232,12 +238,6 @@ public enum Intents : Int, CaseIterable {
     public static func all(except: Set<Intents>) -> Set<Intents> {
         return Set<Intents>(Intents.allCases).filter({ !except.contains($0) })
     }
-
-    /// All intents enabled except ``dmTyping``, & ``guildMessageTyping``.
-    public static var `default`: Set<Intents> { Intents.all(except: [.dmTyping, .guildMessageTyping]) }
-    
-    /// Disables all intents.
-    public static var none: Set<Intents> { [] }
 
     static func convert(_ intents: Set<Intents>) -> Int {
         var value = 0
