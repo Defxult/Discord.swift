@@ -134,6 +134,9 @@ public class Guild : Object, Hashable, Updateable  {
     
     /// Whether the guild has the boost progress bar enabled.
     public internal(set) var premiumProgressBarEnabled: Bool
+    
+    /// The ID of the channel where admins and moderators of Community guilds receive safety alerts from Discord.
+    public internal(set) var safetyAlertsChannelId: Snowflake?
 
     // ------------- The below properties are set via the extra fields in the GUILD_CREATE gateway event ------------------
     
@@ -286,6 +289,7 @@ public class Guild : Object, Hashable, Updateable  {
         }
 
         premiumProgressBarEnabled = guildData["premium_progress_bar_enabled"] as! Bool
+        safetyAlertsChannelId = Conversions.snowflakeToOptionalUInt(guildData["safety_alerts_channel_id"])
 
         // ------------------------ Gateway ------------------------
         
@@ -420,7 +424,7 @@ public class Guild : Object, Hashable, Updateable  {
         - name: The rule name.
         - eventType: The event type.
         - triggerType: The trigger type.
-        - triggerData: Additional information needed based on the `triggerType`. This can only be `nil` when the `triggerType` is `TriggerType.spam`.
+        - metadata: Additional information needed based on the `triggerType`. This can only be `nil` when the `triggerType` is `TriggerType.spam`.
         - actions: The actions which will execute when the rule is triggered.
         - enabled: Whether the rule is enabled.
         - exemptRoles: The roles that should not be affected by the rule (maximum of 20).
@@ -428,11 +432,12 @@ public class Guild : Object, Hashable, Updateable  {
         - reason: The reason for creating the rule. This shows up in the guilds audit logs.
      - Returns: The newly created auto-moderation rule.
      */
+    @discardableResult
     public func createAutoModerationRule(
         name: String,
         eventType: AutoModerationRule.EventType,
         triggerType: AutoModerationRule.TriggerType,
-        triggerData: AutoModerationRule.TriggerData?, // Only when it's `TriggerType.spam`, this can be `nil`
+        metadata: AutoModerationRule.Metadata?, // Only when it's `TriggerType.spam`, this can be `nil`
         actions: [AutoModerationRule.Action],
         enabled: Bool = false,
         exemptRoles: [Role]? = nil,
@@ -447,7 +452,7 @@ public class Guild : Object, Hashable, Updateable  {
             "enabled": enabled
         ]
         
-        if let triggerData { payload["trigger_metadata"] = triggerData.convert() }
+        if let metadata { payload["trigger_metadata"] = metadata.convert() }
         if let exemptRoles { payload["exempt_roles"] = Role.toSnowflakes(exemptRoles) }
         if let exemptChannels { payload["exempt_channels"] = exemptChannels.map({ $0.id }) }
         
@@ -1916,6 +1921,9 @@ extension Guild {
         
         /// Guild can be previewed before joining via Membership Screening or the directory.
         case previewEnabled = "PREVIEW_ENABLED"
+        
+        /// Guild has disabled alerts for join raids in the configured safety alerts channel.
+        case raidAlertsDisabled = "RAID_ALERTS_DISABLED"
         
         /// Guild has access to create private threads.
         case privateThreads = "PRIVATE_THREADS"

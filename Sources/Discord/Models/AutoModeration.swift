@@ -43,15 +43,8 @@ public struct AutoModerationRule : Object {
     /// The rule trigger type.
     public let triggerType: TriggerType
     
-    // ---------- This information belongs under `trigger_metadata` ----------
-    
-    /// Substrings which will be searched for in content.
-    public private(set) var keywordFilter: Triggers?
-
-    /// The internally pre-defined wordsets which will be searched for in content.
-    public private(set) var presets = [KeywordPresetType]()
-    
-    // -----------------------------------------------------------------------
+    /// Additional data used to determine whether a rule should be triggered.
+    public let metadata: Metadata
     
     /// The actions which will execute when the rule is triggered.
     public private(set) var actions = [AutoModerationRule.Action]()
@@ -77,18 +70,9 @@ public struct AutoModerationRule : Object {
 
         name = autoModData["name"] as! String
         creatorId = Conversions.snowflakeToUInt(autoModData["creator_id"])
-        eventType = EventType(rawValue: autoModData["event_type"] as! Int)!
-        triggerType = TriggerType(rawValue: autoModData["trigger_type"] as! Int)!
-        
-        let metadata = autoModData["trigger_metadata"] as! JSON
-        
-        if let kwrdf = metadata["keyword_filter"] as? [String] {
-            keywordFilter = .init(keywordFilter: kwrdf)
-        }
-        
-        if let pre = metadata["presets"] as? [Int] {
-            presets.append(contentsOf: KeywordPresetType.getKeywordPresetType(pre))
-        }
+        eventType = .init(rawValue: autoModData["event_type"] as! Int)!
+        triggerType = .init(rawValue: autoModData["trigger_type"] as! Int)!
+        metadata = .init(metadata: autoModData["trigger_metadata"] as! JSON)
         
         for actionObj in autoModData["actions"] as! [JSON] {
             actions.append(AutoModerationRule.Action(actionData: actionObj))
@@ -131,8 +115,8 @@ public struct AutoModerationRule : Object {
                 payload["name"] = name
             case .eventType(let eventType):
                 payload["event_type"] = eventType.rawValue
-            case .triggers(let triggerData):
-                payload["trigger_metadata"] = triggerData.convert()
+            case .metadata(let metdata):
+                payload["trigger_metadata"] = metdata.convert()
             case .actions(let actions):
                 payload["actions"] = actions.map({ $0.convert() })
             case .enabled(let enabled):
@@ -160,7 +144,7 @@ extension AutoModerationRule {
         case eventType(EventType)
         
         /// What triggers the rule.
-        case triggers(TriggerData)
+        case metadata(Metadata)
         
         /// The actions which will execute when the rule is triggered.
         case actions([AutoModerationRule.Action])
@@ -268,54 +252,82 @@ extension AutoModerationRule {
         case mentionSpam
     }
     
-    /// Represents the additional data used to determine whether a `AutoModerationRule` should be triggered. Different fields are relevant based on the value of auto-moderation trigger type.
-    public struct TriggerData {
+    /// Represents the additional data used to determine whether a ``AutoModerationRule`` should be triggered. Different fields are relevant based on the value of auto-moderation trigger type.
+    public struct Metadata {
         
-        /// Substrings which will be searched for in content (maximum of 1000). Only valid for `TriggerType.keyword`.
-        /// - Note: Each keyword must be 30 characters or less.
+        /// Substrings which will be searched for in content (maximum of 1000). Only relevant for `TriggerType.keyword`. Each keyword must be 30 characters or less.
         public var keywordFilter: Triggers?
         
-        /// Regular expression patterns which will be matched against content (maximum of 10). Only valid for `TriggerType.keyword`.
-        /// - Note: Each regex pattern must be 260 characters or less.
-        public var regexPatterns: [String]
+        /// Regular expression patterns which will be matched against content (maximum of 10). Only relevant for `TriggerType.keyword`. Each regex pattern must be 260 characters or less.
+        public var regexPatterns: [String]?
         
-        /// The wordsets defined by discord which will be searched for in content. Only valid for `TriggerType.keywordPreset`.
-        public var presets: Set<KeywordPresetType>
+        /// The wordsets defined by discord which will be searched for in content. Only relevant for `TriggerType.keywordPreset`.
+        public var presets: Set<KeywordPresetType>?
         
-        /// Substrings which should **not** trigger the rule. Maximum of 100 for `TriggerType.keyword` or 1000 for `TriggerType.keywordPreset`.
-        /// - Note: Each string also has a limit of 60 characters.
+        /// Substrings which should **not** trigger the rule. Maximum of 100 for `TriggerType.keyword` or 1000 for `TriggerType.keywordPreset`. Each string also has a limit of 60 characters.
         public var allowList: Triggers?
         
-        /// Total number of unique role and user mentions allowed per message (maximum of 50). Only valid for `TriggerType.mentionSpam`.
-        public var mentionTotalLimit: Int
+        /// Total number of unique role and user mentions allowed per message (maximum of 50). Only relevant for `TriggerType.mentionSpam`.
+        public var mentionTotalLimit: Int?
         
+        /// Whether to automatically detect mention raids. Only relevant for `TriggerType.mentionSpam`.
+        public var mentionRaidProtectionEnabled: Bool?
+        
+        /**
+         The data that relates to the trigger type. This initializer is failable and will fail if all parameters are there "empty" equivalent.
+         
+         - Parameters:
+            - keywordFilter: Substrings which will be searched for in content (maximum of 1000). Only relevant for `TriggerType.keyword`.
+            - regexPatterns: Regular expression patterns which will be matched against content (maximum of 10). Only relevant for `TriggerType.keyword`. Each regex pattern must be 260 characters or less.
+            - presets: The wordsets defined by discord which will be searched for in content. Only relevant for `TriggerType.keywordPreset`.
+            - allowList: Substrings which should **not** trigger the rule. Maximum of 100 for `TriggerType.keyword` or 1000 for `TriggerType.keywordPreset`. Each string also has a limit of 60 characters.
+         */
         public init?(
             keywordFilter: Triggers? = nil,
             regexPatterns: [String] = [],
             presets: Set<KeywordPresetType> = [],
-            allowList: Triggers? = nil,
-            mentionTotalLimit: Int = 0
+            allowList: Triggers? = nil
         ) {
             guard !(
                 keywordFilter == nil &&
                 [regexPatterns.isEmpty, presets.isEmpty].allSatisfy({ $0 == true }) &&
-                allowList == nil &&
-                mentionTotalLimit == 0
+                allowList == nil
             ) else { return nil }
             self.keywordFilter = keywordFilter
             self.regexPatterns = regexPatterns
             self.presets = presets
             self.allowList = allowList
-            self.mentionTotalLimit = mentionTotalLimit
+        }
+        
+        init(metadata: JSON) {
+            if let kwdFilter = metadata["keyword_filter"] as? [String] {
+                keywordFilter = .init(keywordFilter: kwdFilter)
+            }
+            if let regex = metadata["regex_patterns"] as? [String] {
+                regexPatterns = regex
+            }
+            if let presetValues = metadata["presets"] as? [Int] {
+                presets = KeywordPresetType.getKeywordPresetType(presetValues)
+            }
+            if let alwdList = metadata["allow_list"] as? [String] {
+                allowList = .init(keywordFilter: alwdList)
+            }
+            if let mtl = metadata["mention_total_limit"] as? Int {
+                mentionTotalLimit = mtl
+            }
+            if let mrpe = metadata["mention_raid_protection_enabled"] as? Bool {
+                mentionRaidProtectionEnabled = mrpe
+            }
         }
         
         func convert() -> JSON {
             return [
                 "keyword_filter": keywordFilter == nil ? [] : keywordFilter!.words,
-                "regex_patterns": regexPatterns,
-                "presets": presets.map({ $0.rawValue }),
+                "regex_patterns": regexPatterns ?? [],
+                "presets": presets?.map({ $0.rawValue }) ?? [],
                 "allow_list": allowList?.words ?? [],
-                "mention_total_limit": mentionTotalLimit
+                "mention_total_limit": mentionTotalLimit ?? 0,
+                "mention_raid_protection_enabled": mentionRaidProtectionEnabled ?? false
             ]
         }
     }
@@ -332,10 +344,10 @@ extension AutoModerationRule {
         /// Personal insults or words that may be considered hate speech.
         case slurs
         
-        static func getKeywordPresetType(_ values: [Int]) -> [KeywordPresetType] {
-            var presets = [KeywordPresetType]()
+        static func getKeywordPresetType(_ values: [Int]) -> Set<KeywordPresetType> {
+            var presets = Set<KeywordPresetType>()
             for v in values {
-                if let pre = KeywordPresetType(rawValue: v) { presets.append(pre) }
+                if let pre = KeywordPresetType(rawValue: v) { presets.insert(pre) }
             }
             return presets
         }
