@@ -25,6 +25,19 @@ DEALINGS IN THE SOFTWARE.
 import Foundation
 
 /**
+ Get the value for a variable in your environment. This is typically used to retrieve your Discord bot token, but can be used for anything.
+ 
+ ```swift
+ let bot = Discord(token: getVariable("TOKEN")!, intents: Intents.default)
+ ```
+ - Parameter variable: The environment variable.
+ - Returns: The value associated with the variable, or `nil` if not found.
+ */
+public func getVariable(_ variable: String) -> String? {
+    return ProcessInfo.processInfo.environment[variable]
+}
+
+/**
  Escapes all markdowns and returns the raw text.
  
  - A channel mention (`#general`), will be converted to <#1234567891234567>.
