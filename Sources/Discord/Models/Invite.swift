@@ -200,7 +200,7 @@ public class Invite : PartialInvite {
     /// When this invite was created.
     public let createdAt: Date
     
-    
+    /// The scheduled event related to the invite.
     public private(set) var guildScheduledEvent: Guild.ScheduledEvent?
 
     /// Your bot instance.
