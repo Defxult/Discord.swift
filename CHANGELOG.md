@@ -4,6 +4,7 @@ Pending release
 #### Added
 - Function `getVariable(_:)`.
 - Property `Guild.safetyAlertsChannelId`.
+- Property `Discord.emojis`.
 - Case `Guild.Feature.raidAlertsDisabled`.
 
 #### Fixed

@@ -61,6 +61,17 @@ public class Discord {
     /// The global allowed mentions.
     public static var allowedMentions: AllowedMentions = .default
     
+    /// All emojis the bot has accesss to.
+    public var emojis: Set<Emoji> {
+        get {
+            var e = Set<Emoji>()
+            for guild in guilds {
+                e.formUnion(guild.emojis)
+            }
+            return e
+        }
+    }
+    
     var pendingApplicationCommands = [PendingAppCommand]()
     var pendingModals = [String: (Interaction) async -> Void]()
     let messagesCacheMaxSize: Int
@@ -420,7 +431,7 @@ public class Discord {
     }
     
     /// Retrieve a guild from the bots internal cache.
-    /// - Parameter id: The ID of the guild to retrieve..
+    /// - Parameter id: The ID of the guild to retrieve.
     /// - Returns: The guild matching the provided ID, or `nil` if not found.
     public func getGuild(_ id: Snowflake) -> Guild? {
         return guildsCache[id]
