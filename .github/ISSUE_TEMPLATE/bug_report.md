@@ -22,16 +22,6 @@ The entire error message:
 [error here or NONE if no error message was displayed]
 ```
 
-**Version**
-What version of the library are you using?
-[version here]
-
-You can access the version by doing the following:
-```swift
-let bot = Discord(...)
-print(bot.version)
-```
-
 **Required Checklist**
 - [ ] I am using the most up-to-date version.
 - [ ] This issue is not a duplicate.
