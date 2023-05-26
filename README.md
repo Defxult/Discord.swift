@@ -1,6 +1,12 @@
-# Discord.swift
-[![Discord](https://img.shields.io/discord/1068105613323804733?label=discord&style=for-the-badge&logo=discord)](https://discord.gg/TYDZeruQ7N)
-![Repo Version](https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.0.2-alpha&color=ff992b)
+<p align="center">
+    <img src="https://cdn.discordapp.com/attachments/655186216060321816/1111527796615942256/Image.png" width="230" height="230">
+    <h1 align="center">Discord.swift</h1>
+</p>
+
+<p align="center">
+    <a href="https://discord.gg/TYDZeruQ7N"><img src="https://img.shields.io/discord/1068105613323804733?label=discord&style=for-the-badge&logo=discord"></a>
+    <img src="https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.0.2-alpha&color=ff992b">
+</p>
 
 A Discord API wrapper written in Swift, kept up-to-date with the latest features. Simple, elegant, and easy to use. Have fun creating your own bot! 🤖 Whether it's for moderation, only for you and your friends, or something entirely unique!
 
