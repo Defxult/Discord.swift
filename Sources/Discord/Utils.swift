@@ -126,7 +126,22 @@ extension String {
 }
 
 extension Array {
-    func chunked(into size: Int) -> [[Element]] {
+    
+    /**
+     Retrieve an arrays elements into n sized groups.
+     
+     ```swift
+     let numbers = [1, 2, 3, 4, 5, 6]
+     for chunk in numbers.chunked(into: 2) {
+         print(chunk)
+     
+         // 1st iteration - Prints [1, 2]
+         // 2nd iteration - Prints [3, 4]
+         // 3rd iteration - Prints [5, 6]
+     }
+     ```
+     */
+    public func chunked(into size: Int) -> [[Element]] {
         return stride(from: 0, to: count, by: size).map {
             Array(self[$0 ..< Swift.min($0 + size, count)])
         }

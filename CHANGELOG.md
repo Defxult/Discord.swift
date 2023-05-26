@@ -3,6 +3,7 @@ Pending release
 
 #### Added
 - Function `getVariable(_:)`.
+- Method `Array.chunked(into:)`
 - Property `Guild.safetyAlertsChannelId`.
 - Property `Discord.emojis`.
 - Case `Guild.Feature.raidAlertsDisabled`.
