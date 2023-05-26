@@ -35,3 +35,4 @@ print(bot.version)
 **Required Checklist**
 - [ ] I am using the most up-to-date version.
 - [ ] This issue is not a duplicate.
+- [ ] I have the necessary intents enabled.
