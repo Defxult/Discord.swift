@@ -3,6 +3,7 @@ Pending release
 
 #### Added
 - Function `getVariable(_:)`.
+- Function `clean(_:)` now escapes bullet points and headers.
 - Method `Array.chunked(into:)`
 - Property `Guild.safetyAlertsChannelId`.
 - Property `Discord.emojis`.
@@ -17,7 +18,7 @@ Pending release
   - Renamed `AutoModerationRule.TriggerData` to `Metadata`.
   - Renamed `AutoModerationRule.Edit.triggers` to `metadata`.
   - Added `AutoModerationRule.metadata`. This now houses data such as `keywordFilter`, `presets`, etc.
-  - Added `AutoModerationRule.Metadata.mentionRaidProtectionEnabled `.
+  - Added `AutoModerationRule.Metadata.mentionRaidProtectionEnabled`.
   - Added `AutoModerationRule.Metadata` documentation.
   - Removed `AutoModerationRule.keywordFilter`.
   - Removed `AutoModerationRule.presets`.

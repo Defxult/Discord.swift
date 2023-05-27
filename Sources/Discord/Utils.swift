@@ -48,6 +48,8 @@ public func getVariable(_ variable: String) -> String? {
  - Returns: The cleaned text.
 */
 public func clean(_ text: String) -> String {
+    // - bullet points
+    // # headers
     // * bold|italics
     // ~ strikethrough
     // > quote, (user|role|channel) mentions
@@ -56,7 +58,7 @@ public func clean(_ text: String) -> String {
     // _ underline
     // : guild emoji, url
     // @ everyone|here mentions
-    text.replacing(#/[@*~>`|_:]/#, with: { match -> String in
+    text.replacing(#/[@*~>`|_:\-\#]/#, with: { match -> String in
         if match.description == "@" {
             let zeroWidthSpace = "\u{200b}"
             return "@\(zeroWidthSpace)"
