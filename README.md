@@ -10,7 +10,7 @@
 
 A Discord API wrapper written in Swift, kept up-to-date with the latest features. Simple, elegant, and easy to use. Have fun creating your own bot! 🤖 Whether it's for moderation, only for you and your friends, or something entirely unique!
 
-Enjoying the library? Don't forget to leave a ⭐️ 😄. If you need any help or have any questions, join the Discord server by clicking the icon above.
+Enjoying the library? Don't forget to leave a ⭐️ 😄. If you need any help or have any questions, join the [Discord server](https://discord.gg/TYDZeruQ7N).
 
 ## Key Features
 - Asynchronous functionality using `async` and `await`.
