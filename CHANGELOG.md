@@ -2,18 +2,20 @@
 Pending release
 
 #### Added
-- Function `getVariable(_:)`.
-- Function `clean(_:)` now escapes bullet points and headers.
-- Method `Array.chunked(into:)`
+- Function `getVariable()`.
+- Function `oauth2Url()`.
+- Method `Array.chunked()`.
 - Property `Guild.safetyAlertsChannelId`.
 - Property `Discord.emojis`.
 - Case `Guild.Feature.raidAlertsDisabled`.
+- Enum `OAuth2Scopes` (see updated).
 
 #### Fixed
 - `Embed.clear()` not removing the timestamp.
 - `PartialInvite.inviter` error when missing inviter.
 
 #### Updated
+- Function `clean()` now escapes bullet points and headers.
 - `AutoModerationRule`
   - Renamed `AutoModerationRule.TriggerData` to `Metadata`.
   - Renamed `AutoModerationRule.Edit.triggers` to `metadata`.
@@ -24,6 +26,10 @@ Pending release
   - Removed `AutoModerationRule.presets`.
   - Removed parameter `mentionTotalLimit` from `AutoModerationRule.Metadata`.
 - Parameter `triggerData` renamed to `metadata` in method `Guild.createAutoModerationRule()`.
+- With the addition of `OAuth2Scopes`, the following has been updated:
+  - Property `Application.InstallParams.scopes` is now of type `Set<OAuth2Scopes>` (was `Array<String>`).
+  - Property `Guild.Integration.scopes` is now of type `Set<OAuth2Scopes>` (was `Array<String>`).
+
 
 ## 0.0.1-alpha
 Released on May 17, 2023.

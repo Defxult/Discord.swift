@@ -1405,7 +1405,7 @@ extension Guild {
         public let application: Integration.Application?
             
         /// The scopes the application has been authorized for.
-        public let scopes: [String]?
+        public private(set) var scopes: Set<OAuth2Scopes>?
         
         /// Your bot instance.
         public private(set) weak var bot: Discord?
@@ -1440,7 +1440,9 @@ extension Guild {
             if let appObj = integrationData["application"] as? JSON { application = Application(appData: appObj) }
             else { application = nil }
             
-            scopes = integrationData["scopes"] as? [String]
+            if let scopes = integrationData["scopes"] as? [String] {
+                self.scopes = OAuth2Scopes.getScopes(scopes)
+            }
         }
         
         /// Deletes the integration as well as any associated webhooks. This also kicks the associated bot if there is one.

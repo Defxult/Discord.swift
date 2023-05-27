@@ -255,14 +255,113 @@ extension Application {
     public struct InstallParams {
 
         /// The OAuth2 scopes to add the application to the server with.
-        public let scopes: [String]
+        public let scopes: Set<OAuth2Scopes>
 
         /// The permissions to request for the bot role.
         public let permissions: Permissions
 
         init(installParamsData: JSON) {
-            scopes = installParamsData["scopes"] as! [String]
+            scopes = OAuth2Scopes.getScopes(installParamsData["scopes"] as! [String])
             permissions = Permissions(permsValue: Int(installParamsData["permissions"] as! String)!)
         }
+    }
+}
+
+/// Represents the OAuth2 scopes that Discord supports. Some scopes require approval from Discord to use. Requesting them from a user
+/// without approval from Discord may cause errors or undocumented behavior in the OAuth2 flow.
+public enum OAuth2Scopes : String, CaseIterable {
+    
+    /// Allows your app to fetch data from a user's "Now Playing/Recently Played" list — not currently available for apps
+    case activitiesRead = "activities.read"
+    
+    /// Allows your app to update a user's activity - requires Discord approval (NOT REQUIRED FOR GAMESDK ACTIVITY MANAGER)
+    case activitiesWrite = "activities.write"
+    
+    /// Allows your app to read build data for a user's applications.
+    case applicationsBuildsRead = "applications.builds.read"
+    
+    /// Allows your app to upload/update builds for a user's applications - requires Discord approval.
+    case applicationsBuildsUpload = "applications.builds.upload"
+    
+    /// Allows your app to use commands in a guild.
+    case applicationsCommands = "applications.commands"
+    
+    /// Allows your app to update its commands using a Bearer token - client credentials grant only.
+    case applicationsCommandsUpdate = "applications.commands.update"
+    
+    /// Allows your app to update permissions for its commands in a guild a user has permissions to.
+    case applicationsCommandsPermissionsUpdate = "applications.commands.permissions.update"
+    
+    /// Allows your app to read entitlements for a user's applications.
+    case applicationsEntitlements = "applications.entitlements"
+    
+    /// Allows your app to read and update store data (SKUs, store listings, achievements, etc.) for a user's applications.
+    case applicationsStoreUpdate = "applications.store.update"
+    
+    /// For oauth2 bots, this puts the bot in the user's selected guild by default.
+    case bot = "bot"
+    
+    /// Allows /users/@me/connections to return linked third-party accounts.
+    case connections = "connections"
+    
+    /// Allows your app to see information about the user's DMs and group DMs - requires Discord approval.
+    case dmChannelsRead = "dm_channels.read"
+    
+    /// Enables /users/@me to return an email.
+    case email = "email"
+    
+    /// Allows your app to join users to a group dm.
+    case gdmJoin = "gdm.join"
+    
+    /// Allows /users/@me/guilds to return basic information about all of a user's guilds.
+    case guilds = "guilds"
+    
+    /// Allows /guilds/{guild.id}/members/{user.id} to be used for joining users to a guild.
+    case guildsJoin = "guilds.join"
+    
+    /// Allows /users/@me/guilds/{guild.id}/member to return a user's member information in a guild.
+    case guildsMembersRead = "guilds.members.read"
+    
+    /// Allows /users/@me without email.
+    case identify = "identify"
+    
+    /// For local RPC server API access, this allows you to read messages from all client channels (otherwise restricted to channels/guilds your app creates).
+    case messagesRead = "messages.read"
+    
+    /// Allows your app to know a user's friends and implicit relationships - requires Discord approval.
+    case relationshipRead = "relationships.read"
+    
+    /// Allows your app to update a user's connection and metadata for the app.
+    case roleConnectionsWrite = "role_connections.write"
+    
+    /// For local RPC server access, this allows you to control a user's local Discord client - requires Discord approval.
+    case rpc = "rpc"
+    
+    /// For local RPC server access, this allows you to update a user's activity - requires Discord approval.
+    case rpcActivitiesWrite = "rpc.activities.write"
+    
+    /// For local RPC server access, this allows you to receive notifications pushed out to the user - requires Discord approval.
+    case rpcNotificationsRead = "rpc.notifications.read"
+    
+    /// For local RPC server access, this allows you to read a user's voice settings and listen for voice events - requires Discord approval.
+    case rpcVoiceRead = "rpc.voice.read"
+    
+    /// For local RPC server access, this allows you to update a user's voice settings - requires Discord approval.
+    case rpcVoiceWrite = "rpc.voice.write"
+    
+    /// Allows your app to connect to voice on user's behalf and see all the voice members - requires Discord approval.
+    case voice = "voice"
+    
+    /// This generates a webhook that is returned in the oauth token response for authorization code grants.
+    case webhookIncoming = "webhook.incoming"
+    
+    static func getScopes(_ scopes: [String]) -> Set<OAuth2Scopes> {
+        var oAuth2Scopes = Set<OAuth2Scopes>()
+        for scope in scopes {
+            if let s = OAuth2Scopes(rawValue: scope) {
+                oAuth2Scopes.insert(s)
+            }
+        }
+        return oAuth2Scopes
     }
 }

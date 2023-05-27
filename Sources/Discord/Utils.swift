@@ -25,6 +25,50 @@ DEALINGS IN THE SOFTWARE.
 import Foundation
 
 /**
+ Get the OAuth2 URL for inviting the bot.
+ 
+ - Parameters:
+    - botId: The bot ID.
+    - permissions: Permissions you're requesting the bot to have.
+    - guildId: The guild to select on the authorization form.
+    - disableGuildSelect: Whether the user can change the guild shown in the dropdown.
+    - scopes: A set of scopes.
+    - redirectUri: The redirect URI.
+    - state: The unique state.
+ - Returns: The OAuth2 URL.
+ */
+public func oauth2Url(
+    botId: Snowflake,
+    permissions: Permissions = .none,
+    guildId: Snowflake? = nil,
+    disableGuildSelect: Bool = false,
+    scopes: Set<OAuth2Scopes> = [.bot, .applicationsCommands],
+    redirectUri: String? = nil,
+    state: String? = nil) -> String {
+        var url = URL(string: "https://discord.com/oauth2/authorize?client_id=\(botId)")!
+        url.append(queryItems: [
+            .init(name: "disable_guild_select", value: disableGuildSelect.description),
+            .init(name: "permissions", value: permissions.value.description),
+            .init(name: "scope", value: scopes.map({ $0.rawValue }).joined(separator: "+"))
+        ])
+        
+        if let guildId {
+            url.append(queryItems: [.init(name: "guild_id", value: guildId.description)])
+        }
+        if let redirectUri {
+            url.append(queryItems: [
+                .init(name: "response_type", value: "code"),
+                .init(name: "redirect_uri", value: redirectUri.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
+            ])
+        }
+        if let state {
+            url.append(queryItems: [.init(name: "state", value: state)])
+        }
+        
+        return url.absoluteString
+}
+
+/**
  Get the value for a variable in your environment. This is typically used to retrieve your Discord bot token, but can be used for anything.
  
  ```swift
