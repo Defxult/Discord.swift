@@ -137,12 +137,9 @@ public struct ApplicationCommand {
         isNsfw = applicationCommandData["nsfw"] as! Bool
     }
     
-    /**
-     Edit the application command.
-
-     - Parameter edits: Values that should be changed.
-     - Returns: The updated application command.
-     */
+    /// Edit the application command.
+    /// - Parameter edits: Values that should be changed.
+    /// - Returns: The updated application command.
     @discardableResult
     public func edit(_ edits: Edit...) async throws -> ApplicationCommand {
         // Don't perform an HTTP request when nothing was changed
@@ -161,7 +158,9 @@ public struct ApplicationCommand {
                     payload["name_localizations"] = NIL
                 }
             case .description(let desc):
-                if type == .slashCommand { payload["description"] = desc }
+                if type == .slashCommand {
+                    payload["description"] = desc
+                }
             case .descriptionLocalizations(let descLocals):
                 if let descLocals {
                     payload["description_localizations"] = convertFromLocalizations(descLocals)
@@ -226,7 +225,7 @@ extension ApplicationCommand {
         /// Description localizations for the command.
         case descriptionLocalizations([Locale: String]?)
         
-        /// Parameters for the command if it's type is ``ApplicationCommandType/slashCommand`` , max of 25.
+        /// Parameters for the command if it's type is ``ApplicationCommandType/slashCommand``, max of 25.
         case options([ApplicationCommandOption])
         
         /// The default member permissions.
@@ -663,7 +662,7 @@ public class Interaction {
     /// Set of permissions the app or bot has within the channel the interaction was sent from.
     public let appPermissions: Permissions? = nil
     
-    // ---- API Separated ----
+    // ----------------------- API Separated -----------------------
     
     /// Whether the interaction has been responded to.
     public private(set) var isFinished = false
@@ -671,7 +670,7 @@ public class Interaction {
     /// The message ID for the followup message.
     public private(set) var followupMessageId: Snowflake? = nil
     
-    // -----------------------
+    // -------------------------------------------------------------
     
     /// Your bot instance.
     public private(set) weak var bot: Discord?

@@ -138,6 +138,7 @@ public struct Application : Object {
 
 extension Application {
 
+    /// Represents the bots flags.
     public enum ApplicationFlag : Int, CaseIterable {
         
         /// Intent required for bots in **100 or more guilds** to receive presence update events.
@@ -146,10 +147,10 @@ extension Application {
         /// Intent required for bots in under 100 guilds to receive presence update events, found in Bot Settings.
         case gatewayPresenceLimited = 8192
         
-        /// Intent required for bots in **100 or more guilds** to receive member-related events like `DiscordEvent.guildMemberJoin`.
+        /// Intent required for bots in **100 or more guilds** to receive member-related events like ``DiscordEvent/guildMemberJoin``.
         case gatewayGuildMembers = 16384
         
-        /// Intent required for bots in under 100 guilds to receive member-related events like `DiscordEvent.guildMemberJoin`, found in Bot Settings.
+        /// Intent required for bots in under 100 guilds to receive member-related events like ``DiscordEvent/guildMemberJoin``, found in Bot Settings.
         case gatewayGuildMembersLimited = 32768
         
         /// Indicates unusual growth of an app that prevents verification.
@@ -243,7 +244,8 @@ extension Application {
             ownerUserId = Conversions.snowflakeToUInt(teamData["owner_user_id"])
         }
     }
-
+    
+    /// Represents a members state.
     public enum MembershipState : Int {
         case invited = 1
         case accepted

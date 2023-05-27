@@ -91,7 +91,6 @@ extension Messageable {
         return try await bot!.http.getChannelMessages(channelId: id, limit: limit)
     }
     
-    
     /// Request a message in the channel.
     /// - Parameter id: ID of the message.
     /// - Returns: The requested message.

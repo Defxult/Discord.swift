@@ -351,29 +351,6 @@ public class Button : Component, InternalComponent {
         
         return payload
     }
-    
-//    func verify() throws {
-//        // Global checks
-//        if label == nil && emoji == nil { throw InteractionError.invalidButton("Non-link styled buttons must have a label or emoji") }
-//
-//        // Non-link checks
-//        if style != .link {
-//            if customId == String.empty { throw InteractionError.invalidButton("Non-link styled buttons must have a custom ID") }
-//            if button.onInteraction == nil { throw InteractionError.invalidButton("Non-link styled buttons must have an onInteraction closure") }
-//
-//            // No need to throw an error here, just remove the URL ourselves
-//            if button.url != nil { button.url = nil }
-//        }
-//
-//        // Link styled checks
-//        if button.style == .link {
-//            if button.url == nil { throw InteractionError.invalidButton("Link styled buttons must have a URL") }
-//
-//            // No need to throw an error here, just remove the custom ID/closure ourselves
-//            if button.customId != String.empty { button.customId = String.empty }
-//            if button.onInteraction != nil { button.onInteraction = nil }
-//        }
-//    }
 }
 
 extension Button {

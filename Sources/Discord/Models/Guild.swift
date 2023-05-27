@@ -929,7 +929,7 @@ public class Guild : Object, Hashable, Updateable  {
     }
     
     /**
-     Request an emoji. This is an API call. For general use purposes, use `guild.getEmoji(_:)` instead.
+     Request an emoji. This is an API call. For general use purposes, use ``getEmoji(_:)`` instead.
      
      - Parameter id: The guild emoji ID.
      - Returns: The guild emoji.
@@ -951,7 +951,7 @@ public class Guild : Object, Hashable, Updateable  {
     }
     
     /**
-     Retrieve a scheduled event by it's ID. Unlike `getScheduledEvent(_:)`, this is an API call.
+     Retrieve a scheduled event by it's ID. Unlike ``getScheduledEvent(_:)``, this is an API call.
      
      - Parameter id: ID of the schduled event.
      - Returns: The scheduled event.

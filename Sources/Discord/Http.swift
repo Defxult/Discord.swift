@@ -353,6 +353,11 @@ class HTTPClient {
         return .init(appData: data)
     }
     
+    // UNUSED
+    // Returns info about the current authorization. Requires authentication with a bearer token.
+    // https://discord.com/developers/docs/topics/oauth2#get-current-authorization-information
+    // func getCurrentAuthorizationInformation() {}
+    
     /// Returns an audit log object for the guild.
     /// https://discord.com/developers/docs/resources/audit-log#get-guild-audit-log
     func getGuildAuditLog(guildId: Snowflake, queryParams: String) async throws -> AuditLog {
