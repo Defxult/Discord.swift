@@ -1,5 +1,5 @@
 ## 0.0.2-alpha
-Pending release
+Released on May 27, 2023.
 
 #### Added
 - Function `getVariable()`.
