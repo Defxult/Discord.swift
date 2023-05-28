@@ -1,4 +1,15 @@
-## 0.0.2-alpha
+## 0.0.3-alpha
+Pending release
+
+#### Added
+- Method `Discord.waitUntilReady()`.
+
+#### Fixed
+- `onReady()` not being dispatched when certain intents were missing.
+
+
+
+## [0.0.2-alpha](https://github.com/Defxult/Discord.swift/tree/v0.0.2-alpha)
 Released on May 27, 2023.
 
 #### Added
@@ -31,7 +42,8 @@ Released on May 27, 2023.
   - Property `Guild.Integration.scopes` is now of type `Set<OAuth2Scopes>` (was `Array<String>`).
 
 
-## 0.0.1-alpha
+
+## [0.0.1-alpha](https://github.com/Defxult/Discord.swift/tree/v0.0.1-alpha)
 Released on May 17, 2023.
 
 Discord.swift initial release.

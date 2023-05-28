@@ -71,7 +71,7 @@ fileprivate class State {
     }
 }
 
-fileprivate class InitialState {
+class InitialState {
     fileprivate var expectedGuilds: Int
     fileprivate var guildsCreated = 0
     fileprivate var states: [State] = []
@@ -102,6 +102,7 @@ class WSGateway {
     var ws: URLSessionWebSocketTask
     var shards: Int
     var isConnected = false
+    var initialState: InitialState? = nil
     private var heartbeatInterval = 0
     private let bot: Discord
     private var wsResume: ResumePayload?
@@ -109,7 +110,6 @@ class WSGateway {
     private let session: URLSession
     fileprivate let gatewayURLObj: URL
     fileprivate var gp: GatewayPayload?
-    fileprivate var initialState: InitialState? = nil
     
     init(bot: Discord, gatewayUrl: String, shards: Int) {
         gatewayURLObj = URL(string: gatewayUrl + apiVersion)!
@@ -372,6 +372,17 @@ class WSGateway {
         switch event {
         case .ready:
             dispatch({ await $0.onConnect(user: self.bot.user!) })
+            
+            // `onReady()` is based on the initial state. Meaning when it's finished caching everything,
+            // aka guilds, channels, users, members, etc, the event will be dispatched. But the guild itself
+            // is what houses *all* of that information. Without guilds, there isn't much to cache (with the exception of DMs).
+            // So basically, if the `.guilds` intent is missing, dispatch `onReady()` when the bot has connected
+            // to Discord because there is no caching when all of its caching capabilites are essentially
+            // disabled (missing the .guilds intent).
+            if !bot.intents.contains(.guilds) {
+                initialState?.dispatched = true
+                dispatch({ await $0.onReady() })
+            }
             
         case .resumed:
             Log.message("Gateway resumed", withTimestamp: true)

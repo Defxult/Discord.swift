@@ -547,6 +547,13 @@ public class Discord {
         
         return try await http.getWebhookWithToken(webhookId: webhookId, webhookToken: webhookToken)
     }
+    
+    /// Block further execution until the ``EventListener/onReady()`` event has been dispatched.
+    public func waitUntilReady() async {
+        while wsg?.initialState?.dispatched != true {
+            await sleep(150)
+        }
+    }
 }
 
 /// The version of the library.
