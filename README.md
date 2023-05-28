@@ -76,7 +76,7 @@ try! await bot.connect()
 ## Swift Package Manager
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Defxult/Discord.swift", branch: "main")
+    .package(url: "https://github.com/Defxult/Discord.swift", .exact("<version here>"))
 ]
 // ...
 dependencies: [
