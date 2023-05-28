@@ -1,0 +1,56 @@
+name: Bug Report
+description: Create a report to help us improve
+labels: unconfirmed bug
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thank you for taking the time to submit an issue! These improve the library and makes the overall experience much better.
+        
+        
+        If you'd like real-time assistance, consider joining our Discord at https://discord.gg/TYDZeruQ7N instead.
+  - type: input
+    attributes:
+      label: Describe the bug
+      description: A quick overall summary of your bug report.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What was the goal?
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Minimal Reproducible Code
+      description: A simplified version of the code you used when the bug occurred.
+      render: swift
+  - type: textarea
+    attributes:
+      label: Printed Error
+      description: The entire error message or "None" if no error message was displayed.
+      render: txt
+  - type: textarea
+    attributes:
+      label: Library Version
+      description: What version of the library are you using?
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Required Checklist
+      description: A checklist to ensure the issue can be resolved without unnecessary delay.
+      options:
+        - label: This issue is not a duplicate.
+          required: true
+        - label: I have the necessary intents enabled.
+          required: true
+        - label: My token is not visible.
+          required: true
+        - label: If using the dev build (SPM via the "main" branch), I am using the most up-to-date version. Leave unchecked if you're not using the dev build.
+          required: false
+  - type: textarea
+    attributes:
+      label: Additional Comments
+      description: Any additional comments can be posted here.
