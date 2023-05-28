@@ -5,7 +5,7 @@ Pending release
 - Method `Discord.waitUntilReady()`.
 
 #### Fixed
-- `onReady()` not being dispatched when certain intents were missing.
+- Event listener `onReady()` not being dispatched when certain intents were missing.
 
 
 
@@ -28,18 +28,18 @@ Released on May 27, 2023.
 #### Updated
 - Function `clean()` now escapes bullet points and headers.
 - `AutoModerationRule`
-  - Renamed `AutoModerationRule.TriggerData` to `Metadata`.
-  - Renamed `AutoModerationRule.Edit.triggers` to `metadata`.
+  - **(Breaking Change)** Renamed `AutoModerationRule.TriggerData` to `Metadata`.
+  - **(Breaking Change)** Renamed `AutoModerationRule.Edit.triggers` to `metadata`.
   - Added `AutoModerationRule.metadata`. This now houses data such as `keywordFilter`, `presets`, etc.
   - Added `AutoModerationRule.Metadata.mentionRaidProtectionEnabled`.
   - Added `AutoModerationRule.Metadata` documentation.
-  - Removed `AutoModerationRule.keywordFilter`.
-  - Removed `AutoModerationRule.presets`.
-  - Removed parameter `mentionTotalLimit` from `AutoModerationRule.Metadata`.
-- Parameter `triggerData` renamed to `metadata` in method `Guild.createAutoModerationRule()`.
+  - **(Breaking Change)** Removed `AutoModerationRule.keywordFilter`.
+  - **(Breaking Change)** Removed `AutoModerationRule.presets`.
+  - **(Breaking Change)** Removed parameter `mentionTotalLimit` from `AutoModerationRule.Metadata`.
+- **(Breaking Change)** Parameter `triggerData` renamed to `metadata` in method `Guild.createAutoModerationRule()`.
 - With the addition of `OAuth2Scopes`, the following has been updated:
-  - Property `Application.InstallParams.scopes` is now of type `Set<OAuth2Scopes>` (was `Array<String>`).
-  - Property `Guild.Integration.scopes` is now of type `Set<OAuth2Scopes>` (was `Array<String>`).
+  - **(Breaking Change)** Property `Application.InstallParams.scopes` is now of type `Set<OAuth2Scopes>` (was `Array<String>`).
+  - **(Breaking Change)** Property `Guild.Integration.scopes` is now of type `Set<OAuth2Scopes>` (was `Array<String>`).
 
 
 
