@@ -26,11 +26,15 @@ body:
       label: Minimal Reproducible Code
       description: A simplified version of the code you used when the bug occurred.
       render: swift
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Printed Error
       description: The entire error message or "None" if no error message was displayed.
       render: txt
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Library Version
