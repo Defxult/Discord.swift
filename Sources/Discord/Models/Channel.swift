@@ -92,7 +92,7 @@ public protocol Channel : Object {
 extension Channel {
     
     /// Whether the channel conforms to protocol ``Messageable``.
-    /// - Note: This simply verifies if the channel can have messages sent to it. It does not veirfy if your bot has the proper permissions to send a message to that channel.
+    /// - Note: This simply verifies if the channel can have messages sent to it. It does not verify if your bot has the proper permissions to send a message to that channel.
     public var isMessageable: Bool {
         get {
             if let _ = self as? Messageable { return true }
@@ -100,13 +100,10 @@ extension Channel {
         }
     }
     
-    /**
-     Deletes the channel.
-     
-     - Parameter reason: The reason for deleting the channel.
-     - Requires: Permission ``Permission/manageChannels`` for the guild or ``Permission/manageThreads`` if the channel is a thread.
-     - Throws: `HTTPError.forbidden`: You don't have the permissions to delete the channel.  `HTTPError.notFound`, the message could not be found.
-     */
+    /// Deletes the channel.
+    /// - Parameter reason: The reason for deleting the channel.
+    /// - Requires: Permission ``Permission/manageChannels`` for the guild or ``Permission/manageThreads`` if the channel is a thread.
+    /// - Throws: `HTTPError.forbidden`: You don't have the permissions to delete the channel.  `HTTPError.notFound`, the message could not be found.
     public func delete(reason: String? = nil) async throws {
         try await bot!.http.deleteChannel(channelId: id, reason: reason)
     }
@@ -963,7 +960,7 @@ extension ForumChannel {
         /// Display posts as a list.
         case listView
         
-        /// Display posts as a collection of tiles
+        /// Display posts as a collection of tiles.
         case galleryView
     }
     
@@ -973,7 +970,7 @@ extension ForumChannel {
         /// Sort forum posts by activity.
         case latestActivity
         
-        /// Sort forum posts by creation time (from most recent to oldest)
+        /// Sort forum posts by creation time (from most recent to oldest).
         case creationDate
     }
     
