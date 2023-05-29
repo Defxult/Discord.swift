@@ -89,7 +89,7 @@ public class Discord {
         - intents: Gateway events the bot is subscribed to. Additional intents may need to be turned on via the Discord [developer portal](https://discord.com/developers/applications). *Applications > Bot > Privileged Gateway Intents*
         - maxMessagesCache: The maximum amount of messages that should be cached.
         - sharding: Whether automatic sharding is enabled. If your bot is in 2500 or more guilds, this **must** be enabled.
-     - Attention: When setting intents, it is highly recommended to at least have the ``Intents/guilds`` intent enabled in order for your bot to function properly.
+     - Important: When setting intents, it is highly recommended to at least have the ``Intents/guilds`` intent enabled in order for your bot to function properly.
      */
     public init(token: String, intents: Set<Intents>, maxMessagesCache: Int = 1500, sharding: Bool = false) {
         self.token = token
