@@ -36,7 +36,7 @@ body:
         The version should be displayed as one of the following:
         1. The exact version (0.0.15-alpha)
         2. The commit hash (af3c2d6)
-        3. The main branch (simply put "main branch"). This also means you're using the most up-to-date version of *main* at the time of this issue.
+        3. The main branch (simply put "main branch"). This implies you're using the most up-to-date version of *main* at the time of this issue.
     validations:
       required: true
   - type: checkboxes
