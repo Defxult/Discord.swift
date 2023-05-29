@@ -6,6 +6,7 @@ Pending release
 
 #### Fixed
 - Event listener `onReady()` not being dispatched when certain intents were missing.
+- The possibility that `VoiceChannel.State` could not be fully updated.
 
 
 

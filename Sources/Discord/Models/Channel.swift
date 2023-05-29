@@ -1297,7 +1297,7 @@ extension VoiceChannel {
                         if let channel {
                             if let idx = channel.guild.voiceStates.firstIndex(where: { $0.sessionId == sessionId }) {
                                 channel.guild.voiceStates.remove(at: idx)
-                                return
+                                continue
                             }
                         }
                     }
