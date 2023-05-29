@@ -9,22 +9,16 @@ body:
         
         
         If you'd like real-time assistance, consider joining our Discord at https://discord.gg/TYDZeruQ7N instead.
-  - type: input
-    attributes:
-      label: Describe the bug
-      description: A quick overall summary of your bug report.
-    validations:
-      required: true
   - type: textarea
     attributes:
-      label: What was the goal?
-      description: What did you expect to happen?
+      label: Describe the bug
+      description: A quick but concise description of the bug.
     validations:
       required: true
   - type: textarea
     attributes:
       label: Minimal Reproducible Code
-      description: A simplified version of the code you used when the bug occurred.
+      description: A simplified but complete version of the code you used when the bug occurred. This is automatically converted into Swift code, so there's no need for backticks.
       render: swift
     validations:
       required: true
@@ -35,10 +29,14 @@ body:
       render: txt
     validations:
       required: true
-  - type: textarea
+  - type: input
     attributes:
       label: Library Version
-      description: What version of the library are you using?
+      description: | 
+        The version should be displayed as one of the following:
+        1. The exact version (0.0.15-alpha)
+        2. The commit hash (af3c2d6)
+        3. The main branch (simply put "main branch"). This also means you're using the most up-to-date version of *main* at the time of this issue.
     validations:
       required: true
   - type: checkboxes
@@ -52,8 +50,6 @@ body:
           required: true
         - label: My token is not visible.
           required: true
-        - label: If using the dev build (SPM via the "main" branch), I am using the most up-to-date version. Leave unchecked if you're not using the dev build.
-          required: false
   - type: textarea
     attributes:
       label: Additional Comments
