@@ -8,3 +8,4 @@ DerivedData/
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 .netrc
 Tests/DiscordTests/DiscordTests.swift
+.swiftpm/xcode/xcshareddata/xcschemes/Discord.xcscheme
