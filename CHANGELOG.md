@@ -1,19 +1,20 @@
 ## 0.0.3-alpha
 Pending release
 
-#### Added
+#### New Features
 - Method `Discord.waitUntilReady()`.
+- Method `File.download()`. 
 
 #### Fixed
 - Event listener `onReady()` not being dispatched when certain intents were missing.
-- The possibility that `VoiceChannel.State` could not be fully updated.
+- The possibility that `VoiceChannel.State` (`Guild.voiceStates`) wouldn't' be fully updated.
 
 
 
 ## [0.0.2-alpha](https://github.com/Defxult/Discord.swift/tree/v0.0.2-alpha)
 Released on May 27, 2023.
 
-#### Added
+#### New Features
 - Function `getVariable()`.
 - Function `oauth2Url()`.
 - Method `Array.chunked()`.
