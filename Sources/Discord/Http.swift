@@ -1004,9 +1004,10 @@ class HTTPClient {
         _ = try await request(.delete, route("/guilds/\(guildId)/members/\(userId)"), additionalHeaders: withReason(reason))
     }
     
+    /// ⚠️ Tested and works for guilds with less than 1000 bans. I'm not in a guild that has 1000+ bans, so the 1000+ functionality has not been tested.
     /// Returns a list of users banned from this guild.
     /// https://discord.com/developers/docs/resources/guild#get-guild-bans
-    func getGuildBans(guildId: Snowflake, limit: Int, before: Snowflake?, after: Snowflake?) async throws -> [Guild.Ban] {
+    func getGuildBans(guildId: Snowflake, limit: Int, before: Snowflake?, after: Snowflake?) async throws -> [JSON] {
         var endpoint = "/guilds/\(guildId)/bans?limit=\(limit)"
         if let before {
             endpoint += "&before=\(before)"
@@ -1015,13 +1016,7 @@ class HTTPClient {
             endpoint += "&after=\(after)"
         }
         
-        let data = try await request(.get, route(endpoint))
-        var bans = [Guild.Ban]()
-        
-        for banObj in data as! [JSON] {
-            bans.append(.init(banData: banObj))
-        }
-        return bans
+        return try await request(.get, route(endpoint)) as! [JSON]
     }
     
     /// Returns a ban object for the given user.

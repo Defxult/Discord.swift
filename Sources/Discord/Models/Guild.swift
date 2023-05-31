@@ -407,14 +407,14 @@ public class Guild : Object, Hashable, Updateable  {
      Retrieve ban entries that contains each user that was banned.
      
      - Parameters:
-        - limit: Number of users to return (up to maximum 1000).
-        - before: Consider only users before given user ID.
-        - after: Consider only users before given user ID.
-     
+        - limit: Number of entries to return. If `nil`, all entries are returned. The more banned users, the longer this will take.
+        - before: Entries to retrieve before the specified date.
+        - after: Entries to retrieve after the specified date.
      - Note: If both `before` and `after` are provided, only `before` is respected.
      */
-    public func bans(limit: Int = 1000, before: Snowflake? = nil, after: Snowflake? = nil) async throws -> [Guild.Ban] {
-        return try await bot!.http.getGuildBans(guildId: id, limit: limit, before: before, after: after)
+    public func bans(limit: Int? = 1000, before: Date? = nil, after: Date? = nil) -> Guild.AsyncBans {
+        let limit = limit != nil ? max(1, limit!) : nil
+        return Guild.AsyncBans(guild: self, limit: limit, before: before, after: after)
     }
     
     /**
@@ -996,19 +996,14 @@ public class Guild : Object, Hashable, Updateable  {
      
      - Parameters:
         - limit: The amount of members to return. If `nil`, all members will be returned. The larger the guild, the longer this will take.
-        - after:Members to retrieve after the specified date.
+        - after: Members to retrieve after the specified date.
      - Returns: The requested members. Can be `nil` if the bot doesn't have the ``Intents/guildMembers`` intent enabled.
      - Requires: Privileaged intents are required and must be enabled in your bots setting via the [developer portal](https://discord.com/developers/applications).
      */
     public func requestMembers(limit: Int? = 1000, after: Date? = nil) -> Guild.AsyncMembers? {
         if !(bot!.intents.contains(.guildMembers)) { return nil }
-        
-        if var limit {
-            limit = max(1, limit)
-            return Guild.AsyncMembers(guild: self, limit: limit, after: after)
-        } else {
-            return Guild.AsyncMembers(guild: self, limit: nil, after: after)
-        }
+        let limit = limit != nil ? max(1, limit!) : nil
+        return Guild.AsyncMembers(guild: self, limit: limit, after: after)
     }
     
     /**
@@ -1298,6 +1293,69 @@ extension Guild {
             
             defaultChannelIds = Conversions.strArraySnowflakeToSnowflake(onboardingData["default_channel_ids"] as! [String])
             enabled = onboardingData["enabled"] as! Bool
+        }
+    }
+    
+    /// Represents an asynchronous iterator used for ``Guild/bans(limit:before:after:)``.
+    public struct AsyncBans : AsyncSequence, AsyncIteratorProtocol {
+        
+        public typealias Element = [Guild.Ban]
+
+        let guild: Guild
+        let indefinite = -1
+        var remaining = 0
+        var beforeSnowflakeTime: Snowflake
+        var afterSnowflakeTime: Snowflake
+        var hasMore = true
+
+        init(guild: Guild, limit: Int?, before: Date?, after: Date?) {
+            self.guild = guild
+            self.remaining = limit ?? indefinite
+            self.beforeSnowflakeTime = before?.asSnowflake ?? 0
+            self.afterSnowflakeTime = after?.asSnowflake ?? 0
+        }
+        
+        private func req(limit: Int, before: Snowflake, after: Snowflake) async throws -> [JSON] {
+            // Set the values to `nil` if 0. `http.getGuildBans()` doesnt take into account that 0
+            // means `nil` in this context. So change that ourselves here to prevent both URL queries
+            // from being added unless intentionally added via `.init().
+            let newBefore = before == 0 ? nil : before
+            let newAfter = after == 0 ? nil : after
+            
+            return try await guild.bot!.http.getGuildBans(guildId: guild.id, limit: limit, before: newBefore, after: newAfter)
+        }
+        
+        public mutating func next() async throws -> Element? {
+            if !hasMore { return nil }
+            
+            var bans = [Guild.Ban]()
+            let requestAmount = (remaining == indefinite ? 1000 : Swift.min(remaining, 1000))
+            let data = try await req(limit: requestAmount, before: beforeSnowflakeTime, after: afterSnowflakeTime)
+            
+            // If the amount of bans received is less 1000, theres no more data after it, so set
+            // this to false to prevent an extra HTTP request that is not needed.
+            if data.count < 1000 {
+                hasMore = false
+            }
+            
+            for obj in data {
+                bans.append(.init(banData: obj))
+                if remaining != indefinite {
+                    remaining -= 1
+                    if remaining == 0 {
+                        hasMore = false
+                        return bans
+                    }
+                }
+            }
+            
+            beforeSnowflakeTime = bans.last?.user.id ?? 0
+            afterSnowflakeTime = beforeSnowflakeTime
+            return bans
+        }
+        
+        public func makeAsyncIterator() -> AsyncBans {
+            self
         }
     }
     

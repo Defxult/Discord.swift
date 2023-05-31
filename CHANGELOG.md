@@ -9,6 +9,10 @@ Pending release
 - Event listener `onReady()` not being dispatched when certain intents were missing.
 - The possibility that `VoiceChannel.State` (`Guild.voiceStates`) wouldn't' be fully updated.
 
+### Updated
+- **(Breaking Change)** Method `Guild.bans()` parameters `before` and `after` are now of type `Date`.
+- **(Breaking Change)** Method `Guild.bans()` return type is now `Guild.AsyncBans`.
+
 
 
 ## [0.0.2-alpha](https://github.com/Defxult/Discord.swift/tree/v0.0.2-alpha)
@@ -40,8 +44,8 @@ Released on May 27, 2023.
   - **(Breaking Change)** Removed parameter `mentionTotalLimit` from `AutoModerationRule.Metadata`.
 - **(Breaking Change)** Parameter `triggerData` renamed to `metadata` in method `Guild.createAutoModerationRule()`.
 - With the addition of `OAuth2Scopes`, the following has been updated:
-  - **(Breaking Change)** Property `Application.InstallParams.scopes` is now of type `Set<OAuth2Scopes>` (was `Array<String>`).
-  - **(Breaking Change)** Property `Guild.Integration.scopes` is now of type `Set<OAuth2Scopes>` (was `Array<String>`).
+  - **(Breaking Change)** Property `Application.InstallParams.scopes` is now of type `Set<OAuth2Scopes>`.
+  - **(Breaking Change)** Property `Guild.Integration.scopes` is now of type `Set<OAuth2Scopes>`.
 
 
 
