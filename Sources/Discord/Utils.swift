@@ -25,6 +25,88 @@ DEALINGS IN THE SOFTWARE.
 import Foundation
 
 /**
+ Escapes all markdowns and returns the raw text.
+ 
+ Various mardowns will be escaped as follows:
+ - A channel mention (`#general`), will be converted to <#1234567891234567>.
+ - The word **bolded** will be converted to \*\*bolded\*\*
+ - An `@everyone` ping will be converted to raw @everyone and will not ping everyone.
+ - A guild emoji (😂) will be converted to <:laughing:1234567891234567> etc.
+ 
+ - Returns: The escaped text.
+*/
+public func clean(_ text: String) -> String {
+    // - bullet points
+    // # headers
+    // * bold|italics
+    // ~ strikethrough
+    // > quote, (user|role|channel) mentions
+    // ` code
+    // | spoiler
+    // _ underline
+    // : guild emoji, url
+    // @ everyone|here mentions
+    text.replacing(#/[@*~>`|_:\-\#]/#, with: { match -> String in
+        if match.description == "@" {
+            let zeroWidthSpace = "\u{200b}"
+            return "@\(zeroWidthSpace)"
+        } else {
+            return "\\\(match.description)"
+        }
+    })
+}
+
+/**
+ Format a date to a Discord timestamp that will display the given timestamp in the user's timezone and locale.
+ 
+ - Parameters:
+    - date: Date to format.
+    - style: The `date` style.
+- Returns: A Discord formatted timestamp.
+*/
+public func formatTimestamp(date: Date, style: TimestampStyle = .f) -> String {
+    return "<t:\(Int(date.timeIntervalSince1970)):\(style.rawValue)>"
+}
+
+/// Represents a Discord timestamp. Timestamps will display the given timestamp in the user's timezone and locale.
+public enum TimestampStyle : String {
+    
+    /// Short Time (16:20)
+    case t = "t"
+    
+    /// Long Time (16:20:30)
+    case T = "T"
+    
+    /// Short Date (20/04/2021)
+    case d = "d"
+    
+    /// Long Date (20 April 2021)
+    case D = "D"
+    
+    /// Short Date/Time (20 April 2021 16:20)
+    case f = "f"
+    
+    /// Long Date/Time (Tuesday, 20 April 2021 16:20)
+    case F = "F"
+    
+    /// Relative Time (2 months ago)
+    case R = "R"
+}
+
+/**
+ Get the value for a variable in your environment. This is typically used to retrieve your Discord bot token, but can be used for anything.
+ 
+ ```swift
+ let bot = Discord(token: getVariable("TOKEN")!, intents: Intents.default)
+ ```
+ - Parameter variable: The environment variable.
+ - Returns: The value associated with the variable, or `nil` if not found.
+ */
+public func getVariable(_ variable: String) -> String? {
+    return ProcessInfo.processInfo.environment[variable]
+}
+
+/**
  Get the OAuth2 URL for inviting the bot.
  
  - Parameters:
@@ -68,50 +150,6 @@ public func oauth2Url(
         return url.absoluteString
 }
 
-/**
- Get the value for a variable in your environment. This is typically used to retrieve your Discord bot token, but can be used for anything.
- 
- ```swift
- let bot = Discord(token: getVariable("TOKEN")!, intents: Intents.default)
- ```
- - Parameter variable: The environment variable.
- - Returns: The value associated with the variable, or `nil` if not found.
- */
-public func getVariable(_ variable: String) -> String? {
-    return ProcessInfo.processInfo.environment[variable]
-}
-
-/**
- Escapes all markdowns and returns the raw text.
- 
- - A channel mention (`#general`), will be converted to <#1234567891234567>.
- - The word **bolded** will be converted to \*\*bolded\*\*
- - An `@everyone` ping will be converted to raw @everyone and will not ping everyone.
- - A guild emoji (😂) will be converted to <:laughing:1234567891234567> etc.
- 
- - Returns: The cleaned text.
-*/
-public func clean(_ text: String) -> String {
-    // - bullet points
-    // # headers
-    // * bold|italics
-    // ~ strikethrough
-    // > quote, (user|role|channel) mentions
-    // ` code
-    // | spoiler
-    // _ underline
-    // : guild emoji, url
-    // @ everyone|here mentions
-    text.replacing(#/[@*~>`|_:\-\#]/#, with: { match -> String in
-        if match.description == "@" {
-            let zeroWidthSpace = "\u{200b}"
-            return "@\(zeroWidthSpace)"
-        } else {
-            return "\\\(match.description)"
-        }
-    })
-}
-
 /// Suspend execution for the provided amount of time.
 /// - Parameter milliseconds: The amount of milliseconds to suspend execution.
 public func sleep(_ milliseconds: Int) async {
@@ -124,43 +162,6 @@ public func sleep(_ milliseconds: Int) async {
 public func snowflakeDate(_ snowflake: Snowflake) -> Date {
     let timestamp = ((snowflake >> 22) + discordEpoch) / 1000
     return Date(timeIntervalSince1970: Double(timestamp))
-}
-
-/**
- Format a date to a Discord timestamp that will display the given timestamp in the user's timezone and locale.
- 
- - Parameters:
-    - date: Date to format.
-    - style: The `date` style.
-- Returns: A Discord formatted timestamp.
-*/
-public func formatTimestamp(date: Date, style: TimestampStyle = .f) -> String {
-    return "<t:\(Int(date.timeIntervalSince1970)):\(style.rawValue)>"
-}
-
-/// Represents a Discord timestamp. Timestamps will display the given timestamp in the user's timezone and locale.
-public enum TimestampStyle : String {
-    
-    /// Short Time (16:20)
-    case t = "t"
-    
-    /// Long Time (16:20:30)
-    case T = "T"
-    
-    /// Short Date (20/04/2021)
-    case d = "d"
-    
-    /// Long Date (20 April 2021)
-    case D = "D"
-    
-    /// Short Date/Time (20 April 2021 16:20)
-    case f = "f"
-    
-    /// Long Date/Time (Tuesday, 20 April 2021 16:20)
-    case F = "F"
-    
-    /// Relative Time (2 months ago)
-    case R = "R"
 }
 
 // MARK: Global extensions
