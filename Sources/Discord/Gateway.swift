@@ -1237,14 +1237,11 @@ open class EventListener {
     
     /// Whether the listener is enabled.
     public var isEnabled: Bool
-
-    /**
-     Initialize a new event listener.
-     
-     - Parameters:
-        - name: Name of the event listener. Must be unique.
-        - isEnabled: Whether the event listener is enabled.
-    */
+    
+    /// Initialize a new event listener.
+    /// - Parameters:
+    ///   - name: Name of the event listener. Must be unique.
+    ///   - isEnabled: Whether the event listener is enabled.
     public init(name: String, isEnabled: Bool = true) {
         self.name = name.lowercased()
         self.isEnabled = isEnabled
@@ -1282,22 +1279,22 @@ open class EventListener {
     
     /// Dispatched when an auto-moderation rule is created.
     /// - Parameter rule: The rule that was created.
-    /// - Note: This requires intent ``Intents/autoModerationConfiguration``.
+    /// - Requires: Intent ``Intents/autoModerationConfiguration``.
     open func onAutoModerationRuleCreate(rule: AutoModerationRule) async {}
     
     /// Dispatched when an auto-moderation rule is updated.
     /// - Parameter rule: The rule that was updated.
-    /// - Note: This requires intent ``Intents/autoModerationConfiguration``.
+    /// - Requires: Intent ``Intents/autoModerationConfiguration``.
     open func onAutoModerationRuleUpdate(rule: AutoModerationRule) async {}
     
     /// Dispatched when an auto-moderation rule is deleted.
     /// - Parameter rule: The rule that was deleted.
-    /// - Note: This requires intent ``Intents/autoModerationConfiguration``.
+    /// - Requires: Intent ``Intents/autoModerationConfiguration``.
     open func onAutoModerationRuleDelete(rule: AutoModerationRule) async {}
     
     /// Dispatched when a rule is triggered and an action is executed (e.g. when a message is blocked).
     /// - Parameter execution: The action that was executed.
-    /// - Note: This requires intent ``Intents/autoModerationExecution``.
+    /// - Requires: Intent ``Intents/autoModerationExecution``.
     open func onAutoModerationRuleExecution(execution: AutoModerationRule.ActionExecution) async {}
     
     
@@ -1306,32 +1303,25 @@ open class EventListener {
     
     /// Dispatched when a guild channel is created.
     /// - Parameter channel: The guild channel that was created.
-    /// - Note: This requires intent ``Intents/guilds``.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onChannelCreate(channel: GuildChannel) async {}
     
-    /**
-     Dispatched when a guild channel is updated.
-     
-     - Parameters:
-        - before: The guild channel before the update.
-        - update: The guild channel after the update.
-     - Note: This requires intent ``Intents/guilds``.
-     */
+    /// Dispatched when a guild channel is updated.
+    /// - Parameters:
+    ///   - before: The guild channel before the update.
+    ///   - after: The guild channel after the update.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onChannelUpdate(before: GuildChannel, after: GuildChannel) async {}
     
     /// Dispatched when a guild channel is deleted.
     /// - Parameter channel: The guild channel that was deleted.
-    /// - Note: This requires intent ``Intents/guilds``.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onChannelDelete(channel: GuildChannel) async {}
     
-    /**
-     Dispatched when a message is pinned or unpinned in a text channel. This is not dispatched when a pinned message is deleted.
-     
-     - Parameters:
-        - channel: The channel the pin/unpin took place.
-        - pinnedAt: Time at which the most recent pinned message was pinned
-     - Note: This requires intent ``Intents/guilds``.
-     */
+    /// Dispatched when a message is pinned or unpinned in a text channel. This is not dispatched when a pinned message is deleted.
+    /// - Parameters:
+    ///   - channel: The channel the pin/unpin took place.
+    ///   - pinnedAt: Time at which the most recent pinned message was pinned
     open func onChannelPinsUpdate(channel: GuildChannel, pinnedAt: Date?) async {}
     
     
@@ -1340,49 +1330,42 @@ open class EventListener {
     
     /// Dispatched when a thread is created.
     /// - Parameter thread: The thread that was created.
-    /// - Note: This requires intent ``Intents/guilds``.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onThreadCreate(thread: ThreadChannel) async {}
     
-    /**
-     Dispatched when a thread is updated.
-     
-     - Parameters:
-        - before: The thread before the update.
-        - update: The thread after the update.
-     - Note: This requires intent ``Intents/guilds``.
-     */
+    /// Dispatched when a thread is updated.
+    /// - Parameters:
+    ///   - before: The thread before the update.
+    ///   - after: The thread after the update.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onThreadUpdate(before: ThreadChannel, after: ThreadChannel) async {}
     
-    /**
-     Dispatched when a thread is updated.
-     
-     The following are details of what `payload` contains:
-     - `id`: The ID of the thread.
-     - `guildId`: Guild ID of the thread.
-     - `memberCount`: Approximate number of members in the thread, capped at 50.
-     - `data`: The raw json data.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/guildMembers``.
-     */
+    /// Dispatched when a thread is updated.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `id`: The ID of the thread.
+    /// - `guildId`: Guild ID of the thread.
+    /// - `memberCount`: Approximate number of members in the thread, capped at 50.
+    /// - `data`: The raw json data.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/guildMembers``.
     open func onRawThreadUpdate(payload: (id: Snowflake, guildId: Snowflake, memberCount: Int, data: [String: Any])) async {}
     
     /// Dispatched when a thread is deleted. This will not be dispacthed if the thread is not found in the bots internal cache. If this occurs, use ``onRawThreadDelete(payload:)`` instead.
     /// - Parameter thread: The thread that was deleted.
-    /// - Note: This requires intent ``Intents/guilds``.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onThreadDelete(thread: ThreadChannel) async {}
     
-    /**
-     Dispatched when a thread is deleted. Unlike ``onThreadDelete(thread:)``, this is dispatched regardless of if the thread was found in the bots internal cache.
-     
-     The following are details of what `payload` contains:
-     - `id`: The ID of the thread.
-     - `guildId`: Guild ID of the thread.
-     - `parentId`: The ID of the channel hosting the thread.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/guilds``.
-     */
+    /// Dispatched when a thread is deleted. Unlike ``onThreadDelete(thread:)``, this is dispatched regardless of if the thread was found in the bots internal cache.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `id`: The ID of the thread.
+    /// - `guildId`: Guild ID of the thread.
+    /// - `parentId`: The ID of the channel hosting the thread.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onRawThreadDelete(payload: (id: Snowflake, guildId: Snowflake, parentId: Snowflake)) async {}
     
     /// Dispatched when someone is added to a thread.
@@ -1403,71 +1386,59 @@ open class EventListener {
     
     /// Dispatched when a guild is created or when the bot joins a guild.
     /// - Parameter guild: The guild that was created.
-    /// - Note: This requires intent ``Intents/guilds``.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onGuildCreate(guild: Guild) async {}
     
     /// Dispatched when a guild is updated. For example, if the guild name or description was changed, etc.
     /// - Parameter guild: The guild that was updated.
-    /// - Note: This requires intent ``Intents/guilds``.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onGuildUpdate(guild: Guild) async {}
     
     /// Dispatched when the bot got banned, kicked, left the guild, or the guild owner deleted the guild.
     /// - Parameter guild: The guild that was deleted.
-    /// - Note: This requires intent ``Intents/guilds``.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onGuildDelete(guild: Guild) async {}
     
     /// Dispatched when a guild becomes available.
     /// - Parameter guild: The guild that is now available.
-    /// - Note: This requires intent ``Intents/guilds``.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onGuildAvailable(guild: Guild) async {}
     
     /// Dispatched when a guild becomes unavailable.
     /// - Parameter guild: The guild that is now unavailable.
-    /// - Note: This requires intent ``Intents/guilds``.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onGuildUnavailable(guild: Guild) async {}
     
     /// Dispatched when a guilds integration was updated.
     /// - Parameter guild: The guild the integration update took place.
     open func onGuildIntegrationUpdate(guild: Guild) async {}
     
-    /**
-     Dispatched when a user is banned from a guild.
-     
-     - Parameters:
-        - guild: The guild the user was banned from.
-        - user: User who was banned.
-     - Note: This requires intent ``Intents/guildModeration``.
-     */
+    /// Dispatched when a user is banned from a guild.
+    /// - Parameters:
+    ///   - guild: The guild the user was banned from.
+    ///   - user: User who was banned.
+    /// - Requires: Intent ``Intents/guildModeration``.
     open func onGuildBan(guild: Guild, user: User) async {}
     
-    /**
-     Dispatched when a user is unbanned from a guild.
-     
-     - Parameters:
-        - guild: The guild the user was unbanned from.
-        - user: User who was unbanned.
-     - Note: This requires intent ``Intents/guildModeration``.
-     */
+    /// Dispatched when a user is unbanned from a guild.
+    /// - Parameters:
+    ///   - guild: The guild the user was unbanned from.
+    ///   - user: User who was unbanned.
+    /// - Requires: Intent ``Intents/guildModeration``.
     open func onGuildUnban(guild: Guild, user: User) async {}
     
-    /**
-     Dispatched when guild emojis are updated.
-     
-     - Parameters:
-        - before: All emojis before the update.
-        - after: All emojis after the update.
-     - Note: This requires intent ``Intents/guildEmojisAndStickers``.
-     */
+    /// Dispatched when guild emojis are updated.
+    /// - Parameters:
+    ///   - before: All emojis before the update.
+    ///   - after: All emojis after the update.
+    /// - Requires: Intent ``Intents/guildEmojisAndStickers``.
     open func onGuildEmojisUpdate(before: Set<Emoji>, after: Set<Emoji>) async {}
     
-    /**
-     Dispatched when guild stickers are updated.
-     
-     - Parameters:
-        - before: All stickers before the update.
-        - after: All stickers after the update.
-     - Note: This requires intent ``Intents/guildEmojisAndStickers``.
-     */
+    /// Dispatched when guild stickers are updated.
+    /// - Parameters:
+    ///   - before: All stickers before the update.
+    ///   - after: All stickers after the update.
+    /// - Requires: Intent ``Intents/guildEmojisAndStickers``.
     open func onGuildStickersUpdate(before: [GuildSticker], after: [GuildSticker]) async {}
     
     
@@ -1476,35 +1447,30 @@ open class EventListener {
     
     /// Dispatched when a member joins a guild.
     /// - Parameter member: The member who joined.
-    /// - Note: This requires intent ``Intents/guildMembers``.
+    /// - Requires: Intent ``Intents/guildMembers``.
     open func onGuildMemberJoin(member: Member) async {}
     
     /// Dispatched when a member leaves a guild. This will not be dispatched if the member was
     /// not found in the bots internal cache. If this occurs, use ``onRawGuildMemberRemove(payload:)`` instead.
     /// - Parameter member: The member that left.
-    /// - Note: This requires intent ``Intents/guildMembers``.
+    /// - Requires: Intent ``Intents/guildMembers``.
     open func onGuildMemberRemove(member: Member) async {}
     
-    /**
-     Dispatched when a member leaves a guild. Unlike ``onGuildMemberRemove(member:)``, this is dispatched regardless of if the member was found in the bots internal cache.
-     
-     The following are details of what `payload` contains:
-     - `guildId`: Guild ID of the member who left.
-     - `user`: The user who left.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/guildMembers``.
-     */
+    /// Dispatched when a member leaves a guild. Unlike ``onGuildMemberRemove(member:)``, this is dispatched regardless of if the member was found in the bots internal cache.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `guildId`: Guild ID of the member who left.
+    /// - `user`: The user who left.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/guildMembers``.
     open func onRawGuildMemberRemove(payload: (guildId: Snowflake, user: User)) async {}
     
-    /**
-     Dispatched when a guild member is updated.
-     
-     - Parameters:
-        - before: The member before the update.
-        - After: The member after the update.
-     - Note: This requires intent ``Intents/guildMembers``.
-     */
+    /// Dispatched when a guild member is updated.
+    /// - Parameters:
+    ///   - before: The member before the update.
+    ///   - after: The member after the update.
+    /// - Requires: Intent ``Intents/guildMembers``.
     open func onGuildMemberUpdate(before: Member, after: Member) async {}
     
     
@@ -1513,22 +1479,19 @@ open class EventListener {
     
     /// Dispatched when a role is created.
     /// - Parameter role: The role that was created.
-    /// - Note: The requires intent ``Intents/guilds``.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onGuildRoleCreate(role: Role) async {}
     
-    /**
-     Dispatched when a role is updated.
-     
-     - Parameters:
-        - before: The role before it was updated.
-        - after: The role after it was updated.
-     - Note: The requires intent ``Intents/guilds``.
-     */
+    /// Dispatched when a role is updated.
+    /// - Parameters:
+    ///   - before: The role before it was updated.
+    ///   - after: The role after it was updated.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onGuildRoleUpdate(before: Role, after: Role) async {}
     
     /// Dispatched when a role is deleted.
     /// - Parameter role: The role that was deleted.
-    /// - Note: The requires intent ``Intents/guilds``.
+    /// - Requires: Intent ``Intents/guilds``.
     open func onGuildRoleDelete(role: Role) async {}
     
     
@@ -1537,17 +1500,14 @@ open class EventListener {
     
     /// Dispatched when a scheduled event is created.
     /// - Parameter event: The event that was created.
-    /// - Note: This requires intent ``Intents/guildScheduledEvents``.
+    /// - Requires: Intent ``Intents/guildScheduledEvents``.
     open func onGuildScheduledEventCreate(event: Guild.ScheduledEvent) async {}
     
-    /**
-     Dispatched when a scheduled event is updated.
-     
-     - Parameters:
-        - before: The scheduled event before it was updated.
-        - after: The scheduled event after it was updated.
-     - Note: This requires intent ``Intents/guildScheduledEvents``.
-     */
+    /// Dispatched when a scheduled event is updated.
+    /// - Parameters:
+    ///   - before: The scheduled event before it was updated.
+    ///   - after: The scheduled event after it was updated.
+    /// - Requires: Intent ``Intents/guildScheduledEvents``.
     open func onGuildScheduledEventUpdate(before: Guild.ScheduledEvent, after: Guild.ScheduledEvent) async {}
     
     /// Dispatched when a scheduled event is deleted.
@@ -1555,24 +1515,18 @@ open class EventListener {
     /// - Note: This requires intent ``Intents/guildScheduledEvents``.
     open func onGuildScheduledEventDelete(event: Guild.ScheduledEvent) async {}
     
-    /**
-     Dispatched when a user has subscribed to a guild scheduled event.
-     
-     - Parameters:
-        - event: The scheduled event the user subscriber to.
-        - user: The user who subscribed to the scheduled event.
-     - Note: This requires intent ``Intents/guildScheduledEvents``.
-     */
+    /// Dispatched when a user has subscribed to a guild scheduled event.
+    /// - Parameters:
+    ///   - event: The scheduled event the user subscriber to.
+    ///   - user: The user who subscribed to the scheduled event.
+    /// - Requires: Intent ``Intents/guildScheduledEvents``.
     open func onGuildScheduledEventUserAdd(event: Guild.ScheduledEvent, user: User) async {}
     
-    /**
-     Dispatched when a user has un-subscribed from a guild scheduled event.
-     
-     - Parameters:
-        - event: The scheduled event the user un-subscribed from.
-        - user: The user who un-subscribed from the scheduled event.
-     - Note: This requires intent ``Intents/guildScheduledEvents``.
-     */
+    /// Dispatched when a user has un-subscribed from a guild scheduled event.
+    /// - Parameters:
+    ///   - event: The scheduled event the user un-subscribed from.
+    ///   - user: The user who un-subscribed from the scheduled event.
+    /// - Requires: Intent ``Intents/guildScheduledEvents``.
     open func onGuildScheduledEventUserRemove(event: Guild.ScheduledEvent, user: User) async {}
     
     
@@ -1597,20 +1551,18 @@ open class EventListener {
     
     /// Dispatched when an invite is created.
     /// - Parameter invite: The invite that was created.
-    /// - Note: This requires intent ``Intents/guildInvites``.
+    /// - Requires: Intent ``Intents/guildInvites``.
     open func onInviteCreate(invite: Invite) async {}
     
-    /**
-     Dispatched when an invite is deleted.
-     
-     The following are details of what `payload` contains:
-     - `channelId`: Channel ID of the invite.
-     - `guildId`: Guild ID of the invite.
-     - `code`: The invites code.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/guildInvites``.
-     */
+    /// Dispatched when an invite is deleted.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `channelId`: Channel ID of the invite.
+    /// - `guildId`: Guild ID of the invite.
+    /// - `code`: The invites code.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/guildInvites``.
     open func onRawInviteDelete(payload: (channelId: Snowflake, guildId: Snowflake?, code: String)) async {}
     
     
@@ -1619,154 +1571,131 @@ open class EventListener {
     
     /// Dispatched when a message is sent.
     /// - Parameter message: The message that was sent.
-    /// - Note: This requires intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
+    /// - Requires: Intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
     open func onMessageCreate(message: Message) async {}
     
-    /**
-     Dispatched when a message is updated.
-     
-     The following are details of what `payload` contains:
-     - `cachedMessage`: The message that was updated. Will be `nil` if the message was not found in the bots internal cache.
-     - `guildId`: The guild ID the message belongs to. Will be `nil` if it's a DM.
-     - `channelId`: The channel ID the message was sent in.
-     - `data`: Raw information related to the message update.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
-     */
+    /// Dispatched when a message is updated.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `cachedMessage`: The message that was updated. Will be `nil` if the message was not found in the bots internal cache.
+    /// - `guildId`: The guild ID the message belongs to. Will be `nil` if it's a DM.
+    /// - `channelId`: The channel ID the message was sent in.
+    /// - `data`: Raw information related to the message update.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
     open func onRawMessageUpdate(payload: (cachedMessage: Message?, guildId: Snowflake?, channelId: Snowflake, data: [String: Any])) async {}
     
     
     /// Dispatched when a message is deleted. This will not be dispatched if the message is not found in the bots internal cache. If this occurs,
     /// use ``onRawMessageDelete(payload:)`` instead or increase the maximum message cache size.
     /// - Parameter message: The mesage that was deleted.
-    /// - Note: This requires intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
+    /// - Requires: Intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
     open func onMessageDelete(message: Message) async {}
     
-    /**
-     Dispatched when a message is deleted. Unlike ``onMessageDelete(message:)``, this is dispatched regardless of if the message was found in the bots internal cache.
-     
-     The following are details of what `payload` contains:
-     - `messageId`: The ID of the message that was deleted.
-     - `channelId`: The ID the channel the message was sent in.
-     - `guildId`: The guild ID the message belongs to. Will be `nil` if it's a DM.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
-     */
+    /// Dispatched when a message is deleted. Unlike ``onMessageDelete(message:)``, this is dispatched regardless of if the message was found in the bots internal cache.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `messageId`: The ID of the message that was deleted.
+    /// - `channelId`: The ID the channel the message was sent in.
+    /// - `guildId`: The guild ID the message belongs to. Will be `nil` if it's a DM.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
     open func onRawMessageDelete(payload: (messageId: Snowflake, channelId: Snowflake, guildId: Snowflake?)) async {}
     
     /// Dispatched when messages are bulk deleted. If there's at least one message that was found in the bots internal cache at the time of deletion this will be called. If no
     /// messages were found, this will not be called. If this occurs, use ``onRawMessageDeleteBulk(payload:)`` or increase the the maximum message cache size.
     /// - Parameter messages: The messages that were deleted.
-    /// - Note: This requires intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
+    /// - Requires: Intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
     open func onMessageDeleteBulk(messages: [Message]) async {}
     
-    /**
-     Dispatched when messages are bulk deleted. Unlike ``onMessageDeleteBulk(messages:)``, this is dispatched regardless of if the messages were found in the bots internal cache.
-     
-     The following are details of what `payload` contains:
-     - `messageIds`: The IDs of the messages that were deleted.
-     - `channelId`: The channel ID the messages were deleted from.
-     - `guildId`: The guild ID the messages that were deleted. Will be `nil` if it's a DM.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
-     */
+    /// Dispatched when messages are bulk deleted. Unlike ``onMessageDeleteBulk(messages:)``, this is dispatched regardless of if the messages were found in the bots internal cache.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `messageIds`: The IDs of the messages that were deleted.
+    /// - `channelId`: The channel ID the messages were deleted from.
+    /// - `guildId`: The guild ID the messages that were deleted. Will be `nil` if it's a DM.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/dmMessages`` and or ``Intents/guildMessages``.
     open func onRawMessageDeleteBulk(payload: (messageIds: [Snowflake], channelId: Snowflake, guildId: Snowflake?)) async {}
     
-    /**
-     Dispatched when a reaction is added to a message.
-     
-     - Parameters:
-        - reaction: The reaction that was added.
-        - user: The user who added the reaction.
-     - Note: This requires intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
-     */
+    /// Dispatched when a reaction is added to a message.
+    /// - Parameters:
+    ///   - reaction: The reaction that was added.
+    ///   - user: The user who added the reaction.
+    /// - Requires: Intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
     open func onMessageReactionAdd(reaction: Reaction, user: User) async {}
     
-    /**
-     Dispatched when a reaction is added to a message. Unlike ``onMessageReactionAdd(reaction:user:)``, this is dispatched regardless of if the message was found in the bots internal cache.
-     
-     The following are details of what `payload` contains:
-     - `userId`: The ID of the user who reacted.
-     - `channelId`: The channel ID of the message containing the reaction.
-     - `messageId`: The ID of the message that was reacted to.
-     - `emoji`: The emoji that was added.
-     - `guildId`: The guild ID where the reaction took place. Will be `nil` if it's a DM.
-     - `member`: The member who reaction to the message. Will be `nil` if it's a DM.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
-     */
+    /// Dispatched when a reaction is added to a message. Unlike ``onMessageReactionAdd(reaction:user:)``, this is dispatched regardless of if the message was found in the bots internal cache.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `userId`: The ID of the user who reacted.
+    /// - `channelId`: The channel ID of the message containing the reaction.
+    /// - `messageId`: The ID of the message that was reacted to.
+    /// - `emoji`: The emoji that was added.
+    /// - `guildId`: The guild ID where the reaction took place. Will be `nil` if it's a DM.
+    /// - `member`: The member who reaction to the message. Will be `nil` if it's a DM.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
     open func onRawMessageReactionAdd(payload: (userId: Snowflake, channelId: Snowflake, messageId: Snowflake, emoji: PartialEmoji, guildId: Snowflake?, member: Member?)) async {}
     
-    /**
-     Dispatched when a reaction is removed from a message.
-     
-     - Parameters:
-        - reaction: The reaction that was removed.
-        - user: The user who removed the reaction.
-     - Note: This requires intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
-     */
+    /// Dispatched when a reaction is removed from a message.
+    /// - Parameters:
+    ///   - reaction: The reaction that was removed.
+    ///   - user: The user who removed the reaction.
+    /// - Requires: Intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
     open func onMessageReactionRemove(reaction: Reaction, user: User) async {}
     
-    /**
-     Dispatched when a reaction is removed from a message. Unlike ``onMessageReactionRemove(reaction:user:)``, this is dispatched regardless of if the message was found in the bots internal cache.
-     
-     The following are details of what `payload` contains:
-     - `userId`: The ID of the user who reacted.
-     - `channelId`: The channel ID of the message containing the reaction.
-     - `messageId`: The ID of the message that the reaction was removed from.
-     - `emoji`: The emoji that was removed.
-     - `guildId`: The guild ID where the reaction took place. Will be `nil` if it's a DM.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
-     */
+    /// Dispatched when a reaction is removed from a message. Unlike ``onMessageReactionRemove(reaction:user:)``, this is dispatched regardless of if the message was found in the bots internal cache.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `userId`: The ID of the user who reacted.
+    /// - `channelId`: The channel ID of the message containing the reaction.
+    /// - `messageId`: The ID of the message that the reaction was removed from.
+    /// - `emoji`: The emoji that was removed.
+    /// - `guildId`: The guild ID where the reaction took place. Will be `nil` if it's a DM.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
     open func onRawMessageReactionRemove(payload: (userId: Snowflake, channelId: Snowflake, messageId: Snowflake, emoji: PartialEmoji, guildId: Snowflake?)) async {}
     
-    /**
-     Dispatched when all reactions are removed from a message at once. Typically via ``Message/removeAllReactions(emoji:)``.
-     
-     - Parameters:
-        - message: The message that all reactions were removed from.
-        - reactions: The reactions that were removed.
-     - Note: This requires intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
-     */
+    /// Dispatched when all reactions are removed from a message at once. Typically via ``Message/removeAllReactions(emoji:)``.
+    /// - Parameters:
+    ///   - message: The message that all reactions were removed from.
+    ///   - reactions: The reactions that were removed.
+    /// - Requires: Intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
     open func onMessageReactionRemoveAll(message: Message, reactions: [Reaction]) async {}
     
-    /**
-     Dispatched when all reactions are removed from a message. Typically via ``Message/removeAllReactions(emoji:)``.
-     Unlike ``onMessageReactionRemoveAll(message:reactions:)``, this is dispatched regardless of if the message was found in the bots internal cache.
-     
-     The following are details of what `payload` contains:
-     - `channelId`: The channel ID of the message containing the reaction.
-     - `messageId`: The ID of the message that the reaction was removed from.
-     - `guildId`: The guild ID where the reaction removal took place. Will be `nil` if it's a DM.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
-     */
+    /// Dispatched when all reactions are removed from a message. Typically via ``Message/removeAllReactions(emoji:)``.
+    /// Unlike ``onMessageReactionRemoveAll(message:reactions:)``, this is dispatched regardless of if the message was found in the bots internal cache.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `channelId`: The channel ID of the message containing the reaction.
+    /// - `messageId`: The ID of the message that the reaction was removed from.
+    /// - `guildId`: The guild ID where the reaction removal took place. Will be `nil` if it's a DM.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
     open func onRawMessageReactionRemoveAll(payload: (channelId: Snowflake, messageId: Snowflake, guildId: Snowflake?)) async {}
     
     /// Dispatched when all reactions for a specific emoji are removed from a message.
     /// - Parameters reaction: The specific reaction that was removed.
     open func onMessageReactionRemoveEmoji(reaction: Reaction) async {}
     
-    /**
-     Dispatched when all reactions for a specific emoji are removed from a message.  Unlike ``onMessageReactionRemoveEmoji(reaction:)``,
-     this is dispatched regardless of if the message was found in the bots internal cache.
-     
-     The following are details of what `payload` contains:
-     - `channelId`: The channel ID of the message containing the reaction that was removed.
-     - `messageId`: The ID of the message that the reaction was removed from.
-     - `emoji`: The emoji that was removed.
-     - `guildId`: The guild ID where the reaction removal took place. Will be `nil` if it's a DM.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
-     */
+    /// Dispatched when all reactions for a specific emoji are removed from a message.  Unlike ``onMessageReactionRemoveEmoji(reaction:)``,
+    /// this is dispatched regardless of if the message was found in the bots internal cache.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `channelId`: The channel ID of the message containing the reaction that was removed.
+    /// - `messageId`: The ID of the message that the reaction was removed from.
+    /// - `emoji`: The emoji that was removed.
+    /// - `guildId`: The guild ID where the reaction removal took place. Will be `nil` if it's a DM.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.
     open func onRawMessageReactionRemoveEmoji(payload: (channelId: Snowflake, messageId: Snowflake, emoji: PartialEmoji, guildId: Snowflake?)) async {}
     
     
@@ -1790,30 +1719,25 @@ open class EventListener {
     
     // MARK: Typing
     
-    /**
-     Dispatched when a user starts typing. If the channel is not found in the bots internal cache, this will not be called. Consider user ``onRawTypingStart(payload:)`` instead if this occurs.
-     
-     - Parameters:
-        - by: The user who started typing. Will be of type ``Member`` if this happened in a guild, or ``User`` if in a DM.
-        - at: When the user started typing.
-        - channel: The channel the user started typing in.
-     - Note: This requires intent ``Intents/guildMessageTyping`` and or ``Intents/dmTyping``.
-     */
+    /// Dispatched when a user starts typing. If the channel is not found in the bots internal cache, this will not be called. Consider user ``onRawTypingStart(payload:)`` instead if this occurs.
+    /// - Parameters:
+    ///   - by: The user who started typing. Will be of type ``Member`` if this happened in a guild, or ``User`` if in a DM.
+    ///   - at: When the user started typing.
+    ///   - channel: The channel the user started typing in.
+    /// - Requires: Intent ``Intents/guildMessageTyping`` and or ``Intents/dmTyping``.
     open func onTypingStart(by: Object, at: Date, in channel: Messageable) async {}
     
-    /**
-     Dispatched when a user starts typing. Unlike ``onTypingStart(by:at:in:)``, this is dispatched regardless of if the channel and user was found in the bots internal cache.
-     
-     The following are details of what `payload` contains:
-     - `channelId`: The channel ID of the typing.
-     - `guildId`: The guild D of the typing. Will be `nil` if the typing took place in a DM.
-     - `userId`: The user ID for the user that started typing.
-     - `timestamp`: When the user started typing.
-     - `member`: The member object for the user that started typing. Will be `nil` if the typing took place in a DM.
-     
-     - Parameter payload: The raw event payload information.
-     - Note: This requires intent ``Intents/guildMessageTyping`` and or ``Intents/dmTyping``.
-     */
+    /// Dispatched when a user starts typing. Unlike ``onTypingStart(by:at:in:)``, this is dispatched regardless of if the channel and user was found in the bots internal cache.
+    ///
+    /// The following are details of what `payload` contains:
+    /// - `channelId`: The channel ID of the typing.
+    /// - `guildId`: The guild D of the typing. Will be `nil` if the typing took place in a DM.
+    /// - `userId`: The user ID for the user that started typing.
+    /// - `timestamp`: When the user started typing.
+    /// - `member`: The member object for the user that started typing. Will be `nil` if the typing took place in a DM.
+    ///
+    /// - Parameter payload: The raw event payload information.
+    /// - Requires: Intent ``Intents/guildMessageTyping`` and or ``Intents/dmTyping``.
     open func onRawTypingStart(payload: (channelId: Snowflake, guildId: Snowflake?, userId: Snowflake, timestamp: Date, member: Member?)) async {}
     
     
@@ -1829,15 +1753,12 @@ open class EventListener {
     
     // MARK: Presence
     
-    /**
-     Dispatched when a users presence is updated.
-     
-     - Parameters:
-        - user: The user who's presence was updated.
-        - status: The users updated status.
-        - activities: The users updated activity. Will be `nil` if no activity was updated.
-     - Note: This requires intent ``Intents/guildPresences``.
-     */
+    /// Dispatched when a users presence is updated.
+    /// - Parameters:
+    ///   - user: The user who's presence was updated.
+    ///   - status: The users updated status.
+    ///   - activities: The users updated activity. Will be `nil` if no activity was updated.
+    /// - Requires: Intent ``Intents/guildPresences``.
     open func onPresenceUpdate(user: User, status: User.Status, activities: [User.Activity]?) async {}
     
     
@@ -1848,14 +1769,11 @@ open class EventListener {
     /// - Parameter voiceState: The updated voice state.
     open func onVoiceStateUpdate(voiceState: VoiceChannel.State) async {}
     
-    /**
-     Dispatched when a guild's voice server is updated. This is sent when initially connecting to voice, and when the current voice instance fails over to a new server.
-     
-     - Parameters:
-        - token: Voice connection token.
-        - guildId: Guild this voice server update is for.
-        - endpoint: Voice server host.
-     */
+    /// Dispatched when a guild's voice server is updated. This is sent when initially connecting to voice, and when the current voice instance fails over to a new server.
+    /// - Parameters:
+    ///   - token: Voice connection token.
+    ///   - guildId: Guild this voice server update is for.
+    ///   - endpoint: Voice server host.
     open func onVoiceServerUpdate(token: String, guildId: Snowflake, endpoint: String?) async {}
     
     

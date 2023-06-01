@@ -24,17 +24,16 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 
-/**
- Escapes all markdowns and returns the raw text.
- 
- Various mardowns will be escaped as follows:
- - A channel mention (`#general`), will be converted to <#1234567891234567>.
- - The word **bolded** will be converted to \*\*bolded\*\*
- - An `@everyone` ping will be converted to raw @everyone and will not ping everyone.
- - A guild emoji (😂) will be converted to <:laughing:1234567891234567> etc.
- 
- - Returns: The escaped text.
-*/
+/// Escapes all markdowns and returns the raw text.
+///
+/// Various mardowns will be escaped as follows:
+/// - A channel mention (`#general`), will be converted to <#1234567891234567>.
+/// - The word **bolded** will be converted to \*\*bolded\*\*
+/// - An `@everyone` ping will be converted to raw @everyone and will not ping everyone.
+/// - A guild emoji (😂) will be converted to <:laughing:1234567891234567> etc.
+///
+/// - Parameter text: The text to escape.
+/// - Returns: The escaped text.
 public func clean(_ text: String) -> String {
     // - bullet points
     // # headers
@@ -56,14 +55,11 @@ public func clean(_ text: String) -> String {
     })
 }
 
-/**
- Format a date to a Discord timestamp that will display the given timestamp in the user's timezone and locale.
- 
- - Parameters:
-    - date: Date to format.
-    - style: The `date` style.
-- Returns: A Discord formatted timestamp.
-*/
+/// Format a date to a Discord timestamp that will display the given timestamp in the user's timezone and locale.
+/// - Parameters:
+///   - date: Date to format.
+///   - style: The `date` style.
+/// - Returns: A Discord formatted timestamp.
 public func formatTimestamp(date: Date, style: TimestampStyle = .f) -> String {
     return "<t:\(Int(date.timeIntervalSince1970)):\(style.rawValue)>"
 }
@@ -106,19 +102,16 @@ public func getVariable(_ variable: String) -> String? {
     return ProcessInfo.processInfo.environment[variable]
 }
 
-/**
- Get the OAuth2 URL for inviting the bot.
- 
- - Parameters:
-    - botId: The bot ID.
-    - permissions: Permissions you're requesting the bot to have.
-    - guildId: The guild to select on the authorization form.
-    - disableGuildSelect: Whether the user can change the guild shown in the dropdown.
-    - scopes: A set of scopes.
-    - redirectUri: The redirect URI.
-    - state: The unique state.
- - Returns: The OAuth2 URL.
- */
+/// Get the OAuth2 URL for inviting the bot.
+/// - Parameters:
+///   - botId: The bot ID.
+///   - permissions: Permissions you're requesting the bot to have.
+///   - guildId: The guild to select on the authorization form.
+///   - disableGuildSelect: Whether the user can change the guild shown in the dropdown.
+///   - scopes: A set of scopes.
+///   - redirectUri: The redirect URI.
+///   - state: The unique state.
+/// - Returns: The OAuth2 URL.
 public func oauth2Url(
     botId: Snowflake,
     permissions: Permissions = .none,

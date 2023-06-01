@@ -272,15 +272,12 @@ public class Embed {
         color = nil
         return self
     }
-
-    /**
-     Sets the footer of the embed.
-     
-     - Parameters:
-        - text: The text on the footer. Up to 2048 characters.
-        - iconUrl: The URL for the image that will be displayed in the footer. Only supports HTTP(S).
-     - Returns: The embed instance.
-    */
+    
+    /// Sets the embed footer.
+    /// - Parameters:
+    ///   - text: The text on the footer. Up to 2048 characters.
+    ///   - iconUrl: The URL for the image that will be displayed in the footer. Only supports HTTP(S).
+    /// - Returns: The embed instance.
     @discardableResult
     public func setFooter(text: String, iconUrl: String? = nil) -> Self {
         footer = Footer(text: text, iconUrl: iconUrl)
@@ -360,16 +357,13 @@ public class Embed {
         thumbnail = nil
         return self
     }
-
-    /**
-     Sets the author.
-     
-     - Parameters:
-        - name: Name of the author. Up to 256 characters.
-        - url: URL link for the author.
-        - iconUrl: The URL for the image that will be displayed for the author. Only supports HTTP(S).
-     - Returns: The embed instance.
-    */
+    
+    /// Sets the author.
+    /// - Parameters:
+    ///   - name: Name of the author. Up to 256 characters.
+    ///   - url: URL link for the author.
+    ///   - iconUrl: The URL for the image that will be displayed for the author. Only supports HTTP(S).
+    /// - Returns: The embed instance.
     @discardableResult
     public func setAuthor(name: String, url: String? = nil, iconUrl: String? = nil) -> Self {
         author = Author(name: name, url: url, iconUrl: iconUrl)
@@ -383,16 +377,13 @@ public class Embed {
         author = nil
         return self
     }
-
-    /**
-     Adds a field to the embed. Up to 25 fields.
-     
-     - Parameters:
-        - name: Name of the field. Up to 256 characters.
-        - value: Contents of the field. Up to 1024 characters.
-        - inline: Whether or not this field should display inline.
-     - Returns: The embed instance.
-    */
+    
+    /// Adds a field to the embed. Up to 25 fields.
+    /// - Parameters:
+    ///   - name: Name of the field. Up to 256 characters.
+    ///   - value: Contents of the field. Up to 1024 characters.
+    ///   - inline:  Whether or not this field should display inline.
+    /// - Returns: The embed instance.
     @discardableResult
     public func addField(name: String, value: String, inline: Bool = false) -> Self {
         fields.append(Field(name: name, value: value, inline: inline))
@@ -419,7 +410,6 @@ public class Embed {
     /**
     Transform a dictionary into an `Embed`.
 
-    - Parameter data: The information the embed is bound to.
     - Note: *All* keys in the dictionary should be presented as if it was pure json. For example, fields should be presented as:
     ```swift
     {
@@ -432,6 +422,7 @@ public class Embed {
         }]
     }
     ```
+    - Parameter data: The information the embed is bound to.
     - Returns: An `Embed` object with it's properties set according to the data provided.
     */
     public static func fromDict(_ data: [String: Any]) -> Embed {

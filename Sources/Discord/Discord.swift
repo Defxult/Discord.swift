@@ -81,16 +81,13 @@ public class Discord {
     var http: HTTPClient!
     var msgCacheLock = NSLock()
     
-    /**
-     Initializes the Discord bot.
-     
-     - Parameters:
-        - token: The authentification token for the bot.
-        - intents: Gateway events the bot is subscribed to. Additional intents may need to be turned on via the Discord [developer portal](https://discord.com/developers/applications). *Applications > Bot > Privileged Gateway Intents*
-        - maxMessagesCache: The maximum amount of messages that should be cached.
-        - sharding: Whether automatic sharding is enabled. If your bot is in 2500 or more guilds, this **must** be enabled.
-     - Important: When setting intents, it is highly recommended to at least have the ``Intents/guilds`` intent enabled in order for your bot to function properly.
-     */
+    /// Initializes the Discord bot.
+    /// - Parameters:
+    ///   - token: The authentification token for the bot.
+    ///   - intents: Gateway events the bot is subscribed to. Additional intents may need to be turned on via the Discord [developer portal](https://discord.com/developers/applications). *Applications > Bot > Privileged Gateway Intents*
+    ///   - maxMessagesCache: The maximum amount of messages that should be cached.
+    ///   - sharding: Whether automatic sharding is enabled. If your bot is in 2500 or more guilds, this **must** be enabled.
+    /// - Important: When setting intents, it is highly recommended to at least have the ``Intents/guilds`` intent enabled in order for your bot to function properly.
     public init(token: String, intents: Set<Intents>, maxMessagesCache: Int = 1500, sharding: Bool = false) {
         self.token = token
         self.intents = intents
@@ -126,14 +123,11 @@ public class Discord {
         }
     }
     
-    /**
-     Update the bots presence.
-     
-     - Parameters:
-        - status: The current status.
-        - activity: The activity. Can be set to things such as "Listening to {value}", "Watching {value}", etc. Can be `nil` for no activity.
-     - Note: Certain combinations are ignored by Discord. Some examples are setting the bots `status` to offline or setting a custom status.
-     */
+    /// Update the bots presence.
+    /// - Parameters:
+    ///   - status: The current status.
+    ///   - activity: The activity. Can be set to things such as "Listening to {value}", "Watching {value}", etc. Can be `nil` for no activity.
+    /// - Note: Certain combinations are ignored by Discord. Some examples are setting the bots `status` to offline or setting a custom status.
     public func updatePresence(status: User.Status, activity: User.PresenceActivity?) async throws {
         if let wsg {
             var d: JSON = ["status": status.rawValue, "afk": false]
@@ -153,18 +147,15 @@ public class Discord {
         return try await http.getGlobalApplicationCommands(botId: try await getClientID())
     }
     
-    /**
-     Adds a user command.  The command will not be available unless synced via ``syncApplicationCommands()``.
-     
-     - Parameters:
-        - name: Command name.
-        - guildId: Guild ID the command will be available in. If you want this to be a global command, set this to `nil`.
-        - onInteraction: The closure that is called when the command is used.
-        - defaultMemberPermissions: The permissions a member must have in order to use the command.
-        - nameLocalizations: Name localizations for the command.
-        - dmPermission: Indicates whether the command is available in DMs with the app, only for globally-scoped commands.
-        - nsfw: Indicates whether the command is age-restricted.
-     */
+    /// Adds a user command.  The command will not be available unless synced via ``syncApplicationCommands()``.
+    /// - Parameters:
+    ///   - name: Command name.
+    ///   - guildId: Guild ID the command will be available in. If you want this to be a global command, set this to `nil`.
+    ///   - onInteraction: The closure that is called when the command is used.
+    ///   - defaultMemberPermissions: The permissions a member must have in order to use the command.
+    ///   - nameLocalizations: Name localizations for the command.
+    ///   - dmPermission: Indicates whether the command is available in DMs with the app, only for globally-scoped commands.
+    ///   - nsfw: Indicates whether the command is age-restricted.
     public func addUserCommand(
         name: String,
         guildId: Snowflake?,
@@ -188,18 +179,15 @@ public class Discord {
             )
     }
     
-    /**
-     Adds a message command.  The command will not be available unless synced via ``syncApplicationCommands()``.
-     
-     - Parameters:
-        - name: Command name.
-        - guildId: Guild ID the command will be available in. If you want this to be a global command, set this to `nil`.
-        - onInteraction: The closure that is called when the command is used.
-        - defaultMemberPermissions: The permissions a member must have in order to use the command.
-        - nameLocalizations: Name localizations for the command.
-        - dmPermission: Indicates whether the command is available in DMs with the app, only for globally-scoped commands.
-        - nsfw: Indicates whether the command is age-restricted.
-     */
+    /// Adds a message command.  The command will not be available unless synced via ``syncApplicationCommands()``.
+    /// - Parameters:
+    ///   - name: Command name.
+    ///   - guildId: Guild ID the command will be available in. If you want this to be a global command, set this to `nil`.
+    ///   - onInteraction: The closure that is called when the command is used.
+    ///   - defaultMemberPermissions: The permissions a member must have in order to use the command.
+    ///   - nameLocalizations: Name localizations for the command.
+    ///   - dmPermission: Indicates whether the command is available in DMs with the app, only for globally-scoped commands.
+    ///   - nsfw: Indicates whether the command is age-restricted.
     public func addMessageCommand(
         name: String,
         guildId: Snowflake?,
@@ -223,21 +211,18 @@ public class Discord {
             )
         }
     
-    /**
-     Adds a slash command.  The command will not be available unless synced via ``syncApplicationCommands()``.
-     
-     - Parameters:
-        - name: Command name.
-        - description: The command description.
-        - guildId: Guild ID the command will be available in. If you want this to be a global command, set this to `nil`.
-        - onInteraction: The closure that is called when the command is used.
-        - options: Parameters of the command.
-        - dmPermission: Indicates whether the command is available in DMs with the app, only for globally-scoped commands.
-        - defaultMemberPermissions: The permissions a member must have in order to use the command.
-        - nameLocalizations: Name localizations for the command.
-        - descriptionLocalizations: Description localizations for the command.
-        - nsfw: Indicates whether the command is age-restricted.
-     */
+    /// Adds a slash command.  The command will not be available unless synced via ``syncApplicationCommands()``.
+    /// - Parameters:
+    ///   - name: Command name.
+    ///   - description: The command description.
+    ///   - guildId: Guild ID the command will be available in. If you want this to be a global command, set this to `nil`.
+    ///   - onInteraction: The closure that is called when the command is used.
+    ///   - options: Parameters of the command.
+    ///   - dmPermission: Indicates whether the command is available in DMs with the app, only for globally-scoped commands.
+    ///   - defaultMemberPermissions: The permissions a member must have in order to use the command.
+    ///   - nameLocalizations: Name localizations for the command.
+    ///   - descriptionLocalizations: Description localizations for the command.
+    ///   - nsfw: Indicates whether the command is age-restricted.
     public func addSlashCommand(
         name: String,
         description: String,
@@ -320,8 +305,7 @@ public class Discord {
     }
     
     /// Add event listeners to the bot.
-    /// - Parameter listeners: The event listeners to add.
-    /// - Throws: `DiscordError.generic` - All event listener names were not unique.
+    /// - Parameter listeners: Event listeners to add. The name of all event listeners must be unique.
     public func addListeners(_ listeners: EventListener...) throws {
         for addedListener in listeners {
             let currentListenerNames = self.listeners.map({ $0.name })
@@ -367,15 +351,12 @@ public class Discord {
         }
     }
     
-    /**
-     Create a guild. Your bot must be in less than 10 guilds to use this.
-     
-     - Parameters:
-        - name: Name of the guild.
-        - icon: The guild icon.
-        - template: The guild template code if you'd like to create the guild based on a template.
-     - Returns: The newly created guild.
-     */
+    /// Create a guild. Your bot must be in less than 10 guilds to use this.
+    /// - Parameters:
+    ///   - name: Name of the guild.
+    ///   - icon: The guild icon.
+    ///   - template: The guild template code if you'd like to create the guild based on a template.
+    /// - Returns: The newly created guild.
     public func createGuild(name: String, icon: File? = nil, template: String? = nil) async throws -> Guild {
         if let template {
             return try await http.createGuildFromGuildTemplate(code: template, name: name, icon: icon)
@@ -387,11 +368,10 @@ public class Discord {
     /**
      Creates a DM channel between the bot and the user with the provided ID.
      
-     - Note: Creating the DM channel does not automatically send the user a DM. That must be done like so:
+     Creating the DM channel does not automatically send the user a DM. That must be done like so:
      ```swift
      try await createDm(with: 123456789012345).send(...)
      ```
-     
      - Parameter with: The  ID of the user to create the DM channel for.
      - Returns: The newly created DM channel.
      */
@@ -472,16 +452,12 @@ public class Discord {
         return nil
     }
     
-    /**
-     Requests the guild. Unlike ``getGuild(_:)``, this is an API call. For general use purposes, use ``getGuild(_:)`` instead if you have the ``Intents/guilds`` intent enabled.
-     
-     - Parameters:
-        - id: The guild ID.
-        - withCounts: If `true`, the returned guild will have properties ``Guild/approximateMemberCount`` and ``Guild/approximatePresenceCount`` available.
-     - Throws: `HTTPError.notFound`- The guild could not be found.
-     - Note: Using this method, the returned guild will not contain ``Guild/channels``, ``Guild/members``, ``Guild/threads``, ``Guild/voiceStates`` amongst other data that might be missing.
-     - Returns: The requested guild.
-     */
+    /// Requests the guild. Unlike ``getGuild(_:)``, this is an API call. For general use purposes, use ``getGuild(_:)`` instead if you have the ``Intents/guilds`` intent enabled.
+    /// - Parameters:
+    ///   - id: The guild ID.
+    ///   - withCounts: If `true`, the returned guild will have properties ``Guild/approximateMemberCount`` and ``Guild/approximatePresenceCount`` available.
+    /// - Returns: The requested guild.
+    /// - Note: Using this method, the returned guild will not contain ``Guild/channels``, ``Guild/members``, ``Guild/threads``, ``Guild/voiceStates`` amongst other data that might be missing.
     public func requestGuild(_ id: Snowflake, withCounts: Bool = true) async throws -> Guild {
         return try await http.getGuild(guildId: id, withCounts: withCounts)
     }

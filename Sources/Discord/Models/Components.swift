@@ -111,7 +111,7 @@ public class UI {
     
     /// Enable all items on the UI.
     /// - Note: This simply changes all item `disabled` properties on the UI to `false`. In order for the components on the message to be updated,
-    /// you must edit the message with the updated UI.
+    ///         you must edit the message with the updated UI.
     public func enableAllItems() {
         for item in items {
             if item.type == .button { (item as! Button).disabled = false }
@@ -121,7 +121,7 @@ public class UI {
     
     /// Disables all items on the UI.
     /// - Note: This simply changes all item `disabled` properties on the UI to `true`. In order for the components on the message to be updated,
-    /// you must edit the message with the updated UI.
+    ///         you must edit the message with the updated UI.
     public func disableAllItems() {
         for item in items {
             if item.type == .button { (item as! Button).disabled = true }
@@ -131,7 +131,7 @@ public class UI {
     
     /// Removes all items on the UI.
     /// - Note: This simply removes the components in `items`. In order for the components on the message to be removed,
-    /// you must edit the message with the updated UI.
+    ///         you must edit the message with the updated UI.
     public func removeAllItems() {
         items.removeAll()
     }
@@ -292,7 +292,9 @@ public class Button : Component, InternalComponent {
          .addItem(Button(style: .primary, label: "PlayStation", customId: "ps"))
          .addItem(Button(style: .primary, label: "Xbox", customId: "xb"))
          .onInteraction({ inter async in
+             // Convert the data to the proper type
              let data = inter.data as! MessageComponentData
+     
              if data.customId == "ps" {
                  try! await inter.respondWithMessage("You chose PlayStation!")
              }
@@ -301,7 +303,6 @@ public class Button : Component, InternalComponent {
      
      try await channel.send("What platform do you play on?", ui: platforms)
      ```
-     
      - Parameters:
         - style: A button style.
         - label: Text that appears on the button; max 80 characters.
@@ -309,7 +310,6 @@ public class Button : Component, InternalComponent {
         - customId: The ID of the button. This must be unique across **all** components on the message.
         - url: URL for link-style buttons.
         - disabled: Whether the button is disabled.
-        - onInteraction: The closure that is called when the button is clicked.
      */
     public init(style: Style, label: String? = nil, emoji: String? = nil, customId: String? = nil, url: String? = nil, disabled: Bool = false) {
         self.style = style
@@ -405,20 +405,16 @@ public class SelectMenu : Component, InternalComponent {
     /// Whether select menu is disabled.
     public var disabled: Bool
     
-    /**
-     Initializes a select menu.
-     
-     - Parameters:
-        - menuType: Type of select menu.
-        - customId: ID for the select menu; max 100 characters.
-        - options: Specified choices in a select menu (only required and available when the `type` is ``MenuType-swift.enum/text``); max 25.
-        - channelTypes: Channel types to include in the channel select component when the `type` is ``MenuType-swift.enum/channels``.
-        - placeholder: Placeholder text if nothing is selected; max 150 characters.
-        - minValues: Minimum number of items that must be chosen; min 0, max 25.
-        - maxValues: Maximum number of items that can be chosen; max 25.
-        - disabled: Whether select menu is disabled.
-        - onInteraction: The closure that is called when the menu is closed.
-     */
+    /// Initializes a select menu.
+    /// - Parameters:
+    ///   - menuType: Type of select menu.
+    ///   - customId: ID for the select menu; max 100 characters.
+    ///   - options: Specified choices in a select menu (only required and available when the `type` is ``MenuType-swift.enum/text``); max 25.
+    ///   - channelTypes: Channel types to include in the channel select component when the `type` is ``MenuType-swift.enum/channels``.
+    ///   - placeholder: Placeholder text if nothing is selected; max 150 characters.
+    ///   - minValues: Minimum number of items that must be chosen; min 0, max 25.
+    ///   - maxValues: Maximum number of items that can be chosen; max 25.
+    ///   - disabled: Whether select menu is disabled.
     public init(
         menuType: MenuType,
         customId: String,
@@ -510,16 +506,13 @@ extension SelectMenu {
         /// Whether this option will show as selected by default.
         public var `default`: Bool
         
-        /**
-         Initializes an option for a select menu.
-         
-         - Parameters:
-            - label: User-facing name of the option; max 100 characters.
-            - value: Value of the option. This is not shown to the user. Max 100 characters. If `nil`, it's set to whatever `label` is set to.
-            - description: Additional description of the option; max 100 characters.
-            - emoji: Emoji for the emoji.
-            - default: Whether this option will show as selected by default.
-         */
+        /// Initializes an option for a select menu.
+        /// - Parameters:
+        ///   - label: User-facing name of the option; max 100 characters.
+        ///   - value: Value of the option. This is not shown to the user. Max 100 characters. If `nil`, it's set to whatever `label` is set to.
+        ///   - description: Additional description of the option; max 100 characters.
+        ///   - emoji: Emoji for the emoji.
+        ///   - default: Whether this option will show as selected by default.
         public init(label: String, value: String? = nil, description: String? = nil, emoji: PartialEmoji? = nil, `default`: Bool = false) {
             self.label = label
             self.value = value ?? label
@@ -595,19 +588,16 @@ public class TextInput : Component, InternalComponent {
     /// Always `nil` for this component type.
     public internal(set) var onInteraction: ((Interaction) async -> Void)? = nil
     
-    /**
-     Initializes a text input.
-     
-     - Parameters:
-        - customId: ID of the text input; max 100 characters.
-        - style: The text input style.
-        - label: Label for this component; max 45 characters.
-        - minLength: Minimum input length for a text input; min 0, max 4000.
-        - maxLength: Maximum input length for a text input; min 1, max 4000.
-        - required: Whether this component is required to be filled.
-        - value: Pre-filled value for this component; max 4000 characters.
-        - placeholder: Custom placeholder text if the input is empty; max 100 characters.
-     */
+    /// Initializes a text input.
+    /// - Parameters:
+    ///   - label: Label for this component; max 45 characters.
+    ///   - style: The text input style.
+    ///   - customId: ID of the text input; max 100 characters.
+    ///   - minLength: Minimum input length for a text input; min 0, max 4000.
+    ///   - maxLength: Maximum input length for a text input; min 1, max 4000.
+    ///   - required: Whether this component is required to be filled.
+    ///   - value: Pre-filled value for this component; max 4000 characters.
+    ///   - placeholder: Custom placeholder text if the input is empty; max 100 characters.
     public init(label: String, style: Style, customId: String, minLength: Int = 0, maxLength: Int = 4000, required: Bool = true, value: String? = nil, placeholder: String? = nil) {
         self.style = style
         self.label = label
@@ -665,15 +655,12 @@ public struct Modal {
     /// The closure that is called when the modal is submitted.
     public var onSubmit: (Interaction) async -> Void
     
-    /**
-     Initializes a pop-up modal.
-     
-     - Parameters:
-        - title: Title of the modal; max 45 characters.
-        - customId: The ID of the modal.
-        - inputs: The inputs on the modal; max 5.
-        - onSubmit: The closure that is called when the modal is submitted.
-     */
+    /// Initializes a pop-up modal.
+    /// - Parameters:
+    ///   - title: Title of the modal; max 45 characters.
+    ///   - customId: The ID of the modal.
+    ///   - inputs: The inputs on the modal; max 5.
+    ///   - onSubmit: The closure that is called when the modal is submitted.
     public init(title: String, customId: String, inputs: [TextInput], onSubmit: @escaping (Interaction) async -> Void) {
         self.title = title
         self.customId = customId

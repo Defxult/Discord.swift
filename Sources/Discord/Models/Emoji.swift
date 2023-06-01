@@ -72,7 +72,7 @@ public struct Emoji : Object, CustomStringConvertible, Hashable {
      The actual representation of the emoji.
      
      ```swift
-     let crownEmoji = guild.getEmoji()
+     let crownEmoji = guild.getEmoji(1234567890123456789)
      channel.send(crownEmoji.description)
      // Sends 👑
      ```
@@ -82,7 +82,7 @@ public struct Emoji : Object, CustomStringConvertible, Hashable {
     /// The URL of the emoji.
     public let url: String
     
-    /// The ``PartialEmoji`` representation of the emoji.
+    /// The `PartialEmoji` representation of the emoji.
     public var asPartial: PartialEmoji { PartialEmoji(id: id, name: name, animated: animated) }
     
     // --------------------------------------------------------------------------------
@@ -113,14 +113,11 @@ public struct Emoji : Object, CustomStringConvertible, Hashable {
         url = APIRoute.cdn.rawValue + "/emojis/\(id).png"
     }
     
-    /**
-     Edit the emoji.
-     
-     - Parameters:
-        - edits: The enum containing all values to be updated for the emoji.
-        - reason: The reason for editing the emoji.
-     - Returns: The updated emoji.
-     */
+    /// Edit the emoji.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated for the emoji.
+    ///   - reason: The reason for editing the emoji. This shows up in the guilds audit log.
+    /// - Returns: The updated emoji.
     @discardableResult
     public func edit(_ edits: Emoji.Edit..., reason: String? = nil) async throws -> Emoji {
         // Don't perform an HTTP request when nothing was changed
@@ -208,14 +205,11 @@ public struct PartialEmoji {
         animated = nil
     }
     
-    /**
-     Create a partial guild emoji.
-     
-     - Parameters:
-        - id: The ID of the guild emoji.
-        - name: Name of the guild emoji.
-        - animated: Whether the guild emoji is animated.
-     */
+    /// Create a partial guild emoji.
+    /// - Parameters:
+    ///   - id: The ID of the guild emoji.
+    ///   - name: Name of the guild emoji.
+    ///   - animated: Whether the guild emoji is animated.
     public init(id: Snowflake, name: String, animated: Bool) {
         self.id = id
         self.name = name

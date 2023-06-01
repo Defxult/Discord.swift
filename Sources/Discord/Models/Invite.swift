@@ -240,7 +240,7 @@ public class Invite : PartialInvite {
     }
     
     /// Delete the guild invite.
-    /// - Parameter reason: The reason for deleting the invite. This shows up in the guilds audit-logs.
+    /// - Parameter reason: The reason for deleting the invite. This shows up in the guilds audit log.
     public func delete(reason: String? = nil) async throws {
         try await bot!.http.deleteInvite(code: code, reason: reason)
     }

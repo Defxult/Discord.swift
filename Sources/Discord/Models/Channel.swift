@@ -103,7 +103,6 @@ extension Channel {
     /// Deletes the channel.
     /// - Parameter reason: The reason for deleting the channel.
     /// - Requires: Permission ``Permission/manageChannels`` for the guild or ``Permission/manageThreads`` if the channel is a thread.
-    /// - Throws: `HTTPError.forbidden`: You don't have the permissions to delete the channel.  `HTTPError.notFound`, the message could not be found.
     public func delete(reason: String? = nil) async throws {
         try await bot!.http.deleteChannel(channelId: id, reason: reason)
     }
@@ -167,22 +166,17 @@ extension GuildChannel {
     /// The direct URL for the channel.
     public var jumpUrl: String { "https://discord.com/channels/\(guild.id)/\(id)" }
     
-    /**
-     Create an invite for the channel.
-     
-     - Parameters:
-        - maxAge: Duration of invite in seconds before expiry, or ``Invite/infinite`` for never. Goes up to 7 days.
-        - maxUses: Max number of uses or ``Invite/infinite`` for unlimited.  100 maximum.
-        - temporary: Whether this invite only grants temporary membership.
-        - unique: If the invite URL should be unique. If `false`, there's a chance a previously created on could be created.
-        - targetType: The type of target for this voice channel invite.
-        - targetUser: The user whose stream to display for this invite. Required if `targetType` is ``Invite/Target/stream``, the user must be streaming in the channel.
-        - targetApplicationId: The ID of the embedded application to open for this invite. Required if `targetType` is ``Invite/Target/embeddedApplication``. The application must have the flag ``Application/ApplicationFlag/embedded``.
-        - reason: The reason for creating the invite. This shows up in the guilds audit logs.
-     - Returns: The newly created invite.
-     - Requires: Permission ``Permission/createInstantInvite``.
-     - Throws: `HTTPError.notFound`: The channel is unable to have invites created (i.e a ``CategoryChannel``).
-     */
+    /// Creates an invite for the channel.
+    /// - Parameters:
+    ///   - maxAge: Duration of invite in seconds before expiry, or ``Invite/infinite`` for never. Goes up to 7 days.
+    ///   - maxUses: Max number of uses or ``Invite/infinite`` for unlimited.  100 maximum.
+    ///   - temporary: Whether this invite only grants temporary membership.
+    ///   - unique: If the invite URL should be unique. If `false`, there's a chance a previously created on could be created.
+    ///   - targetType: The type of target for this voice channel invite.
+    ///   - targetUser: The user whose stream to display for this invite. Required if `targetType` is ``Invite/Target/stream``, the user must be streaming in the channel.
+    ///   - targetApplicationId: The ID of the embedded application to open for this invite. Required if `targetType` is ``Invite/Target/embeddedApplication``. The application must have the flag ``Application/ApplicationFlag/embedded``.
+    ///   - reason: The reason for creating the invite. This shows up in the guilds audit log.
+    /// - Returns: The newly created invite.
     public func createInvite(
         maxAge: Int = Invite.twentyFourHours,
         maxUses: Int = Invite.infinite,
@@ -206,15 +200,10 @@ extension GuildChannel {
         )
     }
     
-    /**
-     Deletes a channels permissions for a user or role.
-     
-     - Parameters:
-        - for: The ``Member`` or ``Role`` to delete permissions for.
-        - reason: The reason for deleting the permissions.
-     - Requires: Permission ``Permission/manageRoles``.
-     - Throws: `HTTPError.forbidden`: You don't have the permissions to delete permissions.
-     */
+    /// Deletes a channels permissions for a user or role.
+    /// - Parameters:
+    ///   - item: The ``Member`` or ``Role`` to delete permissions for.
+    ///   - reason: The reason for deleting the permissions. This shows up in the guilds audit log.
     public func deletePermission(for item: Object, reason: String? = nil) async throws {
         try await bot!.http.deleteChannelPermission(channelId: id, userOrRoleId: item.id, reason: reason)
     }
@@ -227,24 +216,18 @@ extension GuildChannel {
         overwrites?.first(where: { $0.target.id == item.id })
     }
     
-    /**
-     Update the channel overwrites.
-     
-     - Parameters:
-        - overwrites: The new overwrites.
-        - reason: The reason for updating the permissions. The shows up in the guilds audit-logs.
-     - Throws: `HTTPError.forbidden`: You don't have the permissions to update permissions.
-     - Note: The function is only available for non-thread channels.
-     */
+    /// Update the channel overwrites.
+    /// - Parameters:
+    ///   - overwrites: The new overwrites.
+    ///   - reason: The reason for updating the permissions. The shows up in the guilds audit log.
+    /// - Note: The is only available for non-thread channels.
     public func updateOverwrites(_ overwrites: PermissionOverwrites, reason: String? = nil) async throws {
         guard !(self is ThreadChannel) else { return }
         try await bot!.http.editChannelPermissions(channelId: id, overwrites: overwrites, reason: reason)
     }
     
     /// Retrieve the invites for the channel.
-    /// - Requires: Permission ``Permission/manageChannels``.
     /// - Returns: All active invites for the channel.
-    /// - Throws: `HTTPError.forbidden`: You don't have the permissions to retrieve invites.
     public func invites() async throws -> [Invite] {
         return try await bot!.http.getChannelInvites(channelId: id)
     }
@@ -255,24 +238,17 @@ public protocol GuildChannelMessageable: GuildChannel, Messageable { }
 
 extension GuildChannelMessageable {
     
-    /**
-     Create a webhook for the channel.
-     
-     - Parameters:
-        - name: Name of the webhook (1-80 characters). Cannot contain the substrings "clyde" or "discord" (case-insensitive).
-        - avatar: Avatar for the webhook.
-        - reason: The reason for creating the webhook. This shows up in the guilds audit logs.
-     - Requires: Permission ``Permission/manageWebhooks``.
-     - Returns: The newly created webhook.
-     - Throws: `HTTPError.forbidden`: You don't have the permissions to create webhooks.
-     */
+    /// Creates a webhook for the channel.
+    /// - Parameters:
+    ///   - name: Name of the webhook (1-80 characters). Cannot contain the substrings "clyde" or "discord" (case-insensitive).
+    ///   - avatar: Avatar for the webhook.
+    ///   - reason: The reason for creating the webhook. This shows up in the guilds audit log.
+    /// - Returns: The newly created webhook.
     public func createWebhook(name: String, avatar: File? = nil, reason: String? = nil) async throws -> Webhook {
         return try await bot!.http.createWebhook(channelId: id, name: name, avatar: avatar, reason: reason)
     }
     
     /// Retrieve the webhooks in this channel.
-    /// - Requires: Permission ``Permission/manageWebhooks``.
-    /// - Throws: `HTTPError.forbidden`: You don't have the permissions to retrieve webhooks.
     public func webhooks() async throws -> [Webhook] {
         return try await bot!.http.getChannelWebhooks(channelId: id)
     }
@@ -316,14 +292,11 @@ public class CategoryChannel : GuildChannel, Hashable {
         name = categoryData["name"] as! String
     }
     
-    /**
-     Edit the category channel.
-     
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the category.
-        - reason: The reason for editing the category channel. This shows up in the guilds audit logs.
-     - Throws: `HTTPError.forbidden`: You don't have the permissions to edit the category channel.
-     */
+    /// Edit the category channel.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the category.
+    ///   - reason: The reason for editing the category channel. This shows up in the guilds audit log.
+    /// - Returns: The updated category channel.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> CategoryChannel {
         guard !edits.isEmpty else { return self }
@@ -398,7 +371,6 @@ public class DMChannel : Channel, Messageable, Hashable {
     
     /// Get the messages pinned to the channel.
     /// - Returns: The messages pinned to the channel.
-    /// - Throws: `HTTPError.forbidden`: You don't have the permissions to retrieve the pinned messages.
     public func pins() async throws -> [Message] {
         return try await bot!.http.getPinnedMessages(channelId: id)
     }
@@ -504,18 +476,14 @@ public class TextChannel : GuildChannelMessageable, Hashable {
         return AsyncArchivedThreads(channel: self, limit: limit, before: before, joined: joined, private: `private`)
     }
     
-    /**
-     Create a thread.
-     
-     - Parameters:
-        - name: Name of the thread.
-        - autoArchiveDuration: Duration to automatically archive the thread after recent activity.
-        - slowmode: Amount of seconds a user has to wait before sending another message.
-        - invitable: Whether non-moderators can add other non-moderators to a thread. Only available when creating a private thread.
-        - reason: The reason for creating the thread. This shows up in the guilds audit-logs.
-     - Returns: The newly created thread.
-     - Throws: `HTTPError.forbidden` You don't have the proper permissions to create a thread. `HTTPError.base` Creating the thread failed.
-    */
+    /// Create a thread.
+    /// - Parameters:
+    ///   - name: Name of the thread.
+    ///   - autoArchiveDuration: Duration to automatically archive the thread after recent activity.
+    ///   - slowmode: Amount of seconds a user has to wait before sending another message.
+    ///   - invitable: Whether non-moderators can add other non-moderators to a thread. Only available when creating a private thread.
+    ///   - reason: The reason for creating the thread. This shows up in the guilds audit log.
+    /// - Returns: The newly created thread.
     public func createThread( // Note: This is considered a private thread. Public threads are created via Message.createThread()
         name: String,
         autoArchiveDuration: ThreadChannel.ArchiveDuration = .twentyfourHours,
@@ -533,14 +501,11 @@ public class TextChannel : GuildChannelMessageable, Hashable {
         )
     }
     
-    /**
-     Edit the text channel.
-     
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the text channel.
-        - reason: The reason for editing the text channel. This shows up in the guilds audit logs.
-     - Throws: `HTTPError.forbidden`: You don't have the permissions to edit the text channel.
-     */
+    /// Edit the text channel.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the text channel.
+    ///   - reason: The reason for editing the text channel. This shows up in the guilds audit logs
+    /// - Returns: The updated text channel.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> TextChannel {
         guard !edits.isEmpty else { return self }
@@ -573,7 +538,6 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     /// Follow the text channel.
     /// - Parameter sendUpdatesTo: The channel where messages will be sent when they are published.
     /// - Returns: A webhook assoiciated with the announcement channel.
-    /// - Throws: `HTTPError.badRequest`:  Attempted to follow a non-announcement channel.
     public func follow(sendUpdatesTo: TextChannel) async throws -> Webhook {
         // The discord error message isn't helpful here (invalid form body)
         if type != .guildAnnouncement { throw HTTPError.badRequest("Cannot follow non-announcement channels") }
@@ -583,7 +547,6 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     
     /// Get all messages pinned to the channel.
     /// - Returns: All pinned messages in the channel.
-    /// - Throws: `HTTPError.forbidden`:  You don't have the permissions to get the pinned messages,
     public func pins() async throws -> [Message] {
         return try await bot!.http.getPinnedMessages(channelId: id)
     }
@@ -783,24 +746,22 @@ public class ForumChannel : GuildChannel, Hashable {
         return AsyncArchivedThreads(channel: self, limit: limit, before: before, joined: joined, private: `private`)
     }
     
-    /**
-     Create a thread.
-
-     - Parameters:
-        - name: Name of the thread.
-        - autoArchiveDuration: The threads auto archive duration.
-        - slowmode: The threads slowmode.
-        - content: The message contents.
-        - embeds: Embeds attached to the message (10 max).
-        - allowedMentions: Controls the mentions allowed when this message is sent.
-        - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
-        - stickers: The stickers for the message.
-        - files: An array of files to attach to the message.
-        - suppressEmbeds: Whether to suppress embeds. If `true`, no embeds will be sent with the message.
-        - reason: The reason for creating the thread. This shows up the the guilds audit logs.
-     - Returns: The newly created thread.
-     - Note: A message is required to be sent with the creation of a thread. Meaning at least one parameter such as `content`, `embeds`, `ui`, `stickers`, or `files` must be used.
-     */
+    /// Creates a thread.
+    /// - Parameters:
+    ///   - name: Name of the thread.
+    ///   - autoArchiveDuration: The threads auto archive duration.
+    ///   - slowmode: The threads slowmode.
+    ///   - appliedTags: The tags that will be applied to the thread.
+    ///   - content: The message contents.
+    ///   - embeds: Embeds attached to the message (10 max).
+    ///   - allowedMentions: Controls the mentions allowed when this message is sent.
+    ///   - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
+    ///   - stickers: The stickers for the message.
+    ///   - files: Files to attach to the message.
+    ///   - suppressEmbeds: Whether to suppress embeds. If `true`, no embeds will be sent with the message.
+    ///   - reason: The reason for creating the thread. This shows up the the guilds audit log.
+    /// - Returns: The newly created thread.
+    /// - Note: A message is required to be sent with the creation of a thread. Meaning at least one parameter such as `content`, `embeds`, `ui`, `stickers`, or `files` must be used.
     public func createThread(
         name: String,
         autoArchiveDuration: ThreadChannel.ArchiveDuration = .twentyfourHours,
@@ -848,14 +809,11 @@ public class ForumChannel : GuildChannel, Hashable {
         return info.thread
     }
     
-    /**
-     Edit the forum channel.
-
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the forum channel.
-        - reason: The reason for editing the forum channel. This shows up in the guilds audit logs.
-     - Throws: `HTTPError.forbidden`: You don't have the permissions to edit the forum channel.
-     */
+    /// Edit the forum channel.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the forum channel.
+    ///   - reason: The reason for editing the forum channel. This shows up in the guilds audit log.
+    /// - Returns: The updated forum channel.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> ForumChannel {
         guard !edits.isEmpty else { return self }
@@ -1004,14 +962,11 @@ extension ForumChannel {
             else { emoji = PartialEmoji(tagData["emoji_name"] as! String) }
         }
         
-        /**
-         Initialize a Forum tag.
-         
-         - Parameters:
-            - name: The name of the tag 20 characters max)
-            - moderated: Whether this tag can only be added to or removed from threads by a member with the ``Permission/manageThreads`` permission.
-            - emoji: Emoji for the tag.
-         */
+        /// Initialize a Forum tag.
+        /// - Parameters:
+        ///   - name: The name of the tag (20 characters max).
+        ///   - moderated: Whether this tag can only be added to or removed from threads by a member with the ``Permission/manageThreads`` permission.
+        ///   - emoji: Emoji for the tag.
         public init(name: String, moderated: Bool, emoji: PartialEmoji) {
             id = 0
             self.name = name
@@ -1118,14 +1073,11 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
         rtcRegion = RtcRegion(rawValue: rtcValue)
     }
     
-    /**
-     Edit the voice channel.
-
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the voice channel.
-        - reason: The reason for editing the voice channel. This shows up in the guilds audit logs.
-     - Throws: `HTTPError.forbidden`: You don't have the permissions to edit the voice channel.
-     */
+    /// Edit the voice channel.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the voice channel.
+    ///   - reason: The reason for editing the voice channel. This shows up in the guilds audit log.
+    /// - Returns: The updated voice channel.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> VoiceChannel {
         guard !edits.isEmpty else { return self }
@@ -1161,14 +1113,13 @@ extension VoiceChannel {
     /// Represents the values that should be edited in a ``VoiceChannel``.
     public enum Edit {
         
-        /**
-        The bitrate (in bits) of the voice channel.
-
-        - For voice channels, normal guilds can set bitrate up to 96000.
-        - Guilds with Boost level 1 can set up to 128000.
-        - Guilds with Boost level 2 can set up to 256000.
-        - Guilds with Boost level 3 or has the ``Guild/Feature/vipRegions`` feature can set up to 384000.
-        */
+        /// The bitrate (in bits) of the voice channel.
+        ///
+        /// Bitrates for guilds:
+        /// - Normal guilds can set bitrate up to 96000.
+        /// - Guilds with Boost level 1 can set up to 128000.
+        /// - Guilds with Boost level 2 can set up to 256000.
+        /// - Guilds with Boost level 3 or has the ``Guild/Feature/vipRegions`` feature can set up to 384000.
         case bitrate(Int)
         
         /// The category the channel belongs to. Can be `nil` for no category.
@@ -1434,7 +1385,6 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     }
     
     /// Archive the thread.
-    /// - Throws: `HTTPError.forbidden`: You don't have the permissions to archive the thread channel.
     public func archive() async throws {
         try await edit(.archived(true))
     }
@@ -1445,14 +1395,11 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
         _ = try await bot!.http.addThreadMember(threadId: id, userId: member.id)
     }
     
-    /**
-     Edit the thread channel.
-
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the thread channel.
-        - reason: The reason for editing the thread channel. This shows up in the guilds audit logs.
-     - Throws: `HTTPError.forbidden`: You don't have the permissions to edit the thread channel.
-     */
+    /// Edit the thread channel.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the thread channel.
+    ///   - reason: The reason for editing the thread channel. This shows up in the guilds audit log.
+    /// - Returns: The updated thread.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> ThreadChannel {
         guard !edits.isEmpty else { return self }
@@ -1499,7 +1446,6 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     }
     
     /// Lock the thread.
-    /// - Throws: `HTTPError.forbidden`: You don't have the permissions to lock the thread channel.
     public func lock() async throws {
         try await edit(.locked(true))
     }
@@ -1511,7 +1457,8 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     }
     
     /// Get all members in the thread.
-    /// - Note: This method  is restricted according to whether the guild memberd Privileged Intent is enabled for your application.
+    /// - Returns: All members in the thread.
+    /// - Note: This method  is restricted according to whether the guild members Privileged Intent is enabled for your application.
     public func members() async throws -> [ThreadMember] {
         return try await bot!.http.getThreadMembers(threadId: id)
     }
@@ -1589,28 +1536,22 @@ public class StageChannel : VoiceChannel {
         super.init(bot: bot, vcData: scData)
     }
     
-    /**
-     Create a stage instance.
-     
-     - Parameters:
-        - topic: The topic of the Stage instance (1-120 characters).
-        - privacyLevel: The privacy level of the Stage instance.
-        - startNotification: Notify @everyone that a Stage instance has started.
-        - reason: The reason for creating the instance.
-     - Returns: The newly created instance.
-     */
+    /// Creates a stage instance.
+    /// - Parameters:
+    ///   - topic: The topic of the Stage instance (1-120 characters).
+    ///   - privacyLevel: The privacy level of the Stage instance.
+    ///   - startNotification: Notify @everyone that a Stage instance has started.
+    ///   - reason: The reason for creating the instance. This shows up in the guilds audit log.
+    /// - Returns: The newly created instance.
     public func createInstance(topic: String, privacyLevel: StageInstance.PrivacyLevel = .guildOnly, startNotification: Bool = false, reason: String? = nil) async throws -> StageInstance {
         try await bot!.http.createStageInstance(stageChannelId: id, topic: topic, privacyLevel: privacyLevel, startNotification: startNotification, reason: reason)
     }
     
-    /**
-     Edit the stage channel.
-
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the stage channel.
-        - reason: The reason for editing the stage channel. This shows up in the guilds audit logs.
-     - Throws: `HTTPError.forbidden`: You don't have the permissions to edit the stage channel.
-     */
+    /// Edit the stage channel.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the stage channel.
+    ///   - reason: The reason for editing the stage channel. This shows up in the guilds audit log.
+    /// - Returns: The updated stage channel.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> StageChannel {
         guard !edits.isEmpty else { return self }
@@ -1718,14 +1659,11 @@ public struct StageInstance : Hashable {
         mention = Conversions.mention(.channel, id: id)
     }
     
-    /**
-     Edit the stage instance.
-     
-     - Parameters:
-        - topic: The stage instance topic.
-        - reason: The reason for editing the stage instance.
-     - Returns: The updated stage instance.
-     */
+    /// Edit the stage instance.
+    /// - Parameters:
+    ///   - topic: The stage instance topic.
+    ///   - reason: The reason for editing the stage instance. This shows up in the guilds audit log.
+    /// - Returns: The updated stage instance.
     public func edit(topic: String, reason: String? = nil) async throws -> StageInstance {
         try await bot!.http.modifyStageInstance(stageChannelId: channelId, topic: topic, reason: reason)
     }

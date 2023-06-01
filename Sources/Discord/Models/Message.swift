@@ -91,7 +91,7 @@ public class Message : Object, Hashable, Updateable {
 
     /// Channels mentioned in this message. If the message was sent in a DM, this will always be empty.
     /// - Note: This is determined by if the ``content`` of the message contains the following regex: `<#[0-9]{17,20}>`.
-    /// If there's a match, the channel is retrieved from the cache.
+    ///         If there's a match, the channel is retrieved from the cache.
     public var mentionedChannels: [GuildChannel] {
         // NOTE: This can't return `GuildChannelMessageable`. Although most channels are messageable,
         // not all are. For example, a mentioned `ForumChannel` matches the channel regex, but it's not messageable.
@@ -332,38 +332,28 @@ public class Message : Object, Hashable, Updateable {
      // Add a guild emoji
      try await message.addReaction("<:swift:1082497874874617881>")
      ```
-     
      - Parameter emoji: Emoji to add.
-     - Throws: `HTTPError.forbidden` You don't have the proper permissions to add a reaction.
      */
     public func addReaction(_ emoji: String) async throws {
         try await bot!.http.createReaction(channelId: channel.id, messageId: id, emoji: emoji)
     }
     
-    /**
-     Create a thread from the message.
-     
-     - Parameters:
-        - name: Name of the thread.
-        - autoArchiveDuration: Duration to automatically archive the thread after recent activity.
-        - slowmode: Amount of seconds a user has to wait before sending another message.
-        - reason: The reason for creating the thread. This shows up in the guilds audit-logs.
-     - Returns: The newly created thread.
-     - Throws: `HTTPError.forbidden` You don't have the proper permissions to create a thread. `HTTPError.base` Creating the thread failed.
-    */
+    /// Create a thread from the message.
+    /// - Parameters:
+    ///   - name: Name of the thread.
+    ///   - autoArchiveDuration: Duration to automatically archive the thread after recent activity.
+    ///   - slowmode: Amount of seconds a user has to wait before sending another message.
+    ///   - reason: The reason for creating the thread. This shows up in the guilds audit-logs.
+    /// - Returns: The newly created thread.
     public func createThread(name: String, autoArchiveDuration: ThreadChannel.ArchiveDuration = .twentyfourHours, slowmode: Int? = nil, reason: String? = nil) async throws -> ThreadChannel {
         return try await bot!.http.startThreadFromMessage(channelId: channel.id, messageId: id, threadName: name, autoArchiveDuration: autoArchiveDuration, slowmodeInSeconds: slowmode, reason: reason)
     }
     
-    /**
-     Edit the message.
-     
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the message.
-        - keeping: The attachments that should stay on the message. If set to an empty array, all attachments that were previously attached will be removed.
-     - Returns: The updated message.
-     - Throws: `HTTPError.forbidden` Attempted to edit a message that wasn't yours. `HTTPError.base` Editing the message failed.
-    */
+    /// Edit the message.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the message.
+    ///   - keeping:  The attachments that should stay on the message. If set to an empty array, all attachments that were previously attached will be removed.
+    /// - Returns: The updated message.
     @discardableResult
     public func edit(_ edits: Message.Edit..., keeping: [Attachment]? = nil) async throws -> Message {
         // Don't perform an HTTP request when nothing was changed
@@ -416,14 +406,10 @@ public class Message : Object, Hashable, Updateable {
         return editedMessage
     }
     
-    /**
-     Delete the message.
-     
-     - Parameters:
-        - after: The amount of seconds to wait before deleting the message.
-        - reason: The reason for deleting the message. This shows up in the guilds audit-logs.
-     - Throws: `HTTPError.forbidden` You don't have the proper permissions to delete messages. `HTTPError.base` Deleting the message failed.
-    */
+    /// Delete the message.
+    /// - Parameters:
+    ///   - after: The amount of seconds to wait before deleting the message.
+    ///   - reason: The reason for deleting the message. This shows up in the guilds audit log.
     public func delete(after: TimeInterval = 0, reason: String? = nil) async throws {
         let after = after < 0 ? 0 : after
         if after > 0 {
@@ -479,13 +465,10 @@ public class Message : Object, Hashable, Updateable {
         }
     }
     
-    /**
-     Remove a reaction by the specified user.
-     
-     - Parameters:
-        - emoji: Emoji to remove.
-        - by: The user the emoji belongs to.
-     */
+    /// Remove a reaction by the specified user.
+    /// - Parameters:
+    ///   - emoji: Emoji to remove.
+    ///   - by: The user the emoji belongs to.
     public func removeReaction(emoji: String, by: User) async throws {
         if by.id == bot!.user!.id {
             try await bot!.http.deleteOwnReaction(channelId: channelId, messageId: id, emoji: emoji)
@@ -494,19 +477,15 @@ public class Message : Object, Hashable, Updateable {
         }
     }
     
-    /**
-     Reply to a message.
-     
-     - Parameters:
-        - content: The message contents.
-        - tts: Whether this message should be sent as a TTS message.
-        - embeds: Embeds attached to the message.
-        - allowedMentions: Controls the mentions allowed when this message is sent.
-        - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
-        - files: Files to attach to the message.
-     - Returns: The message that was sent.
-     - Throws: `HTTPError.forbidden` You don't have the proper permissions to send a message. `HTTPError.base` Sending the message failed.
-    */
+    /// Reply to a message.
+    /// - Parameters:
+    ///   - content: The message contents.
+    ///   - tts: Whether this message should be sent as a TTS message.
+    ///   - embeds: Embeds attached to the message (10 max).
+    ///   - allowedMentions: Controls the mentions allowed when this message is sent.
+    ///   - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
+    ///   - files: Files to attach to the message.
+    /// - Returns: The message that was sent.
     @discardableResult
     public func reply(
         _ content: String? = nil,
@@ -824,15 +803,12 @@ public struct AllowedMentions {
     /// An `AllowedMentions` object with everything disabled.
     public static var none: AllowedMentions { .init(users: false, roles: false, repliedUser: false, everyone: false) }
     
-    /**
-     Initializes a new allowed mentions object.
-     
-     - Parameters:
-        - users: If users can be mentioned in a message.
-        - roles: If roles can be mentioned in a message.
-        - repliedUser: If the user to the message that is being replied to are allowed to be mentioned in a message.
-        - everyone: If `@everyone` or `@here` are allowed to be mentioned in a message.
-    */
+    /// Initializes a new allowed mentions object.
+    /// - Parameters:
+    ///   - users: If users can be mentioned in a message.
+    ///   - roles: If roles can be mentioned in a message.
+    ///   - repliedUser: If the user to the message that is being replied to are allowed to be mentioned in a message.
+    ///   - everyone: If `@everyone` or `@here` are allowed to be mentioned in a message.
     public init(users: Bool, roles: Bool, repliedUser: Bool, everyone: Bool) {
         self.users = users
         self.roles = roles
@@ -840,13 +816,10 @@ public struct AllowedMentions {
         self.everyone = everyone
     }
     
-    /**
-     Initializes a new allowed mentions object.
-     
-     - Parameters:
-        - users: The **only** users that can be mentioned in a message.
-        - roles: The **only** roles that can be mentioned in a message.
-     */
+    /// Initializes a new allowed mentions object.
+    /// - Parameters:
+    ///   - users: The **only** users that can be mentioned in a message.
+    ///   - roles: The **only** roles that can be mentioned in a message.
     public init(users: Set<User>, roles: Set<Role>) {
         exemptUsers = users
         exemptRoles = roles

@@ -24,7 +24,7 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 
-/// Represents a discord webhook.
+/// Represents a Discord webhook.
 public class Webhook : Object {
     
     /// The ID of the webhook.
@@ -54,7 +54,7 @@ public class Webhook : Object {
     /// The bot/OAuth2 application that created this webhook.
     public let applicationId: Snowflake?
 
-    /// The URL  used for executing the webhook.
+    /// The URL used for executing the webhook.
     public let url: String?
     
     /// Your bot instance.
@@ -85,14 +85,11 @@ public class Webhook : Object {
         try await bot!.http.deleteWebhook(webhookId: id)
     }
     
-    /**
-     Edit the webhook.
-      
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the webhook.
-        - reason: The reason for editing the webhook. This shows up in the guilds audit-logs.
-     - Returns: The updated webhook.
-     */
+    /// Edit the webhook.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the webhook.
+    ///   - reason: The reason for editing the webhook. This shows up in the guilds audit-logs.
+    /// - Returns: The updated webhook.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> Webhook {
         // Don't perform an HTTP request when nothing was changed
@@ -112,22 +109,19 @@ public class Webhook : Object {
         return try await bot!.http.modifyWebhook(webhookId: id, data: payload, reason: reason)
     }
     
-    /**
-     Send a message via the webhook.
-     
-     - Parameters:
-        - content: The message contents.
-        - embeds: Embeds attached to the message (10 max).
-        - tts: Whether this message should be sent as a TTS message.
-        - allowedMentions: Controls the mentions allowed when this message is sent.
-        - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``. The webhook must be owned by the bot in order to use this.
-        - files: Files to attach to the message.
-        - threadId: The specified thread within a webhook's channel. The thread will automatically be unarchived.
-        - threadName: Name of thread to create (requires the webhook channel to be a forum channel).
-        - username: Override the default username of the webhook.
-        - avatarUrl: Override the default avatar of the webhook.
-     - Returns: The message that was sent.
-     */
+    /// Send a message via the webhook.
+    /// - Parameters:
+    ///   - content: The message contents.
+    ///   - embeds: Embeds attached to the message (10 max).
+    ///   - tts: Whether this message should be sent as a TTS message.
+    ///   - allowedMentions: Controls the mentions allowed when this message is sent.
+    ///   - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``. The webhook must be owned by the bot in order to use this.
+    ///   - files: Files to attach to the message.
+    ///   - threadId: The specified thread within a webhook's channel. The thread will automatically be unarchived.
+    ///   - threadName: Name of thread to create (requires the webhook channel to be a forum channel).
+    ///   - username: Override the default username of the webhook.
+    ///   - avatarUrl: Override the default avatar of the webhook.
+    /// - Returns: The message that was sent.
     @discardableResult
     public func send(
         _ content: String? = nil,

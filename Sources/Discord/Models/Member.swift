@@ -115,26 +115,19 @@ public class Member : Object, Hashable {
         flags = Flag.determineFlags(value: memberData["flags"] as! Int)
     }
     
-    /**
-     Bans the member from the guild.
-     
-     - Parameters:
-        - deleteMessageSeconds: Number of seconds to delete messages for, between 0 and 604800 (7 days).
-        - reason: The reason for banning the member.
-     - Throws: `HTTPError.forbidden` You do not have the proper permissions to ban.
-     */
+    /// Bans the member from the guild.
+    /// - Parameters:
+    ///   - deleteMessageSeconds: Number of seconds to delete messages for, between 0 and 604800 (7 days).
+    ///   - reason: The reason for banning the member. This shows up in the guilds audit log.
     public func ban(deleteMessageSeconds: Int = 0, reason: String? = nil) async throws {
         try await guild.ban(user: user!, deleteMessageSeconds: deleteMessageSeconds, reason: reason)
     }
     
-    /**
-     Edit the member.
-     
-     - Parameters:
-        - edits: Values that should be changed.
-        - reason: The reason for editing the member. This shows up in the guilds audit-logs.
-     - Returns: The updated member.
-     */
+    /// Edit the member.
+    /// - Parameters:
+    ///   - edits: Values that should be changed.
+    ///   - reason: The reason for editing the member. This shows up in the guilds audit log.
+    /// - Returns: The updated member.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> Member {
         // Don't perform an HTTP request when nothing was changed
@@ -164,51 +157,36 @@ public class Member : Object, Hashable {
         return try await bot!.http.modifyGuildMember(guildId: guild.id, userId: id, data: payload, reason: reason)
     }
     
-    /**
-     Add roles to a member.
-     
-     - Parameters:
-        - roles: Roles to add.
-        - reason: The reason for adding the roles. This shows up in the guilds audit-logs.
-     - Throws: `HTTPError.forbidden` You don't have the proper permissions to add roles.
-     */
+    /// Add roles to a member.
+    /// - Parameters:
+    ///   - roles: Roles to add.
+    ///   - reason: The reason for adding the roles. This shows up in the guilds audit log.
     public func addRoles(_ roles: [Role], reason: String? = nil) async throws {
         for r in roles {
             try await bot!.http.addRoleToMember(guildId: guild.id, userId: id, roleId: r.id, reason: reason)
         }
     }
     
-    /**
-     Remove roles from a member.
-     
-     - Parameters:
-        - roles: Roles to remove.
-        - reason: The reason for removing the roles. This shows up in the guilds audit-logs.
-     - Throws: `HTTPError.forbidden` You don't have the proper permissions to remove roles.
-     */
+    /// Remove roles from a member.
+    /// - Parameters:
+    ///   - roles: Roles to remove.
+    ///   - reason: The reason for removing the roles. This shows up in the guilds audit log.
     public func removeRoles(_ roles: [Role], reason: String? = nil) async throws {
         for r in roles {
             try await bot!.http.removeRoleFromMember(guildId: guild.id, userId: id, roleId: r.id, reason: reason)
         }
     }
     
-    /**
-     Removes the member from the guild.
-     
-     - Parameter reason: The reason for removing the member from the guild. This shows up in the guilds audit-logs.
-     - Throws: `HTTPError.forbidden` You don't have the proper permissions to remove the member.
-     */
+    /// Removes the member from the guild.
+    /// - Parameter reason: The reason for removing the member from the guild. This shows up in the guilds audit log.
     public func kick(reason: String? = nil) async throws  {
         try await bot!.http.removeGuildMember(guildId: guild.id, userId: id, reason: reason)
     }
     
-    /**
-     Timeout the member for up to 28 days. This is shortcut to instance method ``edit(_:reason:)``.
-     
-     - Parameters:
-        - until: When the timeout will expire. Can be set to `nil` to remove timeout.
-        - reason: The reason for timing out the member. This shows up in the guilds audit-logs.
-     */
+    /// Timeout the member for up to 28 days.
+    /// - Parameters:
+    ///   - until: When the timeout will expire. Can be set to `nil` to remove timeout.
+    ///   - reason: The reason for timing out the member. This shows up in the guilds audit log.
     public func timeout(until: Date?, reason: String? = nil) async throws {
         try await edit(.timeout(until))
     }
@@ -267,4 +245,3 @@ extension Member {
         case timeout(Date?)
     }
 }
-

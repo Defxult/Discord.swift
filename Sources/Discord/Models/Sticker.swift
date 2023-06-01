@@ -101,14 +101,11 @@ public struct GuildSticker : Object, Hashable {
         else { user = nil }
     }
     
-    /**
-     Edit the guild sticker.
-      
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the guild sticker.
-        - reason: The reason for editing the guild sticker. This shows up in the guilds audit-logs.
-     - Returns: The updated guild sticker.
-     */
+    /// Edit the guild sticker.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the guild sticker.
+    ///   - reason: The reason for editing the guild sticker. This shows up in the guilds audit log.
+    /// - Returns: The updated guild sticker.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> GuildSticker {
         // Don't perform an HTTP request when nothing was changed

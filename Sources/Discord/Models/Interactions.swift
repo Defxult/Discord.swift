@@ -361,26 +361,23 @@ public struct ApplicationCommandOption {
     
     // -----------------------------------
     
-    /**
-     Initializes a application command option.
-     
-     - Parameters:
-        - type: Type of option.
-        - name: 1-32 character name.
-        - description: 1-100 character description.
-        - required: If the parameter is required. If `true`, this option must be before all other options that are not required. This is not utilized if the `type` is ``ApplicationCommandOptionType/subCommand`` or ``ApplicationCommandOptionType/subCommandGroup``.
-        - choices: The choices available for the user to pick from. If you specify choices, they are the **only** valid values for a user to pick.
-        - channelTypes: If the option is a channel type, the channels shown will be restricted to these types.
-        - options: If the option is a subcommand or subcommand group type, these nested options will be the parameters.
-        - nameLocalizations: Name localizations for the option.
-        - descriptionLocalizations: Description localizations for the option.
-        - minValue: The minimum value permitted if the `type` is ``ApplicationCommandOptionType/integer`` or ``ApplicationCommandOptionType/double``.
-        - maxValue: The maximum value permitted if the `type` is ``ApplicationCommandOptionType/integer`` or ``ApplicationCommandOptionType/double``.
-        - minLength: The minimum allowed length if the `type` is ``ApplicationCommandOptionType/string``. Minimum of 1, maximum of 6000.
-        - maxLength: The maximum allowed length if the `type` is ``ApplicationCommandOptionType/string``. Minimum of 1, maximum of 6000.
-        - autocomplete: If autocomplete interactions are enabled for this ``ApplicationCommandOptionType/string``, ``ApplicationCommandOptionType/integer``, or ``ApplicationCommandOptionType/double`` type option.
-        - suggestions: The autocomplete suggestions that will show up for the option if ``autocomplete`` is enabled.
-     */
+    /// Initializes a application command option.
+    /// - Parameters:
+    ///   - type: Type of option.
+    ///   - name: 1-32 character name.
+    ///   - description: 1-100 character description.
+    ///   - required: If the parameter is required. If `true`, this option must be before all other options that are not required. This is not utilized if the `type` is ``ApplicationCommandOptionType/subCommand`` or ``ApplicationCommandOptionType/subCommandGroup``.
+    ///   - choices: The choices available for the user to pick from. If you specify choices, they are the **only** valid values for a user to pick.
+    ///   - channelTypes: If the option is a channel type, the channels shown will be restricted to these types.
+    ///   - options: If the option is a subcommand or subcommand group type, these nested options will be the parameters.
+    ///   - nameLocalizations: Name localizations for the option.
+    ///   - descriptionLocalizations: Description localizations for the option.
+    ///   - minValue: The minimum value permitted if the `type` is ``ApplicationCommandOptionType/integer`` or ``ApplicationCommandOptionType/double``.
+    ///   - maxValue: The maximum value permitted if the `type` is ``ApplicationCommandOptionType/integer`` or ``ApplicationCommandOptionType/double``.
+    ///   - minLength: The minimum allowed length if the `type` is ``ApplicationCommandOptionType/string``. Minimum of 1, maximum of 6000.
+    ///   - maxLength: The maximum allowed length if the `type` is ``ApplicationCommandOptionType/string``. Minimum of 1, maximum of 6000.
+    ///   - autocomplete: If autocomplete interactions are enabled for this ``ApplicationCommandOptionType/string``, ``ApplicationCommandOptionType/integer``, or ``ApplicationCommandOptionType/double`` type option.
+    ///   - suggestions: The autocomplete suggestions that will show up for the option if ``autocomplete`` is enabled.
     public init(
         _ type: ApplicationCommandOptionType,
         name: String,
@@ -544,42 +541,33 @@ public struct ApplicationCommandOptionChoice {
     /// Value for the choice. Either string, integer, or double. Up to 100 characters if string.
     public let value: Any
     
-    /**
-     Initializes an application command option choice.
-     
-     - Parameters:
-        - name: 1-100 character choice name.
-        - value: Value for the choice. Up to 100 characters.
-        - nameLocalizations: Name localizations for the option choice.
-     */
+    /// Initializes an application command option choice.
+    /// - Parameters:
+    ///   - name: 1-100 character choice name.
+    ///   - value: Value for the choice. Up to 100 characters.
+    ///   - nameLocalizations: Name localizations for the option choice.
     public init(name: String, value: String, nameLocalizations: [Locale: String]? = nil) {
         self.name = name
         self.value = value
         self.nameLocalizations = nameLocalizations
     }
     
-    /**
-     Initializes an application command option choice.
-     
-     - Parameters:
-        - name: 1-100 character choice name.
-        - value: Value for the choice.
-        - nameLocalizations: Name localizations for the option choice.
-     */
+    /// Initializes an application command option choice.
+    /// - Parameters:
+    ///   - name: 1-100 character choice name.
+    ///   - value: Value for the choice.
+    ///   - nameLocalizations: Name localizations for the option choice.
     public init(name: String, value: Int, nameLocalizations: [Locale: String]? = nil) {
         self.name = name
         self.value = value
         self.nameLocalizations = nameLocalizations
     }
     
-    /**
-     Initializes an application command option choice.
-     
-     - Parameters:
-        - name: 1-100 character choice name.
-        - value: Value for the choice.
-        - nameLocalizations: Name localizations for the option choice.
-     */
+    /// Initializes an application command option choice.
+    /// - Parameters:
+    ///   - name: 1-100 character choice name.
+    ///   - value: Value for the choice.
+    ///   - nameLocalizations: Name localizations for the option choice.
     public init(name: String, value: Double, nameLocalizations: [Locale: String]? = nil) {
         self.name = name
         self.value = value
@@ -708,17 +696,15 @@ public class Interaction {
         if let msgObj = interactionData["message"] as? JSON { message = Message(bot: bot, messageData: msgObj) }
     }
     
-    /**
-     Send a followup message. This is used when the interaction has already been responded to.
-
-     - Parameters:
-        - content: The message contents.
-        - embeds: Embeds attached to the message (10 max).
-        - tts: Whether this message should be sent as a TTS message.
-        - allowedMentions: Controls the mentions allowed when this message is sent.
-        - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
-        - files: Files to attach to the message.
-     */
+    /// Send a followup message. This is used when the interaction has already been responded to.
+    /// - Parameters:
+    ///   - content: The message contents.
+    ///   - embeds: Embeds attached to the message (10 max).
+    ///   - tts: Whether this message should be sent as a TTS message.
+    ///   - allowedMentions: Controls the mentions allowed when this message is sent.
+    ///   - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
+    ///   - files: Files to attach to the message.
+    /// - Returns: The followup message.
     @discardableResult
     public func followupWithMessage(
         _ content: String? = nil,
@@ -757,17 +743,15 @@ public class Interaction {
         }
         return nil
     }
-
-    /**
-     Edit the followup message.
-
-     - Parameters:
-        - content: The message contents.
-        - embeds: Embeds attached to the message (10 max).
-        - allowedMentions: Controls the mentions allowed when this message is sent.
-        - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
-        - files: Files to attach to the message.
-     */
+    
+    /// Edit the followup message.
+    /// - Parameters:
+    ///   - content: The message contents.
+    ///   - embeds: Embeds attached to the message (10 max).
+    ///   - allowedMentions: Controls the mentions allowed when this message is sent.
+    ///   - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
+    ///   - files: Files to attach to the message.
+    /// - Returns: The updated message.
     @discardableResult
     public func editFollowupMessage(
         _ content: String? = nil,
@@ -816,17 +800,15 @@ public class Interaction {
             return originalResponse
         }
     }
-
-    /**
-     Edit the original response message.
-
-     - Parameters:
-        - content: The message contents.
-        - embeds: Embeds attached to the message (10 max).
-        - allowedMentions: Controls the mentions allowed when this message is sent.
-        - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
-        - files: Files to attach to the message.
-     */
+    
+    /// Edit the original response message.
+    /// - Parameters:
+    ///   - content: The message contents.
+    ///   - embeds: Embeds attached to the message (10 max).
+    ///   - allowedMentions: Controls the mentions allowed when this message is sent.
+    ///   - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
+    ///   - files: Files to attach to the message.
+    /// - Returns: The updated response.
     @discardableResult
     public func editOriginalResponse(
         _ content: String? = nil,
@@ -901,7 +883,7 @@ public class Interaction {
                 "title": modal.title,
                 "custom_id": modal.customId,
                 "components": componentsPayload
-            ]
+            ] as [String: Any]
         ]
 
         try await bot!.http.createInteractionResponse(interactionId: id, interactionToken: token, json: payload, files: nil)
@@ -923,20 +905,17 @@ public class Interaction {
         try await bot!.http.createInteractionResponse(interactionId: id, interactionToken: token, json: payload, files: nil)
         isFinished = true
     }
-
-    /**
-     Respond to an interaction with a message.
-
-     - Parameters:
-        - content: The message contents.
-        - embeds: Embeds attached to the message (10 max).
-        - tts: Whether this message should be sent as a TTS message.
-        - allowedMentions: Controls the mentions allowed when this message is sent.
-        - ephemeral: Whether the message is ephemeral.
-        - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
-        - files: Files to attach to the message.
-     - Returns: The original response message.
-     */
+    
+    /// Respond to an interaction with a message.
+    /// - Parameters:
+    ///   - content: The message contents.
+    ///   - embeds: Embeds attached to the message (10 max).
+    ///   - tts: Whether this message should be sent as a TTS message.
+    ///   - allowedMentions: Controls the mentions allowed when this message is sent.
+    ///   - ephemeral: Whether the message is ephemeral.
+    ///   - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
+    ///   - files: Files to attach to the message.
+    /// - Returns: The message that was sent.
     @discardableResult
     public func respondWithMessage(
         _ content: String? = nil,

@@ -38,15 +38,11 @@ public struct File {
 
     let mimetype: String
     var asImageData: String { "data:\(mimetype);base64,\(data.base64EncodedString())" }
-
-    /**
-    Initializes a new a file using the direct patch of an existing file.
-
-    - Parameters:
-        - name: The name of the file **to include** it's file extension.
-        - path: The *absolute path* of the file from which to read.
-    - Throws: `FileError.notFound` If the file could not be found.
-    */
+    
+    /// Initializes a new a file using the direct patch of an existing file.
+    /// - Parameters:
+    ///   - name: The name of the file **to include** it's file extension.
+    ///   - path: The *absolute path* of the file from which to read.
     public init(name: String, path: String) throws {
         self.name = name
         self.path = path
@@ -59,14 +55,11 @@ public struct File {
         }
     }
     
-    /**
-     Create a file by using it's name and data.
-     
-     - Parameters:
-        - name: Name of the file **to include** it's file extension.
-        - using: The files data.
-     - Note: The file extension should match the data being used. For example, if the data you're *using* is a text file, the *name* should be "Example.txt".
-     */
+    /// Create a file by using it's name and data.
+    /// - Parameters:
+    ///   - name: Name of the file **to include** it's file extension.
+    ///   - using: The files data.
+    /// - Note: The file extension should match the data being used. For example, if the data you're *using* is a text file, the *name* should be "Example.txt".
     public init(name: String, using: Data) {
         path = .empty
         self.name = name
@@ -75,7 +68,7 @@ public struct File {
     }
     
     /// Convert the URLs into files.
-    /// - Parameter urls: The URLs to extract the data from. These must have a path extension (`.png`, `.gif`, `.mp3`, etc). If a URL does not have a path extension it is ignored.
+    /// - Parameter urls: The URLs to extract the data from. These must have a path extension (.png, .gif, .mp3, etc). If a URL does not have a path extension it is ignored.
     /// - Returns: The files that were converted from the given URLs.
     public static func download(urls: [URL]) async throws -> [File] {
         // Extract the URLs that contain a path extension because the extension is needed for `File.init()`

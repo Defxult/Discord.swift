@@ -233,16 +233,13 @@ public struct PermissionOverwrites {
         enabled = permResults.allowed
         disabled = permResults.denied
     }
-
-    /**
-     Set permissions to be enabled or disabled.
-     
-     - Parameters:
-        - for: The target to set overwrites for. Must be a ``Member`` or ``Role`` object.
-        - enable: The permissions that will be enabled.
-        - disable: The permissions that will be disabled.
-     - Note: This initializer is failable and will fail if parameter `for` is not a ``Member`` or ``Role`` object.
-     */
+    
+    /// Set permissions to be enabled or disabled.
+    /// - Parameters:
+    ///   - target: The target to set overwrites for. Must be a ``Member`` or ``Role`` object.
+    ///   - enable: The permissions that will be enabled.
+    ///   - disable: The permissions that will be disabled.
+    /// - Note: This initializer is failable and will fail if parameter `for` is not a ``Member`` or ``Role`` object.
     public init?(for target: Object, enable: Set<Permission>, disable: Set<Permission>) {
         if target is Member == false && target is Role == false { return nil }
         

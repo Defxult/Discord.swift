@@ -89,9 +89,9 @@ public struct Color {
      Returns a color in its hex form.
      
      ```swift
-     let cyan = Color(r: 51, g: 255, b: 204)
-     print(red.asHex)
-     // Prints "33ffcc"
+     let yellow = Color(r: 216, g: 237, b: 55)
+     print(yellow.asHex)
+     // Prints "d8ed37"
      ```
      */
     public var asHex: String { String(value, radix: 16) }
@@ -107,15 +107,11 @@ public struct Color {
         self.value = Color.verifyValue(value)
     }
     
-    /**
-     Initializes a new color using RGB values.
-     
-     - Parameters:
-        - r: Red component of the color (0-255).
-        - b: Blue component of the color (0-255).
-        - g: Green component of the color (0-255).
-     - Returns: The color associated with the RGB values.
-    */
+    /// Initializes a new color using RGB values.
+    /// - Parameters:
+    ///   - r: Red component of the color (0-255).
+    ///   - g: Green component of the color (0-255).
+    ///   - b: Blue component of the color (0-255).
     public init(r: Int, g: Int, b: Int) {
         let convertedRGB = ((r&0x0ff) << 16) | ((g&0x0ff) << 8 ) | (b&0x0ff)
         value = Color.verifyValue(convertedRGB)

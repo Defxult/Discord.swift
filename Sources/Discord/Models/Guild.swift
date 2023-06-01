@@ -326,19 +326,16 @@ public class Guild : Object, Hashable, Updateable  {
     func cacheMember(_ member: Member) { membersCache[member.id] = member }
     func removeMemberFromCache(_ memberId: Snowflake) { membersCache[memberId] = nil }
     
-    /**
-     Retrieve the audit logs for the guild.
-     
-     - Parameters:
-        - user: Entries from a specific user.
-        - actionType: Type of action that occurred.
-        - limit: Maximum number of entries (between 1-100) to return.
-        - before: Entries before the specified date.
-        - after: Entries after the specified date.
-     - Returns: The guilds audit logs matching the parameters.
-     - Note: When using `before`, entries are ordered by the in descending order (newer entries first). If `after` is used, entries are reversed and appears in ascending order (older entries first).
-             Omitting both `before` and `after` defaults to `before` the current timestamp and will show the most recent entries in descending order.
-     */
+    /// Retrieve the audit logs for the guild.
+    /// - Parameters:
+    ///   - user: Entries from a specific user.
+    ///   - actionType: Type of action that occurred.
+    ///   - limit: Maximum number of entries (between 1-100) to return.
+    ///   - before: Entries before the specified date.
+    ///   - after: Entries after the specified date.
+    /// - Returns: The guilds audit logs matching the parameters.
+    /// - Note: When using `before`, entries are ordered by the in descending order (newer entries first). If `after` is used, entries are reversed and appears in ascending order (older entries first).
+    ///         Omitting both `before` and `after` defaults to `before` the current timestamp and will show the most recent entries in descending order.
     public func auditLogs(user: User? = nil, actionType: AuditLog.Action? = nil, limit: Int = 50, before: Date? = nil, after: Date? = nil) async throws -> AuditLog {
         var queryItems = [URLQueryItem]()
         queryItems.append(.init(name: "limit", value: "\(limit < 1 ? 1 : min(limit, 100))"))
@@ -376,35 +373,38 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getApplicationCommandPermissions(botId: bot!.user!.id, guildId: id, commandId: command)
     }
     
-    /**
-     Ban a user from the guild.
-     
-     - Parameters:
-        - user: User to ban.
-        - deleteMessageSeconds: Number of seconds to delete messages for, between 0 and 604800 (7 days).
-        - reason: The reason for creating the ban.
-     - Throws: `HTTPError.notFound` The requested user was not found
-     - Throws: `HTTPError.forbidden` You do not have the proper permissions to ban.
-     */
+    /// Ban a user from the guild.
+    /// - Parameters:
+    ///   - user: User to ban.
+    ///   - deleteMessageSeconds: Number of seconds to delete messages for, between 0 and 604800 (7 days).
+    ///   - reason: The reason for creating the ban. This shows up in the guilds audit log.
     public func ban(user: User, deleteMessageSeconds: Int = 0, reason: String? = nil) async throws {
         try await bot!.http.createGuildBan(guildId: id, userId: user.id, deleteMessageSeconds: deleteMessageSeconds, reason: reason)
     }
     
-    /**
-     Unban a user from the guild.
-     
-     - Parameters:
-        - user: User to unban.
-        - reason: The reason for creating the unban.
-     - Throws: `HTTPError.notFound` The requested user was not found
-     - Throws: `HTTPError.forbidden` You do not have the proper permissions to unban.
-     */
+    /// Unban a user from the guild.
+    /// - Parameters:
+    ///   - userId: User to unban.
+    ///   - reason: The reason for unbanning the user.
     public func unban(userId: Snowflake, reason: String? = nil) async throws {
         try await bot!.http.removeGuildBan(guildId: id, userId: userId, reason: reason)
     }
     
     /**
      Retrieve ban entries that contains each user that was banned.
+     
+     Below is an example on how to request ban entries:
+     ```swift
+     do {
+         for try await entries in guild.bans() {
+             // ...
+         }
+     } catch {
+         // Handle error
+     }
+     ```
+     Each iteration of the async for-loop contains batched entries. Meaning `entries` will be an array of at most 1000 entries. You will receive batched entries until
+     all entries matching the function parameters are fully received.
      
      - Parameters:
         - limit: Number of entries to return. If `nil`, all entries are returned. The more banned users, the longer this will take.
@@ -417,21 +417,18 @@ public class Guild : Object, Hashable, Updateable  {
         return Guild.AsyncBans(guild: self, limit: limit, before: before, after: after)
     }
     
-    /**
-     Create an auto-moderation rule.
-     
-     - Parameters:
-        - name: The rule name.
-        - eventType: The event type.
-        - triggerType: The trigger type.
-        - metadata: Additional information needed based on the `triggerType`. This can only be `nil` when the `triggerType` is `TriggerType.spam`.
-        - actions: The actions which will execute when the rule is triggered.
-        - enabled: Whether the rule is enabled.
-        - exemptRoles: The roles that should not be affected by the rule (maximum of 20).
-        - exemptChannels: The channels that should not be affected by the rule (maximum of 50).
-        - reason: The reason for creating the rule. This shows up in the guilds audit logs.
-     - Returns: The newly created auto-moderation rule.
-     */
+    /// Creates an auto-moderation rule.
+    /// - Parameters:
+    ///   - name: The rule name.
+    ///   - eventType: The event type.
+    ///   - triggerType: The trigger type.
+    ///   - metadata: Additional information needed based on the `triggerType`. This can only be `nil` when the `triggerType` is ``AutoModerationRule/TriggerType-swift.enum/spam``.
+    ///   - actions: The actions which will execute when the rule is triggered.
+    ///   - enabled: Whether the rule is enabled.
+    ///   - exemptRoles: The roles that should not be affected by the rule (maximum of 20).
+    ///   - exemptChannels: The channels that should not be affected by the rule (maximum of 50).
+    ///   - reason: The reason for creating the rule. This shows up in the guilds audit log.
+    /// - Returns: The newly created auto-moderation rule.
     @discardableResult
     public func createAutoModerationRule(
         name: String,
@@ -459,54 +456,45 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.createAutoModerationRule(guildId: id, data: payload, reason: reason)
     }
     
-    /**
-     Creates a guild category.
-     
-     - Parameters:
-        - name: Name of the category.
-        - position: Sorting position of the channel.
-        - overwrites: Explicit permission overwrites for members and roles.
-        - reason: The reason for creating the category.
-     - Returns: The newly created category.
-     */
+    /// Creates a guild category.
+    /// - Parameters:
+    ///   - name: Name of the category.
+    ///   - position: Sorting position of the channel.
+    ///   - overwrites: Explicit permission overwrites for members and roles.
+    ///   - reason: The reason for creating the category. This shows up in the guilds audit log.
+    /// - Returns: The newly created category.
     public func createCategory(name: String, position: Int? = nil, overwrites: [PermissionOverwrites]? = nil, reason: String? = nil) async throws -> CategoryChannel {
         return try await bot!.http.createGuildCategory(guildId: id, name: name, position: position, overwrites: overwrites, reason: reason)
     }
-    
-    /**
-     Create an emoji.
-     
-     - Parameters:
-        - name: Name of the emoji.
-        - file: The image file (.gif, .png, .jpeg) for the emoji.
-        - roles: The roles that will be allowed to use the emoji. If left as `nil` or an empty array, everyone will be allowed to use it.
-        - reason: The reason for creating the emoji.
-     - Returns: The newly created emoji.
-     */
+        
+    /// Creates an emoji.
+    /// - Parameters:
+    ///   - name: Name of the emoji.
+    ///   - file: The image file (.gif, .png, .jpeg) for the emoji.
+    ///   - roles: The roles that will be allowed to use the emoji. If left as `nil` or an empty array, everyone will be allowed to use it.
+    ///   - reason: The reason for creating the emoji.
+    /// - Returns: The newly created emoji.
     public func createEmoji(name: String, file: File, roles: [Role]? = nil, reason: String? = nil) async throws -> Emoji {
         return try await bot!.http.createGuildEmoji(guildId: id, name: name, file: file, roles: roles?.map({ $0.id }), reason: reason)
     }
     
-    /**
-     Create a forum channel.
-     
-     - Parameters:
-        - name: Name of the channel
-        - defaultThreadAutoArchiveDuration: The amount of time threads will stop showing in the channel list after the specified period of inactivity.
-        - defaultReactionEmoji: The emoji to show in the add reaction button on a thread.
-        - topic:  This is shown in the "Guidelines" section within the Discord.
-        - position: Sorting position of the channel.
-        - nsfw: Whether the channel is NSFW.
-        - overwrites: Explicit permission overwrites for members and roles.
-        - category: The category the channel should be placed in.
-        - slowmode: Amount of seconds a user has to wait before sending another message.
-        - threadCreationSlowmode: Amount of seconds a user has to wait before creating another thread.
-        - availableTags: A set of tags that have been applied to a thread.
-        - sortOrder: The default sort order used to order posts.
-        - layout: The default forum layout view used to display posts.
-        - reason: The reason for creating the emoji. This shows up in the guilds audit log.
-     - Returns: The newly created forum channel.
-     */
+    /// Creates a forum channel.
+    /// - Parameters:
+    ///   - name: Name of the channel
+    ///   - defaultThreadAutoArchiveDuration: The amount of time threads will stop showing in the channel list after the specified period of inactivity.
+    ///   - defaultReactionEmoji: The emoji to show in the add reaction button on a thread.
+    ///   - topic: This is shown in the "Guidelines" section within the Discord.
+    ///   - position: Sorting position of the channel.
+    ///   - nsfw: Whether the channel is NSFW.
+    ///   - overwrites: Explicit permission overwrites for members and roles.
+    ///   - category: The category the channel should be placed in.
+    ///   - slowmode: Amount of seconds a user has to wait before sending another message.
+    ///   - threadCreationSlowmode: Amount of seconds a user has to wait before creating another thread.
+    ///   - availableTags: A set of tags that have been applied to a thread.
+    ///   - sortOrder: The default sort order used to order posts.
+    ///   - layout: The default forum layout view used to display posts.
+    ///   - reason: The reason for creating the channel. This shows up in the guilds audit log.
+    /// - Returns: The newly created forum channel.
     public func createForum(
         name: String,
         defaultThreadAutoArchiveDuration: ThreadChannel.ArchiveDuration = .threeDays,
@@ -542,21 +530,18 @@ public class Guild : Object, Hashable, Updateable  {
         )
     }
     
-    /**
-     Creates a scheduled event for the guild.
-     
-     - Parameters:
-        - name: The name of the scheduled event.
-        - entityType: The entity type of the scheduled event.
-        - startTime: The time to schedule the scheduled event.
-        - endTime: The time when the scheduled event is scheduled to end.
-        - channelId: The channel id of the scheduled event.
-        - location: Location of the event (1-100 characters).
-        - description: The description of the scheduled event.
-        - image: The cover image of the scheduled event.
-        - reason: The reason for creating the emoji. This shows up in the guilds audit log.
-     - Returns: The newly created sscheduled event.
-     */
+    /// Creates a scheduled event for the guild.
+    /// - Parameters:
+    ///   - name: The name of the scheduled event.
+    ///   - entityType: The entity type of the scheduled event.
+    ///   - startTime: The time to schedule the scheduled event.
+    ///   - endTime: The time when the scheduled event is scheduled to end.
+    ///   - channelId: The channel ID of the scheduled event.
+    ///   - location: Location of the event (1-100 characters).
+    ///   - description: The description of the scheduled event.
+    ///   - image: The cover image of the scheduled event.
+    ///   - reason: The reason for creating the scheduled event. This shows up in the guilds audit log.
+    /// - Returns: The newly created sscheduled event.
     public func createScheduledEvent(
         name: String,
         entityType: ScheduledEvent.EntityType,
@@ -591,19 +576,17 @@ public class Guild : Object, Hashable, Updateable  {
         )
     }
     
-    /**
-     Creates a text channel.
-     
-     - Parameters:
-        - name: Name of the channel.
-        - category: The category the channel should be placed in.
-        - topic: The channel topic.
-        - slowmode: Amount of seconds a user has to wait before sending another message.
-        - overwrites: Explicit permission overwrites for members and roles.
-        - nsfw: Whether the channel is NSFW.
-        - reason: The reason for creating the channel.
-    - Returns: The newly created text channel.
-    */
+    /// Creates a text channel.
+    /// - Parameters:
+    ///   - name: Name of the channel.
+    ///   - topic: The channel topic.
+    ///   - category: The category the channel should be placed in.
+    ///   - slowmode: Amount of seconds a user has to wait before sending another message.
+    ///   - position: The position of the channel in the channel list.
+    ///   - overwrites: Explicit permission overwrites for members and roles.
+    ///   - nsfw: Whether the channel is NSFW.
+    ///   - reason: The reason for creating the channel. This shows up in the guilds audit log.
+    /// - Returns: The newly created text channel.
     public func createTextChannel(
         name: String,
         topic: String? = nil,
@@ -617,22 +600,19 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.createGuildTextChannel(guildId: id, name: name, categoryId: category?.id, topic: topic, slowmode: slowmode, position: position, overwrites: overwrites, nsfw: nsfw, reason: reason)
     }
     
-    /**
-     Creates a voice channel.
-     
-     - Parameters:
-        - name: Name of the channel.
-        - category: The category the channel should be placed in.
-        - bitrate: The bitrate of the channel.
-        - userLimit: The user limit of the channel.
-        - position: Sorting position of the channel.
-        - overwrites: Explicit permission overwrites for members and roles.
-        - region: Voice region for the channel.
-        - quality: The camera video quality mode of the voice channel.
-        - nsfw: Whether the channel is NSFW.
-        - reason: The reason for creating the channel.
-     - Returns: The newly created voice channel.
-     */
+    /// Creates a voice channel.
+    /// - Parameters:
+    ///   - name: Name of the channel.
+    ///   - category: The category the channel should be placed in.
+    ///   - bitrate: The bitrate of the channel.
+    ///   - userLimit: The user limit of the channel.
+    ///   - position: Sorting position of the channel.
+    ///   - overwrites: Explicit permission overwrites for members and roles.
+    ///   - region: Voice region for the channel.
+    ///   - quality: The camera video quality mode of the voice channel.
+    ///   - nsfw: Whether the channel is NSFW.
+    ///   - reason: The reason for creating the channel. This shows up in the guilds audit log.
+    /// - Returns: The newly created voice channel.
     public func createVoiceChannel(
         name: String,
         category: CategoryChannel? = nil,
@@ -648,18 +628,17 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.createGuildVoiceChannel(guildId: id, name: name, category: category, bitrate: bitrate, userLimit: userLimit, position: position, overwrites: overwrites, region: region, quality: quality, nsfw: nsfw, reason: reason)
     }
     
-    /**
-     Creates a role.
-     
-     - Parameters:
-        - name: Name of the role, max 100 characters.
-        - permissions: The permissions for the role.
-        - color: Color of the role.
-        - hoist: Whether the role should be displayed separately in the sidebar.
-        - emoji: The role's emoji. Only available of the guild has the `Feature.roleIcons` feature.
-        - mentionable: Whether the role should be mentionable.
-     - Returns: The newly created role.
-     */
+    /// Creates a role.
+    /// - Parameters:
+    ///   - name: Name of the role, max 100 characters.
+    ///   - permissions: The permissions for the role.
+    ///   - color: Color of the role.
+    ///   - hoist: Whether the role should be displayed separately in the sidebar.
+    ///   - icon: The role icon.
+    ///   - emoji: The role's emoji. Only available if the guild has the ``Guild/Feature/roleIcons`` feature.
+    ///   - mentionable: Whether the role should be mentionable.
+    ///   - reason: The reason for creating the role. This shows up in the guilds audit log.
+    /// - Returns: The newly created role.
     public func createRole(
         name: String? = nil,
         permissions: Permissions = Permissions.default,
@@ -672,18 +651,16 @@ public class Guild : Object, Hashable, Updateable  {
     ) async throws -> Role {
         return try await bot!.http.createGuildRole(guildId: id, name: name, permissions: permissions, color: color , hoist: hoist, icon: icon, emoji: emoji, mentionable: mentionable, reason: reason)
     }
-    /**
-     Creates a stage channel.
-     
-     - Parameters:
-        - name: Stage channel name.
-        - bitrate: The bitrate of the channel.
-        - position: Sorting position of the channel.
-        - overwrites: Explicit permission overwrites for members and roles.
-        - region: Voice region for the channel.
-        - reason: The reason for creating the channel.
-     - Returns: The newly created channel.
-     */
+    
+    /// Creates a stage channel.
+    /// - Parameters:
+    ///   - name: Stage channel name.
+    ///   - bitrate: The bitrate of the channel.
+    ///   - position: Sorting position of the channel.
+    ///   - overwrites: Explicit permission overwrites for members and roles.
+    ///   - region: Voice region for the channel.
+    ///   - reason: The reason for creating the channel. This shows up in the guilds audit log.
+    /// - Returns: The newly created channel.
     public func createStageChannel(
         name: String,
         bitrate: Int = 64000,
@@ -695,29 +672,23 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.createGuildStageChannel(guildId: id, name: name, bitrate: bitrate, position: position, overwrites: overwrites, region: region, reason: reason)
     }
     
-    /**
-     Create a sticker in the guild.
-     
-     - Parameters:
-        - name: Name of the sticker
-        - description: Description of the sticker
-        - emoji: The **name** of a unicode emoji. You can typically find the name of a unicode emoji by typing a colon in the discord app. For example, the 🍕 emoji's name would be "pizza".
-        - file: The sticker file.
-        - reason: The reason for creating the sticker. This shows up in the guilds audit log.
-     - Returns: The newly created sticker.
-     */
+    /// Creates a sticker in the guild.
+    /// - Parameters:
+    ///   - name: Name of the sticker.
+    ///   - description: Description of the sticker.
+    ///   - emoji: The **name** of a unicode emoji. You can typically find the name of a unicode emoji by typing a colon in the discord app. For example, the 🍕 emoji's name would be "pizza".
+    ///   - file: The sticker file.
+    ///   - reason: The reason for creating the sticker. This shows up in the guilds audit log.
+    /// - Returns: The newly created sticker.
     public func createSticker(name: String, description: String?, emoji: String, file: File, reason: String? = nil) async throws -> GuildSticker {
         return try await bot!.http.createGuildSticker(guildId: id, name: name, description: description, tagAKAemoji: emoji, file: file, reason: reason)
     }
     
-    /**
-     Create a guild template.
-     
-     - Parameters:
-        - name: Name of the template (100 characters max).
-        - description: Description for the template (120 characters max.
-     - Returns: The created template.
-     */
+    /// Creates a guild template.
+    /// - Parameters:
+    ///   - name: Name of the template (100 characters max).
+    ///   - description: Description for the template (120 characters max.
+    /// - Returns: The created template.
     public func createTemplate(name: String, description: String? = nil) async throws -> Template {
         return try await bot!.http.createGuildTemplate(guildId: id, name: name, description: description)
     }
@@ -727,15 +698,12 @@ public class Guild : Object, Hashable, Updateable  {
         try await bot!.http.deleteGuild(guildId: id)
     }
     
-    /**
-     Edit the guild.
-      
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the guild.
-        - reason: The reason for editing the guild. This shows up in the guilds audit-logs.
-     - Note: The returned guild has the same limitations as `bot.requestGuild()`.
-     - Returns: The updated guild.
-     */
+    /// Edit the guild.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the guild.
+    ///   - reason: The reason for editing the guild. This shows up in the guilds audit log.
+    /// - Returns: The updated guild.
+    /// - Note: The returned guild has the same limitations as ``Discord/Discord/requestGuild(_:withCounts:)``.
     @discardableResult
     public func edit(_ edits: Guild.Edit..., reason: String? = nil) async throws -> Guild {
         // Don't perform an HTTP request when nothing was changed
@@ -785,13 +753,11 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.modifyGuild(guildId: id, payload: payload, reason: reason)
     }
     
-    /**
-     Edit role positions.
-     
-     - Parameters:
-        - positions: New positions for each role.
-        - reason: The reason for editing the role positions. This shows up in the guilds audit-logs.
-     */
+    /// Edit role positions.
+    /// - Parameters:
+    ///   - positions: New positions for each role.
+    ///   - reason: The reason for editing the role positions. This shows up in the guilds audit-logs.
+    /// - Returns: Alll roles in the guild.
     @discardableResult
     public func editRolePositions(_ positions: [Role: Int], reason: String? = nil) async throws -> [Role] {
         return try await bot!.http.modifyGuildRolePositions(guildId: id, positions: positions, reason: reason)
@@ -846,40 +812,34 @@ public class Guild : Object, Hashable, Updateable  {
         return threads.first(where: { $0.id == id })
     }
     
-//    /**
-//     Get the amount of members that would be kicked via ``Guild/prune(days:includeRoles:computePruneCount:)``.
-//
-//     - Parameters:
-//        - days: Number of days a user has to be inactive (1-30).
-//        - includedRoles: Role(s) to include. By default, members with roles cannot be pruned unless specifically included.
-//     - Returns: The amount of members that would be pruned.
-//     */
+//    /// Get the amount of members that would be kicked via ``Guild/prune(days:includeRoles:computePruneCount:)``.
+//    /// - Parameters:
+//    ///   - days: Number of days a user has to be inactive (1-30).
+//    ///   - includedRoles: Role(s) to include. By default, members with roles cannot be pruned unless specifically included.
+//    /// - Returns: The amount of members that would be pruned.
 //    public func getPruneCount(days: Int, includedRoles: [Role]? = nil) async throws -> Int {
 //        return try await bot!.http.getGuildPruneCount(guildId: id, days: days, includeRoles: includedRoles)
 //    }
     
-    /**
-     Kick inactive members.
-     
-     - Parameters:
-        - days: Number of days a user has to be inactive (1-30).
-        - includeRoles: Role(s) to include. By default, members with roles cannot be pruned unless specifically included.
-        - computePruneCount: Whether the amount of pruned members is returned.
-     - Returns: The amount of members that were pruned or `nil` if `computePruneCount` was set to `false`.
-     */
+    /// Kick inactive members from the guild..
+    /// - Parameters:
+    ///   - days: Number of days a user has to be inactive (1-30).
+    ///   - includeRoles: Role(s) to include. By default, members with roles cannot be pruned unless specifically included.
+    ///   - computePruneCount: Whether the amount of pruned members is returned.
+    /// - Returns: The amount of members that were pruned or `nil` if `computePruneCount` was set to `false`.
     @discardableResult
     public func prune(days: Int, includeRoles: [Role]? = nil, computePruneCount: Bool = true) async throws -> Int? {
         return try await bot!.http.beginGuildPrune(guildId: id, days: days, computePruneCount: computePruneCount, includeRoles: includeRoles ?? [])
     }
     
     /// Retrieve all integrations in the guild.
-    ///  - Returns: An array of integrations for the guild.
+    /// - Returns: Integrations for the guild.
     public func integrations() async throws -> [Integration] {
         return try await bot!.http.getIntegrations(guildId: id)
     }
     
     /// Retrieve all invites in the guild.
-    ///  - Returns: An array of invites for the guild.
+    /// - Returns: Invites for the guild.
     public func invites() async throws -> [Invite] {
         return try await bot!.http.getGuildInvites(guildId: id)
     }
@@ -889,7 +849,7 @@ public class Guild : Object, Hashable, Updateable  {
         try await bot!.http.leaveGuild(guildId: id)
     }
     
-    /// Retrieve a guilds onboarding.
+    /// Retrieve the guilds onboarding.
     /// - Returns: The guilds onboarding setup.
     public func onboarding() async throws -> Onboarding {
         try await bot!.http.getGuildOnboarding(guildId: id)
@@ -901,77 +861,64 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.guildPreview(guildId: id)
     }
     
-    /**
-     Retrieve an auto-moderation rule.
-     
-     - Parameter id: The ID of the auto-moderation rule.
-     - Returns: The auto-moderation rule matching the given ID.
-     */
+    /// Retrieve an auto-moderation rule.
+    /// - Parameter id: The ID of the auto-moderation rule.
+    /// - Returns: The auto-moderation rule matching the given ID.
     public func requestAutoModerationRule(_ id: Snowflake) async throws -> AutoModerationRule  {
         return try await bot!.http.getAutoModerationRule(guildId: self.id, ruleId: id)
     }
     
-    /**
-     Request a ban entry for the user that was banned.
-     
-     - Parameter for: ID of the user.
-     - Returns: The ban entry.
-     - Throws: `HTTPError.notFound` The ban was not found in the guild.
-     */
+    /// Request a ban entry for the user that was banned.
+    /// - Parameter for: ID of the user.
+    /// - Returns: The ban entry.
     public func requestBan(`for` userID: Snowflake) async throws -> Guild.Ban {
         return try await bot!.http.getGuildBan(guildId: id, userId: userID)
     }
     
-     /// Requests all channels available in the guild. Compared to `guild.channels`, this is an API call. For general use purposes, use `guild.channels` instead.
+     /// Requests all channels available in the guild. This is an API call. For general use purposes, use ``channels`` instead.
      /// - Returns: All channels in the guild.
     public func requestChannels() async throws -> [GuildChannel] {
         return try await bot!.http.getGuildChannels(guildId: id)
     }
     
-    /**
-     Request an emoji. This is an API call. For general use purposes, use ``getEmoji(_:)`` instead.
-     
-     - Parameter id: The guild emoji ID.
-     - Returns: The guild emoji.
-     */
+    /// Request an emoji. This is an API call. For general use purposes, use ``getEmoji(_:)`` instead.
+    /// - Parameter id: The guild emoji ID.
+    /// - Returns: The guild emoji.
     public func requestEmoji(_ id: Snowflake) async throws -> Emoji {
         return try await bot!.http.getGuildEmoji(guildId: self.id, emojiId: id)
     }
     
-     /// Request all emojis. Compared to `guild.emojis`, this is an API call. For general use purposes, use `guild.emojis` instead.
+     /// Request all emojis. This is an API call. For general use purposes, use ``emojis`` instead.
      /// - Returns: All emojis in the guild.
     public func requestEmojis() async throws -> [Emoji] {
         return try await bot!.http.getGuildEmojis(guildId: id)
     }
     
-    /// Request all roles. Compared to `guild.roles`, this is an API called. For general use purposes, use `guild.roles` instead.
+    /// Request all roles. This is an API call. For general use purposes, use ``roles`` instead.
     /// - Returns: All roles in the guild.
     public func requestRoles() async throws -> [Role] {
         return try await bot!.http.getGuildRoles(guildId: id)
     }
     
-    /**
-     Retrieve a scheduled event by it's ID. Unlike ``getScheduledEvent(_:)``, this is an API call.
-     
-     - Parameter id: ID of the schduled event.
-     - Returns: The scheduled event.
-     */
+    /// Request a scheduled event by it's ID. This is an API call. For general use purposes, use ``getScheduledEvent(_:)`` instead.
+    /// - Parameter id: ID of the scheduled event.
+    /// - Returns: The scheduled event.
     public func requestScheduledEvent(_ id: Snowflake) async throws -> ScheduledEvent {
         return try await bot!.http.getScheduledEventForGuild(guildId: self.id, eventId: id)
     }
     
-    /// Retrieve all scheduled events.
+    /// Request all scheduled events. This is an API call. For general use purposes, use ``scheduledEvents``.
     public func requestScheduledEvents() async throws -> [ScheduledEvent] {
         return try await bot!.http.getListScheduledEventsForGuild(guildId: id)
     }
     
-    /// Returns all active threads in the guild, including public and private threads.
+    /// Request all active threads in the guild, including public and private threads.
     /// - Returns: All active threads.
     public func requestActiveThreads() async throws -> [ThreadChannel] {
         return try await bot!.http.getActiveGuildThreads(guildId: id)
     }
     
-    /// Request a member. Compared to ``getMember(_:)``, this is an API call. For general use purposes, use ``getMember(_:)`` instead if you have the ``Intents/guildMembers`` intent enabled.
+    /// Request a member. This is an API call. For general use purposes, use ``getMember(_:)`` instead if you have the ``Intents/guildMembers`` intent enabled.
     /// - Parameter id: The ID of the member.
     /// - Returns: The requested member.
     public func requestMember(_ id: Snowflake) async throws -> Member {
@@ -1006,31 +953,25 @@ public class Guild : Object, Hashable, Updateable  {
         return Guild.AsyncMembers(guild: self, limit: limit, after: after)
     }
     
-    /**
-     Request a sticker in the guild.
-     
-     - Parameter id: The ID of the sticker.
-     - Returns: The requested sticker.
-     - Note: The `user` property in the sticker will be `nil` if the bot doesn't have `Permissions.manageEmojisAndStickers` enabled.
-     */
+    /// Request a sticker in the guild.
+    /// - Parameter id: The ID of the sticker.
+    /// - Returns: The requested sticker.
+    /// - Note: The `user` property in the sticker will be `nil` if the bot doesn't have ``Permission/manageEmojisAndStickers`` enabled.
     public func requestSticker(_ id: Snowflake) async throws -> GuildSticker {
         return try await bot!.http.getGuildSticker(guildId: self.id, stickerId: id)
     }
     
-    /// Request all stickers in the guild.
+    /// Request all stickers in the guild. This is an API call. For general use purposes, use ``stickers``.
     /// - Returns: All guild stickers.
     public func requestAllStickers() async throws -> [GuildSticker] {
         return try await bot!.http.getAllGuildStickers(guildId: id)
     }
     
-    /**
-     Search members by their username or nickname.
-     
-     - Parameters:
-        - name: Their username or nickname.
-        - limit: Max number of members to return (1-1000).
-     - Returns: All members whose username or nickname starts with a provided *name*.
-     */
+    /// Search members by their username or nickname.
+    /// - Parameters:
+    ///   - name: Their username or nickname.
+    ///   - limit: Max number of members to return (1-1000).
+    /// - Returns: All members whose username or nickname starts with a provided `name`.
     public func searchMembers(name: String, limit: Int = 1000) async throws -> [Member] {
         return try await bot!.http.searchGuildMembers(guildId: id, query: name, limit: limit)
     }
@@ -1073,7 +1014,6 @@ public class Guild : Object, Hashable, Updateable  {
             case "roles":
                 let rolesData = v as! [JSON]
                 var roles = [Role]()
-                
                 for roleObj in rolesData {
                     roles.append(Role(bot: bot!, roleData: roleObj, guildId: id))
                 }
@@ -1125,7 +1065,6 @@ public class Guild : Object, Hashable, Updateable  {
             case "stickers":
                 let stickerListData = v as! [JSON]
                 var stickers = [GuildSticker]()
-                
                 for stickerObj in stickerListData {
                     stickers.append(GuildSticker(bot: bot!, guildStickerData: stickerObj))
                 }
@@ -1144,14 +1083,11 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getGuildVanityUrl(guildId: id)
     }
     
-    /**
-     Edit the guilds welcome screen.
-     
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the guild.
-        - reason: The reason for editing the welcome screen. This shows up in the guilds audit-logs.
-     - Returns: The updated welcome screen.
-     */
+    /// Edit the guilds welcome screen.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the guild.
+    ///   - reason: The reason for editing the welcome screen. This shows up in the guilds audit log.
+    /// - Returns: The updated welcome screen.
     @discardableResult
     public func editWelcomeScreen(_ edits: WelcomeScreenEdit..., reason: String? = nil) async throws -> WelcomeScreen {
         // I would have a `guard` here to prevent empty requests, but we're not in a `WelcomeScreen`, so I can't use `return self`
@@ -1318,7 +1254,7 @@ extension Guild {
         private func req(limit: Int, before: Snowflake, after: Snowflake) async throws -> [JSON] {
             // Set the values to `nil` if 0. `http.getGuildBans()` doesnt take into account that 0
             // means `nil` in this context. So change that ourselves here to prevent both URL queries
-            // from being added unless intentionally added via `.init().
+            // from being added unless intentionally added via function call.
             let newBefore = before == 0 ? nil : before
             let newAfter = after == 0 ? nil : after
             
@@ -1556,15 +1492,12 @@ extension Guild {
         /// The emoji name if custom, the unicode character if standard, or null if no emoji is set.
         public let emojiName: String?
         
-        /**
-         Initializes a new welcome screen channel
-         
-         - Parameters:
-            - channelId: The channel's ID.
-            - description: The description shown for the channel.
-            - emojiId: The emoji ID, if the emoji is custom.
-            - emojiName: The emoji name if custom, the unicode character if standard, or null if no emoji is set.
-         */
+        /// Initializes a new welcome screen channel
+        /// - Parameters:
+        ///   - channelId: The channel's ID.
+        ///   - description: The description shown for the channel.
+        ///   - emojiId: The emoji ID, if the emoji is custom.
+        ///   - emojiName: The emoji name if custom, the unicode character if standard, or null if no emoji is set.
         public init(channelId: Snowflake, description: String?, emojiId: Snowflake?, emojiName: String?) {
             self.channelId = channelId
             self.description = description ?? String.empty
@@ -1610,19 +1543,19 @@ extension Guild {
         /// Update the amount of time it takes for someone to be automatically moved to the AFK channel.
         case afkTimeout(Int)
         
-        /// The new guild icon. Can be animated if the guild has the feature `Guild.Feature.animatedIcon`. Can be set to `nil` to remove the icon.
+        /// The new guild icon. Can be animated if the guild has the ``Guild/Feature/animatedIcon`` feature. Can be set to `nil` to remove the icon.
         case icon(File?)
         
         /// Transfer guild ownership (bot must be the owner of the guild).
         case owner(Snowflake)
         
-        /// The new splash image. Guild must have the feature `Guild.Feature.inviteSplash`.  Can be set to `nil` to remove the guild splash image.
+        /// The new splash image. Guild must have the ``Guild/Feature/inviteSplash`` feature.  Can be set to `nil` to remove the guild splash image.
         case splash(File?)
         
-        /// The new discovery splash image. Guild must have the feature `Guild.Feature.discoverable`. Can be set to `nil` to remove the guild discovery splash image.
+        /// The new discovery splash image. Guild must have the ``Guild/Feature/discoverable`` feature. Can be set to `nil` to remove the guild discovery splash image.
         case discoverySplash(File?)
         
-        /// The new banner image. Guild must have the feature `Guild.Feature.banner`. Can be animated if the guild has the `Guild.Feature.animatedBanner` feature.
+        /// The new banner image. Guild must have the ``Guild/Feature/banner`` feature. Can be animated if the guild has the ``Guild/Feature/animatedBanner`` feature.
         /// Can be set to `nil` to remove the guild banner.
         case banner(File?)
         
@@ -1635,14 +1568,14 @@ extension Guild {
         /// The new channel where Community guilds display rules and/or guidelines. Can be set to `nil` to disable the rules channel.
         case rulesChannel(Snowflake?)
         
-        /// The new channel where admins and moderators of Community guilds receive notices from Discord. Only available for guilds with the `Guild.Feature.community` feature.
+        /// The new channel where admins and moderators of Community guilds receive notices from Discord. Only available for guilds with the ``Guild/Feature/community`` feature.
         /// Can be set to `nil` to disable the public updates channel.
         case publicUpdatesChannel(Snowflake?)
         
         /// The new preferred locale of a Community guild used in server discovery and notices from Discord.
         case preferredLocale(Locale)
         
-        /// The new description for the guild. Only available for guilds with the `Guild.Feature.community` feature.
+        /// The new description for the guild. Only available for guilds with the ``Guild/Feature/community`` feature.
         /// Can be set to `nil` to remove the description.
         case description(String?)
         
@@ -1680,7 +1613,7 @@ extension Guild {
         /// Voice and stage channels which are accessible by @everyone.
         public private(set) var channels = [GuildChannel]()
 
-        /// Special widget user objects that includes users presence (Limit 100).
+        /// Special widget user objects that includes users presence (limit 100).
         /// - Note: Discord stated that the properties `id`, `discriminator` and `avatar` are anonymized to prevent abuse.
         public private(set) var members = [User]()
 
@@ -1710,14 +1643,11 @@ extension Guild {
             presenceCount = widgetData["presence_count"] as! Int
         }
         
-        /**
-         Edit the widget.
-         
-         - Parameters:
-            - enabled: Whether the widget is enabled.
-            - channelId: The widget channel ID.
-            - reason: The reason for editing the widget.
-         */
+        /// Edit the widget.
+        /// - Parameters:
+        ///   - enabled: Whether the widget is enabled.
+        ///   - channelId: The widget channel ID.
+        ///   - reason: The reason for editing the widget.
         public func edit(enabled: Bool, channelId: Snowflake?, reason: String? = nil) async throws {
             try await bot!.http.modifyGuildWidget(guildId: id, enabled: enabled, widgetChannelId: channelId, reason: reason)
         }
@@ -1829,7 +1759,7 @@ extension Guild {
         /// Media content will not be scanned.
         case disabled
 
-        // Media content sent by members without roles will be scanned.
+        /// Media content sent by members without roles will be scanned.
         case membersWithoutRoles
         
         /// Media content sent by all members will be scanned.
@@ -1889,6 +1819,7 @@ extension Guild {
         case tier3
     }
 
+    /// Represents a guilds system channels flags
     public enum SystemChannelFlags : Int, CaseIterable {
         
         /// Suppress member join notifications.
@@ -2102,13 +2033,11 @@ extension Guild {
             else { image = nil }
         }
         
-        /**
-         Edit the scheduled event.
-         
-         - Parameters:
-            - edits: Values that should be changed.
-            - reason: The reason for editing the scheduled event. This shows up in the guilds audit-logs.
-         */
+        /// Edit the scheduled event.
+        /// - Parameters:
+        ///   - edits: Values that should be changed.
+        ///   - reason: The reason for editing the scheduled event. This shows up in the guilds audit-logs.
+        /// - Returns: The updated scheduled event.
         @discardableResult
         public func edit(_ edits: ScheduledEvent.Edit..., reason: String? = nil) async throws -> ScheduledEvent {
             // Don't perform an HTTP request when nothing was changed
@@ -2133,12 +2062,10 @@ extension Guild {
                     }
                     /**
                      [FROM DISCORD]
-                     
                      If updating `entity_type` to EXTERNAL:
                         -  `channel_id` is required and must be set to null
                         -  `entity_metadata` with a location field must be provided
                         -  `scheduled_end_time` must be provided
-
                      */
                     if etype == .external {
                         payload["channel_id"] = NIL
@@ -2249,12 +2176,12 @@ extension Guild {
         // The source guild ID is still availabe, and if someone really wants to access the guild, I think it's
         // better to just use .requestGuild() to access all it's features if the bot shares that guild.
         
-        // ------------------------------ API Separated -----------------------------------
+        // -------------- API Separated --------------
         
         /// The full URL for the template.
         public let url: String
         
-        // --------------------------------------------------------------------------------
+        // -------------------------------------------
         
         /// Your bot instance.
         public weak private(set) var bot: Discord?
@@ -2274,12 +2201,9 @@ extension Guild {
             url = "https://discord.new/\(code)"
         }
         
-        /**
-         Edit the template.
-         
-         - Parameter edits: Values that should be changed.
-         - Returns: The updated template.
-         */
+        /// Edit the template.
+        /// - Parameter edits: Values that should be changed.
+        /// - Returns: The updated template.
         @discardableResult
         public func edit(_ edits: Template.Edit...) async throws -> Template {
             // Don't perform an HTTP request when nothing was changed
@@ -2332,19 +2256,19 @@ extension Guild.ScheduledEvent {
         case completed
         case canceled
     }
-
+    
     /// Represents the entity type of the scheduled event.
     public enum EntityType : Int {
         case stageInstance = 1
         case voice
         case external
     }
-
+    
     /// Represents the privacy level of the scheduled event.
     public enum PrivacyLevel : Int {
         case guildOnly = 2
     }
-
+    
     /// Represents the values that should be edited in a ``Guild/ScheduledEvent``.
     public enum Edit {
         

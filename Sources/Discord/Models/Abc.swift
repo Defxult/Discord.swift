@@ -58,25 +58,19 @@ public protocol Messageable : Object {
 
 extension Messageable {
     
-    /**
-     Delete multiple messages at once.
-     
-     - Parameters:
-        - toDelete: The messages to delete (2 minimum, 100 maximum)
-        - reason: The reason for deleting the messages.
-     */
+    /// Delete multiple messages at once.
+    /// - Parameters:
+    ///   - toDelete: The messages to delete (2 minimum, 100 maximum). Messages older than 2 weeks will be ignored.
+    ///   - reason: The reason for deleting the messages. This shows up in the guilds audit log.
     public func bulkDeleteMessages(_ toDelete: [Message], reason: String? = nil) async throws {
         try await bot!.http.bulkDeleteMessages(channelId: id, messagesToDelete: toDelete, reason: reason)
     }
     
-    /**
-     Recieve the channels message history.
-     
-     - Parameters:
-        - limit: Max number of messages to return (1-100).
-        - search: What to search by. Either before, after, or around a specified message. If `nil`, no filter is used.
-     - Returns: The messages matching the limit/search query.
-     */
+    /// Recieve the channels message history.
+    /// - Parameters:
+    ///   - limit: Max number of messages to return (1-100).
+    ///   - search: What to search by. Either before, after, or around a specified message. If `nil`, no filter is used.
+    /// - Returns: The messages matching the limit/search query.
     public func history(limit: Int = 50, search: Message.History? = nil) async throws -> [Message] {
         if let search {
             switch search {
@@ -98,21 +92,17 @@ extension Messageable {
         return try await bot!.http.getChannelMessage(channelId: self.id, messageId: id)
     }
     
-    /**
-     Send a message to the channel.
-     
-     - Parameters:
-        - content: The message contents.
-        - tts: Whether this message should be sent as a TTS message.
-        - embeds: Embeds attached to the message (10 max).
-        - allowedMentions: Controls the mentions allowed when this message is sent.
-        - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
-        - files: Files to attach to the message.
-        - stickers: Stickers to attach to the message (3 max).
-        - reference: The message to reply to.
-     - Returns: The message that was sent.
-     - Throws: `HTTPError.forbidden` You don't have the proper permissions to send a message. `HTTPError.base` Sending the message failed.
-    */
+    /// Send a message to the channel.
+    /// - Parameters:
+    ///   - content: The message contents.
+    ///   - tts: Whether this message should be sent as a TTS message.
+    ///   - embeds: Embeds attached to the message (10 max).
+    ///   - allowedMentions: Controls the mentions allowed when this message is sent.
+    ///   - ui: The UI for the message. Contains things such as a ``Button`` or ``SelectMenu``.
+    ///   - files: Files to attach to the message.
+    ///   - stickers: Stickers to attach to the message (3 max).
+    ///   - reference: The message to reply to.
+    /// - Returns: The message that was sent.
     @discardableResult
     public func send(
         _ content: String? = nil,

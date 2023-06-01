@@ -90,19 +90,16 @@ public struct AutoModerationRule : Object {
     }
     
     /// Delete the auto-moderation rule.
-    /// - Parameter reason: The reason for deleting the rule. This shows up in the guilds audit logs.
+    /// - Parameter reason: The reason for deleting the rule. This shows up in the guilds audit log.
     public func delete(reason: String? = nil) async throws {
         try await bot!.http.deleteAutoModerationRule(guildId: guild.id, ruleId: id, reason: reason)
     }
     
-    /**
-     Edit the auto-moderation rule.
-      
-     - Parameters:
-        - edits: The enum containing all values to be updated or removed for the auto-moderation rule.
-        - reason: The reason for editing the auto-moderation rule. This shows up in the guilds audit-logs.
-     - Returns: The updated guild sticker.
-     */
+    /// Edit the auto-moderation rule.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated or removed for the auto-moderation rule.
+    ///   - reason: The reason for editing the auto-moderation rule. This shows up in the guilds audit log.
+    /// - Returns: The updated rule.
     @discardableResult
     public func edit(_ edits: AutoModerationRule.Edit..., reason: String? = nil) async throws -> AutoModerationRule {
         // Don't perform an HTTP request when nothing was changed
@@ -273,15 +270,12 @@ extension AutoModerationRule {
         /// Whether to automatically detect mention raids. Only relevant for `TriggerType.mentionSpam`.
         public var mentionRaidProtectionEnabled: Bool?
         
-        /**
-         The data that relates to the trigger type. This initializer is failable and will fail if all parameters are there "empty" equivalent.
-         
-         - Parameters:
-            - keywordFilter: Substrings which will be searched for in content (maximum of 1000). Only relevant for `TriggerType.keyword`.
-            - regexPatterns: Regular expression patterns which will be matched against content (maximum of 10). Only relevant for `TriggerType.keyword`. Each regex pattern must be 260 characters or less.
-            - presets: The wordsets defined by discord which will be searched for in content. Only relevant for `TriggerType.keywordPreset`.
-            - allowList: Substrings which should **not** trigger the rule. Maximum of 100 for `TriggerType.keyword` or 1000 for `TriggerType.keywordPreset`. Each string also has a limit of 60 characters.
-         */
+        /// The data that relates to the trigger type. This initializer is failable and will fail if all parameters are there "empty" equivalent.
+        /// - Parameters:
+        ///   - keywordFilter: Substrings which will be searched for in content (maximum of 1000). Only relevant for `TriggerType.keyword`.
+        ///   - regexPatterns: Regular expression patterns which will be matched against content (maximum of 10). Only relevant for `TriggerType.keyword`. Each regex pattern must be 260 characters or less.
+        ///   - presets: The wordsets defined by discord which will be searched for in content. Only relevant for `TriggerType.keywordPreset`.
+        ///   - allowList: Substrings which should **not** trigger the rule. Maximum of 100 for `TriggerType.keyword` or 1000 for `TriggerType.keywordPreset`. Each string also has a limit of 60 characters.
         public init?(
             keywordFilter: Triggers? = nil,
             regexPatterns: [String] = [],
@@ -454,7 +448,7 @@ extension AutoModerationRule {
         /// ID of any user message which content belongs to. Will be `nil` if the message was blocked by Auto Moderation or content was not part of any message
         public let messageId: Snowflake?
         
-        /// ID of any system auto moderation messages posted as a result of this action. Will be `nil` if this event does not correspond to `ActionType.sendMessage`.
+        /// ID of any system auto moderation messages posted as a result of this action. Will be `nil` if this event does not correspond to ``AutoModerationRule/ActionType/sendAlertMessage``.
         public let alertMessageId: Snowflake?
         
         /// User-generated text content.

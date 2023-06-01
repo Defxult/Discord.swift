@@ -293,14 +293,11 @@ extension User {
         /// The associated URL when using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``.
         public var url: String?
         
-        /**
-         Initializes a presence activity for use in ``Discord/Discord/updatePresence(status:activity:)``.
-         
-         - Parameters:
-            - type: The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``, a `url` must be set.
-            - name: The name of the activity.
-            - url: The associated URL when using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``.
-         */
+        /// Initializes a presence activity for use in ``Discord/Discord/updatePresence(status:activity:)``.
+        /// - Parameters:
+        ///   - type: The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``, a `url` must be set.
+        ///   - name: The name of the activity.
+        ///   - url: The associated URL when using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``.
         public init(_ type: ActivityType, name: String, url: String? = nil) {
             self.type = type
             self.name = name

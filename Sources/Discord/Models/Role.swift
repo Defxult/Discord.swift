@@ -119,13 +119,11 @@ public class Role : Object, Hashable {
         try await bot!.http.deleteGuildRole(guildId: guild.id, roleId: id, reason: reason)
     }
     
-    /**
-     Edit the role.
-     
-     - Parameters:
-        - edits: Values that should be changed.
-        - reason: The reason for editing the role. This shows up in the guilds audit-logs.
-     */
+    /// Edit the role.
+    /// - Parameters:
+    ///   - edits: The enum containing all values to be updated for the role.
+    ///   - reason: The reason for editing the role. This shows up in the guilds audit log.
+    /// - Returns: The updated role.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> Role {
         // Don't perform an HTTP request when nothing was changed
