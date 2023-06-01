@@ -1277,7 +1277,7 @@ class HTTPClient {
 
     /// Get a list of guild scheduled event users subscribed to a guild scheduled event (up to 100 maximum).
     ///  https://discord.com/developers/docs/resources/guild-scheduled-event#get-guild-scheduled-event-users
-    func getGuildScheduledEventUsers(guildId: Snowflake, eventId: Snowflake, limit: Int, before: Snowflake?, after: Snowflake?) async throws -> [User] {
+    func getGuildScheduledEventUsers(guildId: Snowflake, eventId: Snowflake, limit: Int, before: Snowflake?, after: Snowflake?) async throws -> [JSON] {
         // HTTPError.badRequest() if `limit` is above/below expected values
         let limit = (limit > 100 || limit < 1) ? 100 : limit
         
@@ -1292,13 +1292,7 @@ class HTTPClient {
             if let after { endpont += "&after=\(after)" }
         }
         
-        let data = try await request(.get, route(endpont)) as! [JSON]
-        var users = [User]()
-        for container in data {
-            let userObj = container["user"] as! JSON
-            users.append(.init(userData: userObj))
-        }
-        return users
+        return try await request(.get, route(endpont)) as! [JSON]
     }
 
     /// Returns a guild template for the given code.

@@ -236,9 +236,9 @@ public class Guild : Object, Hashable, Updateable  {
         let splashHash = guildData["splash"] as? String
         splash = splashHash != nil ? Asset(hash: splashHash!, fullURL: "/splash/\(id)/\(Asset.determineImageTypeURL(hash: splashHash!))") : nil
         
-        let discoverySplashHash = guildData["splash"] as? String
-        splash = discoverySplashHash != nil ? Asset(hash: discoverySplashHash!, fullURL: "/discovery-splashes/\(id)/\(Asset.determineImageTypeURL(hash: discoverySplashHash!))") : nil
-    
+        let discoverySplashHash = guildData["discovery_splash"] as? String
+        discoverySplash = discoverySplashHash != nil ? Asset(hash: discoverySplashHash!, fullURL: "/discovery-splashes/\(id)/\(Asset.determineImageTypeURL(hash: discoverySplashHash!))") : nil
+        
         afkChannelId = Conversions.snowflakeToOptionalUInt(guildData["afk_channel_id"])
         afkChannelTimeout = guildData["afk_timeout"] as! Int
         widgetEnabled = Conversions.optionalBooltoBool(guildData["widget_enabled"])
@@ -995,8 +995,11 @@ public class Guild : Object, Hashable, Updateable  {
             case "owner_id":
                 ownerId = Conversions.snowflakeToUInt(v as! String)
             case "splash":
-                break
-                //splash = Asset(hash: v as! String, fullURL: "/splash/\(id)/\(Asset.determineImageTypeURL(hash: v as! String))")
+                let splashHash = v as! String
+                splash = Asset(hash: splashHash, fullURL: "/splash/\(id)/\(Asset.determineImageTypeURL(hash: splashHash))")
+            case "discovery_splash":
+                let discoverySplashHash = v as! String
+                discoverySplash = Asset(hash: discoverySplashHash, fullURL: "/discovery-splashes/\(id)/\(Asset.determineImageTypeURL(hash: discoverySplashHash))")
             case "afk_channel_id":
                 afkChannelId = Conversions.snowflakeToOptionalUInt(v as? String)
             case "afk_timeout":
@@ -2122,16 +2125,29 @@ extension Guild {
         }
         
         /**
-         The list of guild scheduled event users subscribed ("interested") to the event.
+         The list of users who are subscribed ("interested") to the event.
+         
+         Below is an example on how to request subscribed users:
+         ```swift
+         do {
+             for try await users in scheduledEvent.users() {
+                 // ...
+             }
+         } catch {
+             // Handle error
+         }
+         ```
+         Each iteration of the async for-loop contains batched users. Meaning `users` will be an array of at most 100 users. You will receive batched users until
+         all users matching the function parameters are fully received.
          
          - Parameters:
-            - limit: Number of users to return (up to maximum 100).
-            - before: Consider only users before given user ID.
-            - after: Consider only users after given user ID.
+            - limit: Number of users to return. If `nil`, all users will be returned. The more users who are subscribed, the longer this will take.
+            - before: Users to retrieve before the specified date.
+            - after: Users to retrieve after the specified date.
          - Returns: Users subscribed to the event.
          */
-        public func users(limit: Int = 100, before: Snowflake? = nil, after: Snowflake? = nil) async throws -> [User] {
-            return try await bot!.http.getGuildScheduledEventUsers(guildId: guildId, eventId: id, limit: limit, before: before, after: after)
+        public func users(limit: Int? = 100, before: Date? = nil, after: Date? = nil) -> Guild.ScheduledEvent.AsyncUsers {
+            return .init(guild: guild, eventId: id, limit: limit, before: before, after: after)
         }
     }
 
@@ -2295,6 +2311,72 @@ extension Guild.ScheduledEvent {
         
         /// The cover image of the scheduled event. Can be set to `nil` to remove the cover image.
         case image(File?)
+    }
+    
+    /// Represents an asynchronous iterator used for ``Guild/ScheduledEvent/users(limit:before:after:)``.
+    public struct AsyncUsers : AsyncSequence, AsyncIteratorProtocol {
+        
+        public typealias Element = [User]
+
+        let guild: Guild
+        let indefinite = -1
+        var remaining = 0
+        let eventId: Snowflake
+        var beforeSnowflakeTime: Snowflake
+        var afterSnowflakeTime: Snowflake
+        var hasMore = true
+
+        init(guild: Guild, eventId: Snowflake, limit: Int?, before: Date?, after: Date?) {
+            self.guild = guild
+            self.eventId = eventId
+            self.remaining = limit ?? indefinite
+            self.beforeSnowflakeTime = before?.asSnowflake ?? 0
+            self.afterSnowflakeTime = after?.asSnowflake ?? 0
+        }
+        
+        private func req(limit: Int, before: Snowflake, after: Snowflake) async throws -> [JSON] {
+            // Set the values to `nil` if 0. `http.getGuildScheduledEventUsers()` doesnt take into account that 0
+            // means `nil` in this context. So change that ourselves here to prevent both URL queries
+            // from being added unless intentionally added in the function call.
+            let newBefore = before == 0 ? nil : before
+            let newAfter = after == 0 ? nil : after
+            
+            return try await guild.bot!.http.getGuildScheduledEventUsers(guildId: guild.id, eventId: eventId, limit: limit, before: newBefore, after: newAfter)
+        }
+        
+        public mutating func next() async throws -> Element? {
+            if !hasMore { return nil }
+            
+            var users = [User]()
+            let requestAmount = (remaining == indefinite ? 100 : Swift.min(remaining, 100))
+            let data = try await req(limit: requestAmount, before: beforeSnowflakeTime, after: afterSnowflakeTime)
+            
+            // If the amount of bans received is less 100, theres no more data after it, so set
+            // this to false to prevent an extra HTTP request that is not needed.
+            if data.count < 100 {
+                hasMore = false
+            }
+            
+            for obj in data {
+                let userObj = obj["user"] as! JSON
+                users.append(.init(userData: userObj))
+                if remaining != indefinite {
+                    remaining -= 1
+                    if remaining == 0 {
+                        hasMore = false
+                        return users
+                    }
+                }
+            }
+            
+            beforeSnowflakeTime = users.last?.id ?? 0
+            afterSnowflakeTime = beforeSnowflakeTime
+            return users
+        }
+        
+        public func makeAsyncIterator() -> AsyncUsers {
+            self
+        }
     }
 }
 

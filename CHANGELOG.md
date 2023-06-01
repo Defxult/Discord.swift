@@ -5,13 +5,19 @@ Pending release
 - Method `Discord.waitUntilReady()`.
 - Method `File.download()`. 
 
-#### Fixed
-- Event listener `onReady()` not being dispatched when certain intents were missing.
-- The possibility that `VoiceChannel.State` (`Guild.voiceStates`) wouldn't' be fully updated.
+#### Bug Fixes
+- Fixed event listener `onReady()` not being dispatched when certain intents were missing.
+- Fixed the possibility that `VoiceChannel.State` (`Guild.voiceStates`) wouldn't' be fully updated.
+- Fixed property `Guild.discoverySplash` returning `nil` even if a discovery splash was present.
+- Fixed property `Guild.splash` not being updated.
+- Fixed method `ScheduledEvent.users()` error when called.
 
-### Updated
+#### Updated
 - **(Breaking Change)** Method `Guild.bans()` parameters `before` and `after` are now of type `Date`.
 - **(Breaking Change)** Method `Guild.bans()` return type is now `Guild.AsyncBans`.
+- **(Breaking Change)** Method `ScheduledEvent.users()` parameters `before` and `after` are now of type `Date`.
+- **(Breaking Change)** Method `ScheduledEvent.users()` return type is now `ScheduledEvent.AsyncUsers`.
+- Varous documentation improvements. Added documentation that was missing and corrected typos.
 
 
 
@@ -27,9 +33,9 @@ Released on May 27, 2023.
 - Case `Guild.Feature.raidAlertsDisabled`.
 - Enum `OAuth2Scopes` (see updated).
 
-#### Fixed
-- `Embed.clear()` not removing the timestamp.
-- `PartialInvite.inviter` error when missing inviter.
+#### Bug Fixes
+- Fixed `Embed.clear()` not removing the timestamp.
+- Fixed `PartialInvite.inviter` error when missing inviter.
 
 #### Updated
 - Function `clean()` now escapes bullet points and headers.
