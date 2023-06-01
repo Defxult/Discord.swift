@@ -17,7 +17,7 @@ Pending release
 - **(Breaking Change)** Method `Guild.bans()` return type is now `Guild.AsyncBans`.
 - **(Breaking Change)** Method `ScheduledEvent.users()` parameters `before` and `after` are now of type `Date`.
 - **(Breaking Change)** Method `ScheduledEvent.users()` return type is now `ScheduledEvent.AsyncUsers`.
-- Varous documentation improvements. Added documentation that was missing and corrected typos.
+- Various documentation improvements. Added documentation that was missing and corrected typos.
 
 
 
