@@ -1,9 +1,9 @@
 ## 0.0.3-alpha
-Pending release
+Released on June 1, 2023.
 
 #### New Features
-- Method `Discord.waitUntilReady()`.
-- Method `File.download()`. 
+- Added method `Discord.waitUntilReady()`.
+- Added method `File.download()`. 
 
 #### Bug Fixes
 - Fixed event listener `onReady()` not being dispatched when certain intents were missing.
@@ -25,13 +25,13 @@ Pending release
 Released on May 27, 2023.
 
 #### New Features
-- Function `getVariable()`.
-- Function `oauth2Url()`.
-- Method `Array.chunked()`.
-- Property `Guild.safetyAlertsChannelId`.
-- Property `Discord.emojis`.
-- Case `Guild.Feature.raidAlertsDisabled`.
-- Enum `OAuth2Scopes` (see updated).
+- Added function `getVariable()`.
+- Added function `oauth2Url()`.
+- Added method `Array.chunked()`.
+- Added property `Guild.safetyAlertsChannelId`.
+- Added property `Discord.emojis`.
+- Added case `Guild.Feature.raidAlertsDisabled`.
+- Added enum `OAuth2Scopes` (see updated).
 
 #### Bug Fixes
 - Fixed `Embed.clear()` not removing the timestamp.
