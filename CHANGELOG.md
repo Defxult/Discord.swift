@@ -1,4 +1,4 @@
-## 0.0.3-alpha
+## [0.0.3-alpha](https://github.com/Defxult/Discord.swift/tree/0.0.3-alpha)
 Released on June 1, 2023.
 
 #### New Features
