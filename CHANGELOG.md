@@ -1,3 +1,6 @@
+#### Bug Fixes
+- Fixed property `Emoji.url` returning a .png URL even when the emoji was animated (.gif).
+
 ## [0.0.3-alpha](https://github.com/Defxult/Discord.swift/tree/0.0.3-alpha)
 Released on June 1, 2023.
 

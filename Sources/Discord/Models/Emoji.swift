@@ -110,7 +110,7 @@ public struct Emoji : Object, CustomStringConvertible, Hashable {
         animated = emojiData["animated"] as! Bool
         available = emojiData["available"] as! Bool
         description = animated ? "<a:\(name):\(id)>" : "<:\(name):\(id)>"
-        url = APIRoute.cdn.rawValue + "/emojis/\(id).png"
+        url = APIRoute.cdn.rawValue + "/emojis/\(id).\(animated ? "gif" : "png")"
     }
     
     /// Edit the emoji.
