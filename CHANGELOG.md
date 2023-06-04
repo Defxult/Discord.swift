@@ -1,5 +1,35 @@
+## 0.0.4-alpha
+Pending Release
+
+#### New Features
+- Added struct `Markdown`. This contains all methods related to markdowns. The following has been added:
+  - `Markdown.blockQuote()`
+  - `Markdown.bold()`
+  - `Markdown.codeBlock()`
+  - `Markdown.customEmoji()`
+  - `Markdown.header()`
+  - `Markdown.inlineCode()`
+  - `Markdown.list()`
+  - `Markdown.maskedLink()`
+  - `Markdown.mentionChannel()`
+  - `Markdown.mentionRole()`
+  - `Markdown.mentionSlashCommand()`
+  - `Markdown.mentionUser()`
+  - `Markdown.spoiler()`
+  - `Markdown.suppressLinkEmbed()`
+  - `Markdown.strikethrough()`
+  - `Markdown.underline()`
+
 #### Bug Fixes
 - Fixed property `Emoji.url` returning a .png URL even when the emoji was animated (.gif).
+
+#### Updated
+- With the addition of `Markdown`, the following has been changed:
+  - **(Breaking Change)** Function `clean()` was renamed to `escape` and is now under `Markdown.escape()`.
+  - **(Breaking Change)** Function `formatTimestamp()` was renamed to `timestamp` and is now under `Markdown.timestamp()`.
+  - **(Breaking Change)** Enum `TimestampStyle` is now under `Markdown.TimestampStyle`.
+
+
 
 ## [0.0.3-alpha](https://github.com/Defxult/Discord.swift/tree/0.0.3-alpha)
 Released on June 1, 2023.

@@ -24,71 +24,6 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 
-/// Escapes all markdowns and returns the raw text.
-///
-/// Various mardowns will be escaped as follows:
-/// - A channel mention (`#general`), will be converted to <#1234567891234567>.
-/// - The word **bolded** will be converted to \*\*bolded\*\*
-/// - An `@everyone` ping will be converted to raw @everyone and will not ping everyone.
-/// - A guild emoji (😂) will be converted to <:laughing:1234567891234567> etc.
-///
-/// - Parameter text: The text to escape.
-/// - Returns: The escaped text.
-public func clean(_ text: String) -> String {
-    // - bullet points
-    // # headers
-    // * bold|italics
-    // ~ strikethrough
-    // > quote, (user|role|channel) mentions
-    // ` code
-    // | spoiler
-    // _ underline
-    // : guild emoji, url
-    // @ everyone|here mentions
-    text.replacing(#/[@*~>`|_:\-\#]/#, with: { match -> String in
-        if match.description == "@" {
-            let zeroWidthSpace = "\u{200b}"
-            return "@\(zeroWidthSpace)"
-        } else {
-            return "\\\(match.description)"
-        }
-    })
-}
-
-/// Format a date to a Discord timestamp that will display the given timestamp in the user's timezone and locale.
-/// - Parameters:
-///   - date: Date to format.
-///   - style: The `date` style.
-/// - Returns: A Discord formatted timestamp.
-public func formatTimestamp(date: Date, style: TimestampStyle = .f) -> String {
-    return "<t:\(Int(date.timeIntervalSince1970)):\(style.rawValue)>"
-}
-
-/// Represents a Discord timestamp. Timestamps will display the given timestamp in the user's timezone and locale.
-public enum TimestampStyle : String {
-    
-    /// Short Time (16:20)
-    case t = "t"
-    
-    /// Long Time (16:20:30)
-    case T = "T"
-    
-    /// Short Date (20/04/2021)
-    case d = "d"
-    
-    /// Long Date (20 April 2021)
-    case D = "D"
-    
-    /// Short Date/Time (20 April 2021 16:20)
-    case f = "f"
-    
-    /// Long Date/Time (Tuesday, 20 April 2021 16:20)
-    case F = "F"
-    
-    /// Relative Time (2 months ago)
-    case R = "R"
-}
-
 /**
  Get the value for a variable in your environment. This is typically used to retrieve your Discord bot token, but can be used for anything.
  
@@ -100,6 +35,188 @@ public enum TimestampStyle : String {
  */
 public func getVariable(_ variable: String) -> String? {
     return ProcessInfo.processInfo.environment[variable]
+}
+
+/// Contains all methods related to Discords markdown capabilites.
+public struct Markdown {
+    
+    /// Converts the text to a formatted block quote.
+    /// - Parameters:
+    ///   - text: The text to block quote.
+    ///   - multiline: Whether the text should be wrapped entirely in a block quote. If `false`, only the first line will be in a block quote.
+    /// - Returns: The formatted block quote.
+    public static func blockQuote(_ text: String, multiline: Bool = true) -> String { multiline ? ">>> \(text)" : "> \(text)" }
+    
+    /// Bolds the given text.
+    /// - Parameter text: The text to bold.
+    /// - Returns: The bolded text.
+    public static func bold(_ text: String) -> String { "**\(text)**" }
+        
+    /// Converts the code into a formatted code block for the desired language.
+    /// - Parameters:
+    ///   - language: The coding language the text should be converted into.
+    ///   - code: The code itself.
+    /// - Returns: A formatted code block.
+    public static func codeBlock(language: String? = nil, _ code: String) -> String { "```\(language ?? .empty)\n\(code)\n```" }
+    
+    /// Converts the parameters to a custom guild emoji.
+    /// - Parameters:
+    ///   - name: Name of the custom emoji.
+    ///   - id: ID of the custom emoji.
+    ///   - animated: Whether the custom emoji is animated.
+    /// - Returns: The custom emoji.
+    public static func customEmoji(name: String, id: Snowflake, animated: Bool) -> String { "<\(animated ? "a" : .empty):\(name):\(id)>" }
+    
+    /// Escapes all markdowns and returns the raw text.
+    ///
+    /// Various mardowns will be escaped as follows:
+    /// - A channel mention (`#general`), will be converted to <#1234567891234567>.
+    /// - The word **bolded** will be converted to \*\*bolded\*\*
+    /// - An `@everyone` ping will be converted to raw @everyone and will not ping everyone.
+    /// - A guild emoji (😂) will be converted to <:laughing:1234567891234567> etc.
+    ///
+    /// - Parameter text: The text to escape.
+    /// - Returns: The escaped text.
+    public static func escape(_ text: String) -> String {
+        // - bullet points
+        // # headers
+        // * bold|italics
+        // ~ strikethrough
+        // > quote, (user|role|channel) mentions
+        // ` code
+        // | spoiler
+        // _ underline
+        // : guild emoji, url
+        // @ everyone|here mentions
+        text.replacing(#/[@*~>`|_:\-\#]/#, with: { match -> String in
+            if match.description == "@" {
+                let zeroWidthSpace = "\u{200b}"
+                return "@\(zeroWidthSpace)"
+            } else {
+                return "\\\(match.description)"
+            }
+        })
+    }
+    
+    /// Converts to text to a formatted header.
+    /// - Parameters:
+    ///   - size: Size of the header (1-3). 1 = big, 2 = medium, 3 = small.
+    ///   - text: The text to format.
+    /// - Returns: The formatted text.
+    public static func header(size: Int, _ text: String) -> String {
+        let size = size < 1 ? 1 : min(size, 3)
+        let headers = Array(repeating: "#", count: size).joined()
+        return "\(headers) \(text)"
+    }
+    
+    /// Converts the code into a formatted inline code.
+    /// - Parameter code: The code itself.
+    /// - Returns: The formatted inline code.
+    public static func inlineCode(_ code: String) -> String { "`\(code)`" }
+    
+    /// Italicizes the given text.
+    /// - Parameter text: The text to italicize.
+    /// - Returns: The italicized text.
+    public static func italic(_ text: String) -> String { "*\(text)*" }
+    
+    /// Converts the given items into a formatted bullet point list. This does not support bullet point indentation for inner bullet points.
+    /// - Parameter items: The items in the list.
+    /// - Returns: A bullet point list.
+    public static func list(_ items: any Sequence<String>) -> String { items.map({ "- \($0)" }).joined(separator: "\n") }
+    
+    /// Masks the given link.
+    /// - Parameters:
+    ///   - title: Title of the masked link. This is what is displayed in Discord.
+    ///   - url: The URL of the link.
+    /// - Returns: The masked link.
+    public static func maskedLink(title: String, url: String) -> String { "[\(title)](<\(url)>)" }
+    
+    /// Mentions the channel.
+    /// - Parameter id: ID of the channel.
+    /// - Returns: The channel in a mentioned format.
+    public static func mentionChannel(id: Snowflake) -> String { "<#\(id)>" }
+    
+    /// Mentions the role.
+    /// - Parameter id: ID of the role.
+    /// - Returns: The role in a mentioned format.
+    public static func mentionRole(id: Snowflake) -> String { "<@&\(id)>" }
+    
+    /**
+     Mentions the slash command.
+     
+     Subcommands and subcommand groups can also be mentioned by using names respectively:
+     ```swift
+     // This is the command: /tag get <name>
+     let mention = Markdown.mentionSlashCommand("tag get", id: 1234567890123456789)
+     ```
+     - Parameters:
+        - name: Name of the slash command.
+        - id: ID of the slash command.
+     - Returns: The slash command in a mentioned format.
+     */
+    public static func mentionSlashCommand(name: String, id: Snowflake) -> String { "</\(name):\(id)>" }
+    
+    /// Mentions the user.
+    /// - Parameter id: ID of the user.
+    /// - Returns: The user in a mentioned format.
+    public static func mentionUser(id: Snowflake) -> String { "<@\(id)>" }
+    
+    /// Wraps the given text in spoiler tags.
+    /// - Parameter text: The text to wrap.
+    /// - Returns: The wrapped text.
+    public static func spoiler(_ text: String) -> String { "||\(text)||" }
+    
+    /// Prevents the website embed from being displayed when a URL is posted.
+    /// - Parameter url: The URL.
+    /// - Returns: The suppressed URL.
+    public static func suppressLinkEmbed(url: String) -> String { "<\(url)>" }
+    
+    /// Converts the text into a formatted strikethrough.
+    /// - Parameter text: The text to strikethrough.
+    /// - Returns: The formatted text.
+    public static func strikethrough(_ text: String) -> String { "~~\(text)~~" }
+    
+    /// Format a date to a Discord timestamp that will display the given timestamp in the user's timezone and locale.
+    /// - Parameters:
+    ///   - date: Date to format.
+    ///   - style: The `date` style.
+    /// - Returns: A Discord formatted timestamp.
+    public static func timestamp(date: Date, style: TimestampStyle = .f) -> String {
+        "<t:\(Int(date.timeIntervalSince1970)):\(style.rawValue)>"
+    }
+    
+    /// Underlines the given text.
+    /// - Parameter text: The text to underline.
+    /// - Returns: The underlined text.
+    public static func underline(_ text: String) -> String { "__\(text)__" }
+}
+
+extension Markdown {
+    
+    /// Represents a Discord timestamp. Timestamps will display the given timestamp in the user's timezone and locale.
+    public enum TimestampStyle : String {
+        
+        /// Short Time (16:20)
+        case t = "t"
+        
+        /// Long Time (16:20:30)
+        case T = "T"
+        
+        /// Short Date (20/04/2021)
+        case d = "d"
+        
+        /// Long Date (20 April 2021)
+        case D = "D"
+        
+        /// Short Date/Time (20 April 2021 16:20)
+        case f = "f"
+        
+        /// Long Date/Time (Tuesday, 20 April 2021 16:20)
+        case F = "F"
+        
+        /// Relative Time (2 months ago)
+        case R = "R"
+    }
 }
 
 /// Get the OAuth2 URL for inviting the bot.
