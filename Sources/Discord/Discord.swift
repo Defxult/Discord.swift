@@ -59,7 +59,7 @@ public class Discord {
     public let token: String
     
     /// The global allowed mentions.
-    public static var allowedMentions: AllowedMentions = .default
+    public static var allowedMentions = AllowedMentions.default
     
     /// All emojis the bot has accesss to.
     public var emojis: Set<Emoji> {
@@ -464,7 +464,6 @@ public class Discord {
     
     /// Request a discord invite.
     /// - Parameter code: The invite code
-    /// - Throws: `HTTPError.notFound` - The invite could not be found.
     /// - Returns: The partial invite information.
     public func requestInvite(code: String) async throws -> PartialInvite {
         return try await http.getInvite(code: code)
@@ -478,7 +477,6 @@ public class Discord {
     
     /// Request a sticker.
     /// - Parameter id: ID of the sticker.
-    /// - Throws: `HTTPError.notFound`- The sticker could not be found.
     /// - Returns: The sticker matching the given ID.
     public func requestSticker(_ id: Snowflake) async throws -> Sticker {
         return try await http.getSticker(stickerId: id)
@@ -486,7 +484,6 @@ public class Discord {
     
     /// Request a user. Unlike ``getUser(_:)`` this is an API call.
     /// - Parameter id: ID of the user.
-    /// - Throws: `HTTPError.notFound` - The user could not be found.
     /// - Returns: The user matching the given ID.
     public func requestUser(_ id: Snowflake) async throws -> User {
         return try await http.getUser(userId: id)
@@ -494,7 +491,6 @@ public class Discord {
     
     /// Request a guild template based on the provided code. The code is the last parameter of the template URL.
     /// Template URLs look like the following: `https://discord.new/VhauskbbByvn` , where "VhauskbbByvn" is the code.
-    /// - Throws: `HTTPError.notFound` - The guild template could not be found.
     /// - Returns: The template matching the given code.
     public func requestTemplate(code: String) async throws -> Guild.Template {
         return try await http.getGuildTemplate(code: code)
@@ -502,7 +498,6 @@ public class Discord {
     
     /// Request a webhook by its ID.
     /// - Parameter id: The webhooks ID.
-    /// - Throws: `HTTPError.notFound` - The webhook could not be found.
     /// - Returns: The webhook matching the given ID.
     public func requestWebhookFrom(id: Snowflake) async throws -> Webhook {
         return try await http.getWebhook(webhookId: id)
@@ -510,7 +505,6 @@ public class Discord {
     
     /// Request a webhook by its URL. Unlike ``requestWebhookFrom(id:)``, this does not require authentification. Meaning this can be called prior to connecting to Discord via ``connect()``.
     /// - Parameter url: The webhooks URL.
-    /// - Throws: `DiscordError.generic` - The URL was not a Discord webhook URL. `HTTPError.notFound` - The webhook was not found.
     /// - Returns: The webhook matching the given URL.
     public func requestWebhookFrom(url: String) async throws -> Webhook {
         let webhookUrlRegex = #/https:\/\/discord[.]com\/api\/webhooks\/[0-9]{17,20}\/.+/#
@@ -536,7 +530,7 @@ public class Discord {
 public struct Version : CustomStringConvertible {
     public let major = 0
     public let minor = 0
-    public let patch = 3
+    public let patch = 4
     public let releaseLevel = ReleaseLevel.alpha
 
     /// The string representation of the library version.
