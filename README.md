@@ -8,9 +8,9 @@
     <img src="https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.0.4-alpha&color=ff992b">
 </p>
 
-A Discord API wrapper written in Swift, kept up-to-date with the latest features. Simple, elegant, and easy to use. Have fun creating your own bot! 🤖 Whether it's for moderation, only for you and your friends, or something entirely unique!
+A Discord API library written in Swift, kept up-to-date with the latest features. Simple, elegant, and easy to use. Have fun creating your own bot! 🤖 Whether it's for moderation, only for you and your friends, or something entirely unique!
 
-Enjoying the library? Don't forget to leave a ⭐️ 😄. If you need any assistance, consider joining our [Discord server](https://discord.gg/TYDZeruQ7N).
+Enjoying the library? Don't forget to leave a ⭐️ 😄. There is also a community support [Discord server](https://discord.gg/TYDZeruQ7N) for help and discussions.
 
 ## Key Features
 - Asynchronous functionality using `async` and `await`.
