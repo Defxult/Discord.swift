@@ -164,7 +164,10 @@ extension GuildChannel {
     public var mention: String { Markdown.mentionChannel(id: id) }
     
     /// The direct URL for the channel.
-    public var jumpUrl: String { "https://discord.com/channels/\(guild.id)/\(id)" }
+    public var jumpUrl: String {
+        let url = "https://discord.com/channels/\(guild.id)/\(id)"
+        return Markdown.suppressLinkEmbed(url: url)
+    }
     
     /// Creates an invite for the channel.
     /// - Parameters:

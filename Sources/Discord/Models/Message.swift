@@ -180,8 +180,12 @@ public class Message : Object, Hashable, Updateable {
 
     /// The direct URL for the message.
     public var jumpUrl: String {
-        "https://discord.com/channels/" + (isDmMessage ? "@me" : String(guild!.id)) + "/\(channel.id)/\(id)"
+        let url = "https://discord.com/channels/" + (isDmMessage ? "@me" : String(guild!.id)) + "/\(channel.id)/\(id)"
+        return Markdown.suppressLinkEmbed(url: url)
     }
+    
+    /// Mention the message.
+    public var mention: String { jumpUrl.replacing(#/[<>]/#, with: String.empty) }
 
     // --------------------------------------------------------------------------------
     
