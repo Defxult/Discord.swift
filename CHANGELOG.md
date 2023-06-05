@@ -2,6 +2,7 @@
 Pending Release
 
 #### New Features
+- Added property `ApplicationCommand.mention`.
 - Added struct `Markdown`. This contains all methods related to markdowns. The following has been added:
   - `Markdown.blockQuote()`
   - `Markdown.bold()`

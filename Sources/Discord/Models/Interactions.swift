@@ -93,6 +93,9 @@ public struct ApplicationCommand {
     /// Whether the application command is global.
     public var isGlobal: Bool { guildId == nil }
     
+    /// Mention the application command. This is only available if the command `type` is ``ApplicationCommandType/slashCommand``.
+    public let mention: String?
+    
     // -----------------------------------
     
     /// Your bot instance.
@@ -135,6 +138,7 @@ public struct ApplicationCommand {
         
         dmPermission = applicationCommandData.keys.contains("dm_permission") ? (applicationCommandData["dm_permission"] as! Bool) : nil
         isNsfw = applicationCommandData["nsfw"] as! Bool
+        mention = type == .slashCommand ? Markdown.mentionSlashCommand(name: name, id: id) : nil
     }
     
     /// Edit the application command.
