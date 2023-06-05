@@ -109,7 +109,7 @@ public class Role : Object, Hashable {
             tags = Tag(tagData: tempTagsData)
         }
         
-        mention = (id == guildId ? "@everyone" : Conversions.mention(.role, id: id))
+        mention = (id == guildId ? "@everyone" : Markdown.mentionRole(id: id))
         self.guildId = guildId
     }
     

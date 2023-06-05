@@ -88,7 +88,7 @@ public class User : Object, Updateable, Hashable {
             publicUserFlags = PublicUserFlags.getUserFlags(userFlagValue: flagValue)
         }
 
-        mention = Conversions.mention(.user, id: id)
+        mention = Markdown.mentionUser(id: id)
     }
     
     /// Updates the properties of the user when recieved via `GuildEvent.userUpdate` and `GuildEvent.presenceUpdate`.

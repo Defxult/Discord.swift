@@ -274,13 +274,7 @@ public func snowflakeDate(_ snowflake: Snowflake) -> Date {
     return Date(timeIntervalSince1970: Double(timestamp))
 }
 
-// MARK: Global extensions
-
-extension String {
-    
-    /// An empty string.
-    static let empty = ""
-}
+// MARK: Public global extensions
 
 extension Array {
     
@@ -303,6 +297,14 @@ extension Array {
             Array(self[$0 ..< Swift.min($0 + size, count)])
         }
     }
+}
+
+// MARK: Private global extensions
+
+extension String {
+    
+    /// An empty string.
+    static let empty = ""
 }
 
 extension Date {
@@ -330,23 +332,6 @@ extension Sequence<EventListener> {
 // MARK: Conversions
 
 struct Conversions {
-    
-    enum MentionType {
-        case user
-        case channel
-        case role
-    }
-        
-    static func mention(_ type: MentionType, id: Snowflake) -> String {
-        switch type {
-        case .user:
-            return "<@\(id)>"
-        case .channel:
-            return "<#\(id)>"
-        case .role:
-            return "<@&\(id)>"
-        }
-    }
     
     static func strArraySnowflakeToSnowflake(_ arrayIds: [String]) -> [Snowflake] {
         var ids = [Snowflake]()

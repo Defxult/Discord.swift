@@ -161,7 +161,7 @@ extension GuildChannel {
     var guild: Guild { getGuildFromBot(bot: bot!, channelId: id) }
     
     /// Mention the channel.
-    public var mention: String { Conversions.mention(.channel, id: id) }
+    public var mention: String { Markdown.mentionChannel(id: id) }
     
     /// The direct URL for the channel.
     public var jumpUrl: String { "https://discord.com/channels/\(guild.id)/\(id)" }
@@ -1656,7 +1656,7 @@ public struct StageInstance : Hashable {
         privacyLevel = PrivacyLevel(rawValue: stageInstanceData["privacy_level"] as! Int)!
         guildScheduledEventId = Conversions.snowflakeToOptionalUInt(stageInstanceData["guild_scheduled_event_id"])
 
-        mention = Conversions.mention(.channel, id: id)
+        mention = Markdown.mentionChannel(id: id)
     }
     
     /// Edit the stage instance.
