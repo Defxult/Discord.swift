@@ -9,6 +9,7 @@ Pending Release
   - `Markdown.bold()`
   - `Markdown.codeBlock()`
   - `Markdown.customEmoji()`
+  - `Markdown.escape()`
   - `Markdown.header()`
   - `Markdown.inlineCode()`
   - `Markdown.list()`
