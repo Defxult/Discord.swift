@@ -54,7 +54,7 @@ public struct Markdown {
         
     /// Converts the code into a formatted code block for the desired language.
     /// - Parameters:
-    ///   - language: The coding language the text should be converted into.
+    ///   - language: The language the text should be converted into.
     ///   - code: The code itself.
     /// - Returns: A formatted code block.
     public static func codeBlock(language: String? = nil, _ code: String) -> String { "```\(language ?? .empty)\n\(code)\n```" }
@@ -69,33 +69,38 @@ public struct Markdown {
     
     /// Escapes all markdowns and returns the raw text.
     ///
-    /// Various mardowns will be escaped as follows:
+    /// Various mardowns will be escaped. Here are just a few examples:
     /// - A channel mention (`#general`), will be converted to <#1234567891234567>.
     /// - The word **bolded** will be converted to \*\*bolded\*\*
     /// - An `@everyone` ping will be converted to raw @everyone and will not ping everyone.
-    /// - A guild emoji (😂) will be converted to <:laughing:1234567891234567> etc.
+    /// - A guild emoji (😂) will be converted to <:laughing:1234567891234567>.
     ///
-    /// - Parameter text: The text to escape.
+    /// - Parameters:
+    ///   - text: The text to escape.
+    ///   - ignoreUrls: Whether to prevent URLs from being escaped.
     /// - Returns: The escaped text.
-    public static func escape(_ text: String) -> String {
+    public static func escape(_ text: String, ignoreUrls: Bool = true) -> String {
         // - bullet points
         // # headers
-        // * bold|italics
+        // * bold|italics|bullet points
         // ~ strikethrough
-        // > quote, (user|role|channel) mentions
-        // ` code
-        // | spoiler
+        // > quote/quote block/guild emojis/(user|role|channel|slash cmd) mentions
+        // ` inline code/code block
+        // | spoiler tags
         // _ underline
-        // : guild emoji, url
-        // @ everyone|here mentions
-        text.replacing(#/[@*~>`|_:\-\#]/#, with: { match -> String in
-            if match.description == "@" {
-                let zeroWidthSpace = "\u{200b}"
-                return "@\(zeroWidthSpace)"
-            } else {
-                return "\\\(match.description)"
-            }
-        })
+        // : normal emojis
+        // @everyone|here mentions
+        if ignoreUrls {
+            let ignoreRegex = #/(?:https?://\S+|w{3}\.\S+)|@(everyone|here)|[:*~>`|_\-#]/#
+            return text.replacing(ignoreRegex, with: { match -> String in
+                let v = match.output.0
+                return v.starts(with: "http") ? v.description : "\\\(v)"
+            })
+            
+        } else {
+            let regex = #/[:*~>`|_\-#]|@(everyone|here)/#
+            return text.replacing(regex, with: { "\\\($0.output.0)" })
+        }
     }
     
     /// Converts to text to a formatted header.
