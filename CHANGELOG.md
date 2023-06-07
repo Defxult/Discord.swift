@@ -1,5 +1,5 @@
 ## 0.0.4-alpha
-Pending Release
+Released on June 7, 2023.
 
 #### New Features
 - Added property `ApplicationCommand.mention`.
