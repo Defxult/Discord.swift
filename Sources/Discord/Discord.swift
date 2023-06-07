@@ -505,7 +505,7 @@ public class Discord {
     /// - Parameter url: The webhooks URL.
     /// - Returns: The webhook matching the given URL.
     public func requestWebhookFrom(url: String) async throws -> Webhook {
-        let webhookUrlRegex = #/https:\/\/discord[.]com\/api\/webhooks\/[0-9]{17,20}\/.+/#
+        let webhookUrlRegex = #/https://discord\.com/api/webhooks/[0-9]{17,20}/\S+/#
         guard let _ = url.wholeMatch(of: webhookUrlRegex) else {
             throw DiscordError.generic("Invalid webhook URL")
         }
