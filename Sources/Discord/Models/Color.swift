@@ -27,49 +27,49 @@ public struct Color {
 
     private static let maximumColorValue = 16_777_215
     
-    /// Returns a `Color` with it's value set to `0x5865f2`.
+    /// Returns a `Color` with its value set to `0x5865f2`.
     public static let blurple = Color(value: 0x5865f2)
     
-    /// Returns a `Color` with it's value set to `0xeb459e`.
+    /// Returns a `Color` with its value set to `0xeb459e`.
     public static let fuchsia = Color(value: 0xeb459e)
     
-    /// Returns a `Color` with it's value set to `0xfc0303`.
+    /// Returns a `Color` with its value set to `0xfc0303`.
     public static let red = Color(value: 0xfc0303)
     
-    /// Returns a `Color` with it's value set to `0xff992b`.
+    /// Returns a `Color` with its value set to `0xff992b`.
     public static let orange = Color(value: 0xff992b)
     
-    /// Returns a `Color` with it's value set to `0xffdc2b`.
+    /// Returns a `Color` with its value set to `0xffdc2b`.
     public static let yellow = Color(value: 0xffdc2b)
     
-    /// Returns a `Color` with it's value set to `0x2bff32`.
+    /// Returns a `Color` with its value set to `0x2bff32`.
     public static let green = Color(value: 0x2bff32)
     
-    /// Returns a `Color` with it's value set to `0x026105`.
+    /// Returns a `Color` with its value set to `0x026105`.
     public static let darkGreen = Color(value: 0x026105)
     
-    /// Returns a `Color` with it's value set to `0x36b1d6`.
+    /// Returns a `Color` with its value set to `0x36b1d6`.
     public static let skyBlue = Color(value: 0x36b1d6)
     
-    /// Returns a `Color` with it's value set to `0x1021e3`.
+    /// Returns a `Color` with its value set to `0x1021e3`.
     public static let darkBlue = Color(value: 0x1021e3)
     
-    /// Returns a `Color` with it's value set to `0x8f44f2`.
+    /// Returns a `Color` with its value set to `0x8f44f2`.
     public static let purple = Color(value: 0x8f44f2)
     
-    /// Returns a `Color` with it's value set to `0xfca7f0`.
+    /// Returns a `Color` with its value set to `0xfca7f0`.
     public static let pink = Color(value: 0xfca7f0)
     
-    /// Returns a `Color` with it's value set to `0x000001`.
+    /// Returns a `Color` with its value set to `0x000001`.
     public static let black = Color(value: 0x000001)
     
-    /// Returns a `Color` with it's value set to `0xffffff`.
+    /// Returns a `Color` with its value set to `0xffffff`.
     public static let white = Color(value: 0xffffff)
     
-    /// Returns a `Color` with it's value set to `0xa6a6a6`.
+    /// Returns a `Color` with its value set to `0xa6a6a6`.
     public static let gray = Color(value: 0xa6a6a6)
     
-    /// Returns a `Color` with it's value set to `0x2f3136`.
+    /// Returns a `Color` with its value set to `0x2f3136`.
     public static let darkTheme = Color(value: 0x2f3136)
     
     /// Returns a random `Color`.
@@ -96,7 +96,7 @@ public struct Color {
      */
     public var asHex: String { String(value, radix: 16) }
     
-    /// The color code.
+    /// The color value.
     public var value: Int { didSet { value = Color.verifyValue(value) } }
     
     public static func == (lhs: Color, rhs: Color) -> Bool { lhs.value == rhs.value }

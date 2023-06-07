@@ -34,7 +34,7 @@ import Foundation
  - Returns: The value associated with the variable, or `nil` if not found.
  */
 public func getVariable(_ variable: String) -> String? {
-    return ProcessInfo.processInfo.environment[variable]
+    ProcessInfo.processInfo.environment[variable]
 }
 
 /// Contains all methods related to Discords markdown capabilites.
@@ -115,7 +115,7 @@ public struct Markdown {
         }
     }
     
-    /// Converts to text to a formatted header.
+    /// Converts the text to a formatted header.
     /// - Parameters:
     ///   - size: Size of the header (1-3). 1 = big, 2 = medium, 3 = small.
     ///   - text: The text to format.
@@ -197,7 +197,7 @@ public struct Markdown {
     /// - Parameters:
     ///   - date: Date to format.
     ///   - style: The `date` style.
-    /// - Returns: A Discord formatted timestamp.
+    /// - Returns: The formatted timestamp.
     public static func timestamp(date: Date, style: TimestampStyle = .f) -> String {
         "<t:\(Int(date.timeIntervalSince1970)):\(style.rawValue)>"
     }
