@@ -122,7 +122,7 @@ public struct Markdown {
     /// - Returns: The formatted text.
     public static func header(size: Int, _ text: String) -> String {
         let size = size < 1 ? 1 : min(size, 3)
-        let headers = Array(repeating: "#", count: size).joined()
+        let headers = String(repeating: "#", count: size)
         return "\(headers) \(text)"
     }
     
