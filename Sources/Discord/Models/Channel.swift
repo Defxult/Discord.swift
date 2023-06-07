@@ -100,7 +100,7 @@ extension Channel {
         }
     }
     
-    /// Deletes the channel.
+    /// Deletes the channel or closes it if it's a ``DMChannel``.
     /// - Parameter reason: The reason for deleting the channel.
     /// - Requires: Permission ``Permission/manageChannels`` for the guild or ``Permission/manageThreads`` if the channel is a thread.
     public func delete(reason: String? = nil) async throws {

@@ -63,13 +63,11 @@ public class Discord {
     
     /// All emojis the bot has accesss to.
     public var emojis: Set<Emoji> {
-        get {
-            var e = Set<Emoji>()
-            for guild in guilds {
-                e.formUnion(guild.emojis)
-            }
-            return e
+        var e = Set<Emoji>()
+        for guild in guilds {
+            e.formUnion(guild.emojis)
         }
+        return e
     }
     
     var pendingApplicationCommands = [PendingAppCommand]()
@@ -368,7 +366,7 @@ public class Discord {
     /**
      Creates a DM channel between the bot and the user with the provided ID.
      
-     Creating the DM channel does not automatically send the user a DM. That must be done like so:
+     Creating the DM channel does not automatically send the user a DM. That must be done separately:
      ```swift
      try await createDm(with: 123456789012345).send(...)
      ```
@@ -411,13 +409,13 @@ public class Discord {
     }
     
     /// Retrieve a guild from the bots internal cache.
-    /// - Parameter id: The ID of the guild to retrieve.
+    /// - Parameter id: The ID of the guild.
     /// - Returns: The guild matching the provided ID, or `nil` if not found.
     public func getGuild(_ id: Snowflake) -> Guild? {
         return guildsCache[id]
     }
     
-    /// Retrieve an event listener by it's name.
+    /// Retrieve an event listener by its name.
     /// - Parameter name: Name of the event listener.
     /// - Returns: The event listener matching the provided name, or `nil` if not found.
     public func getListener(name: String) -> EventListener? {
@@ -436,9 +434,9 @@ public class Discord {
     }
     
     /// Retrieve a user from the bots internal cache.
-    /// - Parameter id: The ID of the user to retrieve.
+    /// - Parameter id: The ID of the user.
     /// - Returns: The user matching the provided ID, or `nil` if not found.
-    public func getUser(_ id: Snowflake)-> User? {
+    public func getUser(_ id: Snowflake) -> User? {
         return usersCache[id]
     }
     
@@ -534,12 +532,10 @@ public struct Version : CustomStringConvertible {
     public let releaseLevel = ReleaseLevel.alpha
 
     /// The string representation of the library version.
-    public var description: String { "\(major).\(minor).\(patch) \(releaseLevel)" }
+    public var description: String { "\(major).\(minor).\(patch)-\(releaseLevel)" }
     
     var gateway: (lib: String, os: String) {
-        get {
-            return ("Discord.swift v\(description)", "macOS \(ProcessInfo().operatingSystemVersionString)")
-        }
+        ("Discord.swift v\(description)", "macOS \(ProcessInfo().operatingSystemVersionString)")
     }
 }
 
