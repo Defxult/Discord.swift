@@ -30,7 +30,7 @@ public class User : Object, Updateable, Hashable {
     /// The users ID.
     public let id: Snowflake
     
-    /// The user's username, not unique across the platform.
+    /// The user's username.
     public internal(set) var name: String
     
     /// The user's 4-digit discord-tag.
