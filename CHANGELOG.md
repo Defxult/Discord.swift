@@ -1,3 +1,12 @@
+## 0.0.5-alpha
+Pending Release
+
+#### New Features
+- Added function `channelLink()`.
+- Added function `messageLink()`.
+
+
+
 ## [0.0.4-alpha](https://github.com/Defxult/Discord.swift/tree/0.0.4-alpha)
 Released on June 7, 2023.
 

@@ -24,6 +24,15 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 
+/// Constructs a channel link.
+/// - Parameters:
+///   - guildId: Guild ID of the channel.
+///   - channelId: The channel ID.
+/// - Returns: A URL for the channel.
+public func channelLink(guildId: Snowflake, channelId: Snowflake) -> String {
+    "https://discord.com/channels/\(guildId)/\(channelId)"
+}
+
 /**
  Get the value for a variable in your environment. This is typically used to retrieve your Discord bot token, but can be used for anything.
  
@@ -35,6 +44,16 @@ import Foundation
  */
 public func getVariable(_ variable: String) -> String? {
     ProcessInfo.processInfo.environment[variable]
+}
+
+/// Constructs a message link.
+/// - Parameters:
+///   - guildId: Guild ID of the message.
+///   - channelId: Channel ID of the message.
+///   - messageId: The message ID.
+/// - Returns: A URL for the message.
+public func messageLink(guildId: Snowflake, channelId: Snowflake, messageId: Snowflake) -> String {
+    "https://discord.com/channels/\(guildId)/\(channelId)/\(messageId)"
 }
 
 /// Contains all methods related to Discords markdown capabilites.
