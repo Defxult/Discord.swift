@@ -4,6 +4,7 @@ Pending Release
 #### New Features
 - Added function `channelLink()`.
 - Added function `messageLink()`.
+- Added init `Color(hex:)`.
 
 
 

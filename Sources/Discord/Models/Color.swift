@@ -73,16 +73,14 @@ public struct Color {
     public static let darkTheme = Color(value: 0x2f3136)
     
     /// Returns a random `Color`.
-    public static var random: Color { Color(value: Int.random(in: 0...Color.maximumColorValue)) }
+    public static var random: Color { Color(value: .random(in: 0...Color.maximumColorValue)) }
 
     /// Returns the individual RGB values of the color separated into a tuple.
     public var asRgb: (r: Int, g: Int, b: Int) {
-        get {
-            let r = (value >> (8 * 2)) & 0xff
-            let g = (value >> (8 * 1)) & 0xff
-            let b = (value >> (8 * 0)) & 0xff
-            return (r, g, b)
-        }
+        let r = (value >> (8 * 2)) & 0xff
+        let g = (value >> (8 * 1)) & 0xff
+        let b = (value >> (8 * 0)) & 0xff
+        return (r, g, b)
     }
     
     /**
@@ -115,6 +113,27 @@ public struct Color {
     public init(r: Int, g: Int, b: Int) {
         let convertedRGB = ((r&0x0ff) << 16) | ((g&0x0ff) << 8 ) | (b&0x0ff)
         value = Color.verifyValue(convertedRGB)
+    }
+    
+    /// Initializes a new color using a hexadecimal value.
+    /// - Parameter hex: The hexadecimal value.
+    public init(hex: String) {
+        var convertedValue = 0
+        
+        // Convert the hex string to its `Int` representation
+        let toInt = { (value: String) -> Int in
+            Int(value, radix: 16) ?? 0
+        }
+        
+        // I've seen hex values be represented in 3 ways:
+        // 1 - as the standard: 0xd8ed37
+        // 2 - with a hashtag: #d8ed37
+        // 3 - or just itself: d8ed37
+        if hex.lowercased().starts(with: "0x") { convertedValue = toInt(hex.dropFirst(2).description) }
+        else if hex.starts(with: "#") { convertedValue = toInt(hex.dropFirst().description) }
+        else { convertedValue = toInt(hex) }
+        
+        value = Color.verifyValue(convertedValue)
     }
     
     // If the HTTP POST request color value is < 0 or > `.maximumColorValue`
