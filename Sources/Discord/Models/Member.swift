@@ -39,28 +39,24 @@ public class Member : Object, Hashable {
     
     /// The users guild avatar.
     public var guildAvatar: Asset? {
-        get {
-            if let gah = guildAvatarHash {
-                let baseUrl = "/guilds/\(guild.id)/users/\(user!.id)/avatars/"
-                return Asset(hash: gah, fullURL: baseUrl + Asset.determineImageTypeURL(hash: gah))
-            }
-            return nil
+        if let gah = guildAvatarHash {
+            let baseUrl = "/guilds/\(guild.id)/users/\(user!.id)/avatars/"
+            return Asset(hash: gah, fullURL: baseUrl + Asset.determineImageTypeURL(hash: gah))
         }
+        return nil
     }
     
     /// All roles applied to the member.
     public var roles: [Role] {
-        get {
-            var returnedRoles = [Role]()
-            for role in guild.roles {
-                for roleIdStr in memberRoleArrayStr {
-                    if role.id == Conversions.snowflakeToUInt(roleIdStr) {
-                        returnedRoles.append(role)
-                    }
+        var returnedRoles = [Role]()
+        for role in guild.roles {
+            for roleIdStr in memberRoleArrayStr {
+                if role.id == Conversions.snowflakeToUInt(roleIdStr) {
+                    returnedRoles.append(role)
                 }
             }
-            return returnedRoles
         }
+        return returnedRoles
     }
     
     /// When the user joined the guild.

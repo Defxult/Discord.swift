@@ -54,10 +54,8 @@ public struct ApplicationCommand {
     
     /// Guild of the command, if not global.
     public var guild: Guild? {
-        get {
-            if let guildId { return bot!.getGuild(guildId) }
-            else { return nil }
-        }
+        if let guildId { return bot!.getGuild(guildId) }
+        else { return nil }
     }
     
     /// Guild ID of the command, if not global.
@@ -622,10 +620,8 @@ public class Interaction {
     
     /// Guild that the interaction was sent from.
     public var guild: Guild? {
-        get {
-            if let guildId { return bot!.getGuild(guildId) }
-            else { return nil }
-        }
+        if let guildId { return bot!.getGuild(guildId) }
+        else { return nil }
     }
     
     /// Guild ID that the interaction was sent from.
@@ -633,10 +629,8 @@ public class Interaction {
     
     /// Channel that the interaction was sent from.
     public var channel: Channel? {
-        get {
-            if let channelId { return bot!.getChannel(channelId) }
-            else { return nil }
-        }
+        if let channelId { return bot!.getChannel(channelId) }
+        else { return nil }
     }
     
     /// Channel ID that the interaction was sent from.

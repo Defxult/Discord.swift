@@ -72,13 +72,11 @@ public class Role : Object, Hashable {
     
     /// All members who currently have this role.
     public var members: [Member] {
-        get {
-            var withRole = [Member]()
-            for m in guild.members {
-                if m.roles.contains(where: { $0.id == id }) { withRole.append(m) }
-            }
-            return withRole
+        var withRole = [Member]()
+        for m in guild.members {
+            if m.roles.contains(where: { $0.id == id }) { withRole.append(m) }
         }
+        return withRole
     }
 
     /// Mention the role.

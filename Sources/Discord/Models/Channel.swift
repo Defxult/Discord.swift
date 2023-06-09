@@ -94,10 +94,8 @@ extension Channel {
     /// Whether the channel conforms to protocol ``Messageable``.
     /// - Note: This simply verifies if the channel can have messages sent to it. It does not verify if your bot has the proper permissions to send a message to that channel.
     public var isMessageable: Bool {
-        get {
-            if let _ = self as? Messageable { return true }
-            return false
-        }
+        if let _ = self as? Messageable { return true }
+        return false
     }
     
     /// Deletes the channel or closes it if it's a ``DMChannel``.
@@ -1041,15 +1039,13 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
     
     /// The members currently in the channel.
     public var members: [Member] {
-        get {
-            var members = [Member]()
-            for userId in guild.voiceStates.map({ $0.user.id }) {
-                if let member = guild.getMember(userId) {
-                    members.append(member)
-                }
+        var members = [Member]()
+        for userId in guild.voiceStates.map({ $0.user.id }) {
+            if let member = guild.getMember(userId) {
+                members.append(member)
             }
-            return members
         }
+        return members
     }
     
     // -----------------------------------------------
@@ -1315,19 +1311,17 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     
     /// The tags applied to a ``ForumChannel`` thread. If the thread does not belong to a forum, this will always be empty.
     public var appliedTags: [ForumChannel.Tag] {
-        get {
-            let parentChannel = guild.getChannel(parentChannelId)!
-            if parentChannel.type == .guildForum {
-                let forumChannel = parentChannel as! ForumChannel
-                var includedTags = [ForumChannel.Tag]()
-                
-                for tagId in appliedTagsIds {
-                    if let match = forumChannel.tags.first(where: { $0.id == tagId }) { includedTags.append(match) }
-                }
-                return includedTags
-            } else {
-                return []
+        let parentChannel = guild.getChannel(parentChannelId)!
+        if parentChannel.type == .guildForum {
+            let forumChannel = parentChannel as! ForumChannel
+            var includedTags = [ForumChannel.Tag]()
+            
+            for tagId in appliedTagsIds {
+                if let match = forumChannel.tags.first(where: { $0.id == tagId }) { includedTags.append(match) }
             }
+            return includedTags
+        } else {
+            return []
         }
     }
     private var appliedTagsIds = [Snowflake]()

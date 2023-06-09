@@ -72,38 +72,32 @@ public class Embed {
     
     /// Creates a copy of the embed.
     public var copy: Embed {
-        get {
-            let embedCopy = Embed.fromDict(dict)
-            embedCopy.fields = fields
-            embedCopy.timestamp = timestamp
-            return embedCopy
-        }
+        let embedCopy = Embed.fromDict(dict)
+        embedCopy.fields = fields
+        embedCopy.timestamp = timestamp
+        return embedCopy
     }
     
     /// Total amount of characters in the embed. The Discord limit is 6000.
     public var count: Int {
-        get {
-            var count = 0
-            count += title?.count ?? 0
-            count += description?.count ?? 0
-            
-            for field in fields {
-                count += field.name.count
-                count += field.value.count
-            }
-
-            count += footer?.text.count ?? 0
-            count += author?.name.count ?? 0
-            return count
+        var count = 0
+        count += title?.count ?? 0
+        count += description?.count ?? 0
+        
+        for field in fields {
+            count += field.name.count
+            count += field.value.count
         }
+
+        count += footer?.text.count ?? 0
+        count += author?.name.count ?? 0
+        return count
     }
     
     /// Whether the embed has any data that's been set.
     public var isEmpty: Bool {
-        get {
-            let countableValues: [Any?] = [title, description, url, timestamp, color, footer, image, thumbnail, video, provider, author]
-            return countableValues.allSatisfy { $0 == nil } && fields.count == 0
-        }
+        let countableValues: [Any?] = [title, description, url, timestamp, color, footer, image, thumbnail, video, provider, author]
+        return countableValues.allSatisfy { $0 == nil } && fields.count == 0
     }
     
     /**
@@ -171,7 +165,7 @@ public class Embed {
         }
     }
     
-    /// Resets the embed to it's empty state.
+    /// Resets the embed to its empty state.
     /// - Returns: An empty embed.
     @discardableResult
     public func clear() -> Self {
@@ -205,8 +199,8 @@ public class Embed {
         return self
     }
 
-    /// Sets the description of the embed. Up to 4096 characters
-    /// - Parameter description: The description.
+    /// Sets the description of the embed.
+    /// - Parameter description: The description. Up to 4096 characters.
     /// - Returns: The embed instance.
     @discardableResult
     public func setDescription(_ description: String) -> Self {
@@ -494,9 +488,9 @@ public class Embed {
 
 
 fileprivate protocol Imageable {
-    var url: String {get}
-    var height: Int? {get}
-    var width: Int? {get}
+    var url: String { get }
+    var height: Int? { get }
+    var width: Int? { get }
 }
 
 extension Embed {

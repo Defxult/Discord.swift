@@ -349,10 +349,8 @@ extension Date {
 
     /// Converts the date to a Discord snowflake.
     public var asSnowflake: Snowflake {
-        get {
-            let timestamp = Snowflake(Snowflake(self.timeIntervalSince1970) * 1000 - discordEpoch)
-            return (timestamp << 22) + Snowflake(pow(2.0, 22.0))
-        }
+        let timestamp = Snowflake(Snowflake(self.timeIntervalSince1970) * 1000 - discordEpoch)
+        return (timestamp << 22) + Snowflake(pow(2.0, 22.0))
     }
 }
 

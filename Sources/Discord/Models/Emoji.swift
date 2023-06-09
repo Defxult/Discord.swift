@@ -38,14 +38,12 @@ public struct Emoji : Object, CustomStringConvertible, Hashable {
     
     /// Roles allowed to use this emoji.  If this is empty, everyone is allowed to use it.
     public var roles: [Role] {
-        get {
-            var returnedRoles = [Role]()
-            for roleStr in rolesData {
-                let roleSnowflake = Conversions.snowflakeToUInt(roleStr)
-                if let role = guild.getRole(roleSnowflake) { returnedRoles.append(role) }
-            }
-            return returnedRoles
+        var returnedRoles = [Role]()
+        for roleStr in rolesData {
+            let roleSnowflake = Conversions.snowflakeToUInt(roleStr)
+            if let role = guild.getRole(roleSnowflake) { returnedRoles.append(role) }
         }
+        return returnedRoles
     }
     
     /// User that created this emoji.
@@ -171,24 +169,22 @@ public struct PartialEmoji {
     
     /// Returns the raw representation of the partial emoji.
     public var description: String? {
-        get {
-            if id == nil && name == nil { return nil }
-            else {
-                // Guild emoji
-                if let name, let id {
-                    if let isAnim = animated {
-                        return isAnim ? "<a:\(name):\(id)>" : "<:\(name):\(id)>"
-                    }
-                    else { return "<:\(name):\(id)>" }
+        if id == nil && name == nil { return nil }
+        else {
+            // Guild emoji
+            if let name, let id {
+                if let isAnim = animated {
+                    return isAnim ? "<a:\(name):\(id)>" : "<:\(name):\(id)>"
                 }
-                
-                // Unicode emoji
-                if name != nil && id == nil {
-                    return name!
-                }
+                else { return "<:\(name):\(id)>" }
             }
-            return nil
+            
+            // Unicode emoji
+            if name != nil && id == nil {
+                return name!
+            }
         }
+        return nil
     }
     
     init(partialEmojiData: JSON) {

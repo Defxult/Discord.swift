@@ -32,17 +32,15 @@ public class Message : Object, Hashable, Updateable {
     
     /// The channel the message was sent in.
     public var channel: Messageable {
-        get {
-            if let foundInCache = bot!.getChannel(channelId) {
-                return foundInCache as! Messageable
-            } else {
-                // If the channel is not found in the cache, that should be mean it's a new DM message.
-                // Discord doesnt provide the needed information to create a full DMChannel via `.onMessageCreate`,
-                // only truly creating a DMChannel (.createDm()) does that. But we do have the channel ID and thats
-                // pretty much all thats needed in order to create a DMCHannel, so create the most basic `dmData` ourselves.
-                let dmData: JSON = ["id": channelId.description]
-                return DMChannel(bot: bot!, dmData: dmData)
-            }
+        if let foundInCache = bot!.getChannel(channelId) {
+            return foundInCache as! Messageable
+        } else {
+            // If the channel is not found in the cache, that should be mean it's a new DM message.
+            // Discord doesnt provide the needed information to create a full DMChannel via `.onMessageCreate`,
+            // only truly creating a DMChannel (.createDm()) does that. But we do have the channel ID and thats
+            // pretty much all thats needed in order to create a DMCHannel, so create the most basic `dmData` ourselves.
+            let dmData: JSON = ["id": channelId.description]
+            return DMChannel(bot: bot!, dmData: dmData)
         }
     }
     

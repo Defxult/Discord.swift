@@ -164,42 +164,32 @@ public class Guild : Object, Hashable, Updateable  {
     
     /// All text channels.
     public var textChannels: [TextChannel] {
-        get {
-            let texts = channels.filter { $0.type == .guildText}
-            return texts as! [TextChannel]
-        }
+        let texts = channels.filter { $0.type == .guildText}
+        return texts as! [TextChannel]
     }
 
     /// All voice channels.
     public var voiceChannels: [VoiceChannel] {
-        get {
-            let voices = channels.filter { $0.type == .guildVoice}
-            return voices as! [VoiceChannel]
-        }
+        let voices = channels.filter { $0.type == .guildVoice}
+        return voices as! [VoiceChannel]
     }
 
     /// All stage channels.
     public var stageChannels: [StageChannel] {
-        get {
-            let stages = channels.filter { $0.type == .guildStageVoice}
-            return stages as! [StageChannel]
-        }
+        let stages = channels.filter { $0.type == .guildStageVoice}
+        return stages as! [StageChannel]
     }
     
     /// All forums.
     public var forumChannels: [ForumChannel] {
-        get {
-            let forums = channels.filter { $0.type == .guildForum }
-            return forums as! [ForumChannel]
-        }
+        let forums = channels.filter { $0.type == .guildForum }
+        return forums as! [ForumChannel]
     }
     
     /// All active threads in the guild that current user has permission to view.
     public var threads: [ThreadChannel] {
-        get {
-            let threads = channels.filter { $0.type == .publicThread || $0.type == .privateThread || $0.type == .announcementThread }
-            return threads as! [ThreadChannel]
-        }
+        let threads = channels.filter { $0.type == .publicThread || $0.type == .privateThread || $0.type == .announcementThread }
+        return threads as! [ThreadChannel]
     }
 
     /// The guilds default role. AKA the @everyone role.
