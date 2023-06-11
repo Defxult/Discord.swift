@@ -311,19 +311,19 @@ public class Guild : Object, Hashable, Updateable  {
     }
     
     func cacheChannel(_ channel: GuildChannel) { channelsCache[channel.id] = channel }
-    @discardableResult func removeChannelFromCache(_ channelId: Snowflake) -> GuildChannel? { return channelsCache.removeValue(forKey: channelId) }
+    func removeChannelFromCache(_ channelId: Snowflake) { channelsCache[channelId] = nil }
     
     func cacheMember(_ member: Member) { membersCache[member.id] = member }
     func removeMemberFromCache(_ memberId: Snowflake) { membersCache[memberId] = nil }
     
-    /// Retrieve the audit logs for the guild.
+    /// Retrieve the audit log for the guild.
     /// - Parameters:
     ///   - user: Entries from a specific user.
     ///   - actionType: Type of action that occurred.
     ///   - limit: Maximum number of entries (between 1-100) to return.
     ///   - before: Entries before the specified date.
     ///   - after: Entries after the specified date.
-    /// - Returns: The guilds audit logs matching the parameters.
+    /// - Returns: The guilds audit log matching the parameters.
     /// - Note: When using `before`, entries are ordered by the in descending order (newer entries first). If `after` is used, entries are reversed and appears in ascending order (older entries first).
     ///         Omitting both `before` and `after` defaults to `before` the current timestamp and will show the most recent entries in descending order.
     public func auditLogs(user: User? = nil, actionType: AuditLog.Action? = nil, limit: Int = 50, before: Date? = nil, after: Date? = nil) async throws -> AuditLog {
@@ -350,13 +350,13 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getGuildApplicationCommands(botId: bot!.user!.id, guildId: id)
     }
     
-    /// Retireve all application command permissions for your bot in the current guild.
+    /// Retrieve all application command permissions for your bot in the current guild.
     /// - Returns: All application command permissions.
     public func applicationCommandPermissions() async throws -> [GuildApplicationCommandPermissions] {
         return try await bot!.http.getGuildApplicationCommandPermissions(botId: bot!.user!.id, guildId: id)
     }
     
-    /// Retireve a specific application command permission for your bot in the current guild.
+    /// Retrieve a specific application command permission for your bot in the current guild.
     /// - Parameter for: The application command permission ID.
     /// - Returns: The application command permissions.
     public func applicationCommandPermissions(for command: Snowflake) async throws -> GuildApplicationCommandPermissions {
@@ -677,7 +677,7 @@ public class Guild : Object, Hashable, Updateable  {
     /// Creates a guild template.
     /// - Parameters:
     ///   - name: Name of the template (100 characters max).
-    ///   - description: Description for the template (120 characters max.
+    ///   - description: Description for the template (120 characters max).
     /// - Returns: The created template.
     public func createTemplate(name: String, description: String? = nil) async throws -> Template {
         return try await bot!.http.createGuildTemplate(guildId: id, name: name, description: description)
@@ -746,7 +746,7 @@ public class Guild : Object, Hashable, Updateable  {
     /// Edit role positions.
     /// - Parameters:
     ///   - positions: New positions for each role.
-    ///   - reason: The reason for editing the role positions. This shows up in the guilds audit-logs.
+    ///   - reason: The reason for editing the role positions. This shows up in the guilds audit log.
     /// - Returns: Alll roles in the guild.
     @discardableResult
     public func editRolePositions(_ positions: [Role: Int], reason: String? = nil) async throws -> [Role] {
@@ -811,7 +811,7 @@ public class Guild : Object, Hashable, Updateable  {
 //        return try await bot!.http.getGuildPruneCount(guildId: id, days: days, includeRoles: includedRoles)
 //    }
     
-    /// Kick inactive members from the guild..
+    /// Kick inactive members from the guild.
     /// - Parameters:
     ///   - days: Number of days a user has to be inactive (1-30).
     ///   - includeRoles: Role(s) to include. By default, members with roles cannot be pruned unless specifically included.
@@ -890,7 +890,7 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getGuildRoles(guildId: id)
     }
     
-    /// Request a scheduled event by it's ID. This is an API call. For general use purposes, use ``getScheduledEvent(_:)`` instead.
+    /// Request a scheduled event by its ID. This is an API call. For general use purposes, use ``getScheduledEvent(_:)`` instead.
     /// - Parameter id: ID of the scheduled event.
     /// - Returns: The scheduled event.
     public func requestScheduledEvent(_ id: Snowflake) async throws -> ScheduledEvent {
@@ -916,7 +916,7 @@ public class Guild : Object, Hashable, Updateable  {
     }
     
     /**
-     Request members in the guild. This is an API call. For general use purposes, use the ``members`` property instead.
+     Request members in the guild. This is an API call. For general use purposes, use ``members`` instead.
      
      Below is an example on how to request members:
      ```swift
@@ -1105,7 +1105,7 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getGuildWelcomeScreen(guildId: id)
     }
     
-    /// Retireves all webhooks in the guild.
+    /// Retrieves all webhooks in the guild.
     /// - Returns: All webhooks.
     public func webhooks() async throws -> [Webhook] {
         return try await bot!.http.getGuildWebhooks(guildId: id)
@@ -1141,10 +1141,10 @@ extension Guild {
             /// Indicates whether users are limited to selecting one option for the prompt.
             public let singleSelect: Bool
             
-            /// Indicates whether the prompt is required before a user completes the onboarding flow
+            /// Indicates whether the prompt is required before a user completes the onboarding flow.
             public let required: Bool
             
-            /// Indicates whether the prompt is present in the onboarding flow. If false, the prompt will only appear in the Channels & Roles tab
+            /// Indicates whether the prompt is present in the onboarding flow. If `false`, the prompt will only appear in the Channels & Roles tab.
             public let inOnboarding: Bool
             
             init(promptData: JSON) {
@@ -1172,7 +1172,7 @@ extension Guild {
             /// IDs for channels a member is added to when the option is selected.
             public let channelIds: [Snowflake]
 
-            /// IDs for roles assigned to a member when the option is selected
+            /// IDs for roles assigned to a member when the option is selected.
             public let roleIds: [Snowflake]
 
             /// Emoji of the option.
@@ -1203,7 +1203,7 @@ extension Guild {
         /// ID of the guild this onboarding is part of.
         public let guildId: Snowflake
         
-        /// Prompts shown during onboarding and in customize community
+        /// Prompts shown during onboarding and in customize community.
         public let prompts: [Prompt]
         
         /// Channel IDs that members get opted into automatically.
