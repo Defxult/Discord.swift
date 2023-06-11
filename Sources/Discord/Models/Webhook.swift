@@ -72,7 +72,7 @@ public class Webhook : Object {
         
         name = webhookData["name"] as? String
         
-        if let avatarHash = webhookData["avatar"] as? String { avatar = Asset(hash: avatarHash, fullURL: "/avatars/\(id)/\(Asset.determineImageTypeURL(hash: avatarHash))") }
+        if let avatarHash = webhookData["avatar"] as? String { avatar = Asset(hash: avatarHash, fullURL: "/avatars/\(id)/\(Asset.imageType(hash: avatarHash))") }
         else { avatar = nil }
         
         token = webhookData["token"] as? String

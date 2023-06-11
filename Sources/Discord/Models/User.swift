@@ -75,13 +75,13 @@ public class User : Object, Updateable, Hashable {
         defaultAvatarUrl = HTTPClient.buildEndpoint(.cdn, endpoint: "/embed/avatars/\(Conversions.defaultUserAvatar(discriminator: discriminator))")
         
         let avatarHash = userData["avatar"] as? String
-        avatar = avatarHash != nil ? Asset(hash: avatarHash!, fullURL: "/avatars/\(id)/\(Asset.determineImageTypeURL(hash: avatarHash!))") : nil
+        avatar = avatarHash != nil ? Asset(hash: avatarHash!, fullURL: "/avatars/\(id)/\(Asset.imageType(hash: avatarHash!))") : nil
 
         isBot = userData["bot"] as? Bool == nil ? false : true
         isSystem = userData["system"] as? Bool == nil ? false : true
         
         let bannerHash = userData["banner"] as? String
-        banner = bannerHash != nil ? Asset(hash: bannerHash!, fullURL: "/banners/\(id)/\(Asset.determineImageTypeURL(hash: bannerHash!))") : nil
+        banner = bannerHash != nil ? Asset(hash: bannerHash!, fullURL: "/banners/\(id)/\(Asset.imageType(hash: bannerHash!))") : nil
         
         let flagValue = userData["public_flags"] as? Int
         if let flagValue = flagValue {
@@ -101,11 +101,11 @@ public class User : Object, Updateable, Hashable {
                 discriminator = v as! String
             case "avatar":
                 if let avatarHash = v as? String {
-                    avatar = Asset(hash: avatarHash, fullURL: "/avatars/\(id)/\(Asset.determineImageTypeURL(hash: avatarHash))")
+                    avatar = Asset(hash: avatarHash, fullURL: "/avatars/\(id)/\(Asset.imageType(hash: avatarHash))")
                 }
             case "banner":
                 if let bannerHash = v as? String {
-                    banner = Asset(hash: bannerHash, fullURL: "/banners/\(id)/\(Asset.determineImageTypeURL(hash: bannerHash))")
+                    banner = Asset(hash: bannerHash, fullURL: "/banners/\(id)/\(Asset.imageType(hash: bannerHash))")
                 }
             case "public_flags":
                 if let flagValue = v as? Int {

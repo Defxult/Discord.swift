@@ -138,17 +138,17 @@ public struct PartialInviteGuild : Object {
         name = partialGuildData["name"] as! String
         
         if let splashHash = partialGuildData["splash"] as? String {
-            splash = Asset(hash: splashHash, fullURL: "/splash/\(id)/\(Asset.determineImageTypeURL(hash: splashHash))")
+            splash = Asset(hash: splashHash, fullURL: "/splash/\(id)/\(Asset.imageType(hash: splashHash))")
         }
         
         if let bannerHash = partialGuildData["banner"] as? String {
-            banner = Asset(hash: bannerHash, fullURL: "/banners/\(id)/\(Asset.determineImageTypeURL(hash: bannerHash))")
+            banner = Asset(hash: bannerHash, fullURL: "/banners/\(id)/\(Asset.imageType(hash: bannerHash))")
         }
         
         description = partialGuildData["description"] as? String
         
         if let iconHash = partialGuildData["icon"] as? String {
-            icon = Asset(hash: iconHash, fullURL: "/icons/\(id)/\(Asset.determineImageTypeURL(hash: iconHash))")
+            icon = Asset(hash: iconHash, fullURL: "/icons/\(id)/\(Asset.imageType(hash: iconHash))")
         }
 
         features = Guild.Feature.get(partialGuildData["features"] as! [String])

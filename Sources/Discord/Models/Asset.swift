@@ -40,7 +40,7 @@ public struct Asset {
     
     // ----------------------
 
-    static func determineImageTypeURL(hash: String) -> String {
+    static func imageType(hash: String) -> String {
         hash.starts(with: "a_") ? hash + ".gif" : hash + ".png"
     }
 

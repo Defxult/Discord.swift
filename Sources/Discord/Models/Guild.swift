@@ -219,15 +219,15 @@ public class Guild : Object, Hashable, Updateable  {
         name = guildData["name"] as! String
         
         let iconHash = guildData["icon"] as? String
-        icon = iconHash != nil ? Asset(hash: iconHash!, fullURL: "/icons/\(id)/\(Asset.determineImageTypeURL(hash: iconHash!))") : nil
+        icon = iconHash != nil ? Asset(hash: iconHash!, fullURL: "/icons/\(id)/\(Asset.imageType(hash: iconHash!))") : nil
 
         ownerId = Conversions.snowflakeToUInt(guildData["owner_id"])
         
         let splashHash = guildData["splash"] as? String
-        splash = splashHash != nil ? Asset(hash: splashHash!, fullURL: "/splash/\(id)/\(Asset.determineImageTypeURL(hash: splashHash!))") : nil
+        splash = splashHash != nil ? Asset(hash: splashHash!, fullURL: "/splash/\(id)/\(Asset.imageType(hash: splashHash!))") : nil
         
         let discoverySplashHash = guildData["discovery_splash"] as? String
-        discoverySplash = discoverySplashHash != nil ? Asset(hash: discoverySplashHash!, fullURL: "/discovery-splashes/\(id)/\(Asset.determineImageTypeURL(hash: discoverySplashHash!))") : nil
+        discoverySplash = discoverySplashHash != nil ? Asset(hash: discoverySplashHash!, fullURL: "/discovery-splashes/\(id)/\(Asset.imageType(hash: discoverySplashHash!))") : nil
         
         afkChannelId = Conversions.snowflakeToOptionalUInt(guildData["afk_channel_id"])
         afkChannelTimeout = guildData["afk_timeout"] as! Int
@@ -261,7 +261,7 @@ public class Guild : Object, Hashable, Updateable  {
         description = guildData["description"] as? String
         
         let bannerHash = guildData["banner"] as? String
-        banner = bannerHash != nil ? Asset(hash: bannerHash!, fullURL: "/banners/\(id)/\(Asset.determineImageTypeURL(hash: bannerHash!))") : nil
+        banner = bannerHash != nil ? Asset(hash: bannerHash!, fullURL: "/banners/\(id)/\(Asset.imageType(hash: bannerHash!))") : nil
 
         premiumTier = PremiumTier(rawValue: guildData["premium_tier"] as! Int)!
         premiumSubscriptionCount = guildData["premium_subscription_count"] as? Int
@@ -980,16 +980,16 @@ public class Guild : Object, Hashable, Updateable  {
                 name = v as! String
             case "icon":
                 if let hash = v as? String {
-                    icon = Asset(hash: hash, fullURL: "/icons/\(id)/\(Asset.determineImageTypeURL(hash: hash))")
+                    icon = Asset(hash: hash, fullURL: "/icons/\(id)/\(Asset.imageType(hash: hash))")
                 }
             case "owner_id":
                 ownerId = Conversions.snowflakeToUInt(v as! String)
             case "splash":
                 let splashHash = v as! String
-                splash = Asset(hash: splashHash, fullURL: "/splash/\(id)/\(Asset.determineImageTypeURL(hash: splashHash))")
+                splash = Asset(hash: splashHash, fullURL: "/splash/\(id)/\(Asset.imageType(hash: splashHash))")
             case "discovery_splash":
                 let discoverySplashHash = v as! String
-                discoverySplash = Asset(hash: discoverySplashHash, fullURL: "/discovery-splashes/\(id)/\(Asset.determineImageTypeURL(hash: discoverySplashHash))")
+                discoverySplash = Asset(hash: discoverySplashHash, fullURL: "/discovery-splashes/\(id)/\(Asset.imageType(hash: discoverySplashHash))")
             case "afk_channel_id":
                 afkChannelId = Conversions.snowflakeToOptionalUInt(v as? String)
             case "afk_timeout":
@@ -1038,7 +1038,7 @@ public class Guild : Object, Hashable, Updateable  {
                 description = v as? String
             case "banner":
                 let bannerHash = v as? String
-                banner = bannerHash != nil ? Asset(hash: bannerHash!, fullURL: "/banners/\(id)/\(Asset.determineImageTypeURL(hash: bannerHash!))") : nil
+                banner = bannerHash != nil ? Asset(hash: bannerHash!, fullURL: "/banners/\(id)/\(Asset.imageType(hash: bannerHash!))") : nil
             case "premium_tier":
                 premiumTier = PremiumTier(rawValue: v as! Int)!
             case "premium_subscription_count":
@@ -1707,13 +1707,13 @@ extension Guild {
             name = previewData["name"] as! String
             
             let iconHash = previewData["icon"] as? String
-            icon = iconHash != nil ? Asset(hash: iconHash!, fullURL: "/icons/\(id)/\(Asset.determineImageTypeURL(hash: iconHash!))") : nil
+            icon = iconHash != nil ? Asset(hash: iconHash!, fullURL: "/icons/\(id)/\(Asset.imageType(hash: iconHash!))") : nil
             
             let splashHash = previewData["splash"] as? String
-            splash = splashHash != nil ? Asset(hash: splashHash!, fullURL: "/splashes/\(id)/\(Asset.determineImageTypeURL(hash: splashHash!))") : nil
+            splash = splashHash != nil ? Asset(hash: splashHash!, fullURL: "/splashes/\(id)/\(Asset.imageType(hash: splashHash!))") : nil
             
             let discoverySplashHash = previewData["discovery_splash"] as? String
-            discoverySplash = discoverySplashHash != nil ? Asset(hash: discoverySplashHash!, fullURL: "/discovery-splashes/\(id)/\(Asset.determineImageTypeURL(hash: discoverySplashHash!))") : nil
+            discoverySplash = discoverySplashHash != nil ? Asset(hash: discoverySplashHash!, fullURL: "/discovery-splashes/\(id)/\(Asset.imageType(hash: discoverySplashHash!))") : nil
 
             let emojiListData = previewData["emojis"] as! [JSON]
             if emojiListData.count > 0 {
@@ -2022,7 +2022,7 @@ extension Guild {
             let userObj = eventData["creator"] as? JSON
             creator = userObj != nil ? User(userData: userObj!) : nil
 
-            if let imageHash = eventData["image"] as? String { image = Asset(hash: imageHash, fullURL: "/guild-events/\(id)/\(Asset.determineImageTypeURL(hash: imageHash))") }
+            if let imageHash = eventData["image"] as? String { image = Asset(hash: imageHash, fullURL: "/guild-events/\(id)/\(Asset.imageType(hash: imageHash))") }
             else { image = nil }
         }
         

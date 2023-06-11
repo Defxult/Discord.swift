@@ -93,7 +93,7 @@ public class Role : Object, Hashable {
         hoist = roleData["hoist"] as! Bool
 
         let iconHash = roleData["icon"] as? String
-        icon = iconHash != nil ? Asset(hash: iconHash!, fullURL: "/role-icons/\(id)/\(Asset.determineImageTypeURL(hash: iconHash!))") : nil
+        icon = iconHash != nil ? Asset(hash: iconHash!, fullURL: "/role-icons/\(id)/\(Asset.imageType(hash: iconHash!))") : nil
 
         position = roleData["position"] as! Int
         

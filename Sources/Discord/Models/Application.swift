@@ -90,7 +90,7 @@ public struct Application : Object {
         name = appData["name"] as! String
         
         if let iconHash = appData["icon"] as? String {
-            icon = Asset(hash: iconHash, fullURL: "/app-icons/\(id)/\(Asset.determineImageTypeURL(hash: iconHash))")
+            icon = Asset(hash: iconHash, fullURL: "/app-icons/\(id)/\(Asset.imageType(hash: iconHash))")
         }
 
         description = appData["description"] as? String
@@ -115,7 +115,7 @@ public struct Application : Object {
         slug = appData["slug"] as? String
 
         if let coverHash = appData["cover_image"] as? String {
-            coverImage = Asset(hash: coverHash, fullURL: "/app-icons/\(id)/\(Asset.determineImageTypeURL(hash: coverHash))")
+            coverImage = Asset(hash: coverHash, fullURL: "/app-icons/\(id)/\(Asset.imageType(hash: coverHash))")
         }
 
         if let flagsValue = appData["flags"] as? Int {
@@ -209,7 +209,7 @@ extension Application {
                 userName = userObj["username"] as! String
                 discriminator = userObj["discriminator"] as! String
                 if let avatarHash = userObj["avatar"] as? String {
-                    avatar = Asset(hash: avatarHash, fullURL: "/avatars/\(userId)/\(Asset.determineImageTypeURL(hash: avatarHash))")
+                    avatar = Asset(hash: avatarHash, fullURL: "/avatars/\(userId)/\(Asset.imageType(hash: avatarHash))")
                 }
             }
         }
@@ -233,7 +233,7 @@ extension Application {
             id = Conversions.snowflakeToUInt(teamData["id"])
 
             let iconHash = teamData["icon"] as? String
-            icon = iconHash != nil ? Asset(hash: iconHash!, fullURL: "/team-icons/\(id)/\(Asset.determineImageTypeURL(hash: iconHash!))") : nil
+            icon = iconHash != nil ? Asset(hash: iconHash!, fullURL: "/team-icons/\(id)/\(Asset.imageType(hash: iconHash!))") : nil
 
             let membersData = teamData["members"] as! [JSON]
             for teamMemberObj in membersData {

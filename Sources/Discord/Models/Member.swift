@@ -41,7 +41,7 @@ public class Member : Object, Hashable {
     public var guildAvatar: Asset? {
         if let gah = guildAvatarHash {
             let baseUrl = "/guilds/\(guild.id)/users/\(user!.id)/avatars/"
-            return Asset(hash: gah, fullURL: baseUrl + Asset.determineImageTypeURL(hash: gah))
+            return Asset(hash: gah, fullURL: baseUrl + Asset.imageType(hash: gah))
         }
         return nil
     }
