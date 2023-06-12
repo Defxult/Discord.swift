@@ -45,12 +45,7 @@ public class Message : Object, Hashable, Updateable {
     }
     
     /// The guild the message was sent in. Will be `nil` if the message was sent in a DM or the message was ephemeral.
-    public var guild: Guild? {
-        if let guildId {
-            return bot!.getGuild(guildId)
-        }
-        return nil
-    }
+    public var guild: Guild? { guildId != nil ? bot!.getGuild(guildId!) : nil }
     
     /// The author of this message. If you need the `Member` object instead, see the ``member`` property.
     public let author: User
@@ -269,7 +264,8 @@ public class Message : Object, Hashable, Updateable {
         }
 
         if let threadObj = messageData["thread"] as? JSON {
-            thread = ThreadChannel(bot: bot, threadData: threadObj)
+            // Threads can't be in DMs, so it's safe to force cast `guildId`
+            thread = ThreadChannel(bot: bot, threadData: threadObj, guildId: guildId!)
         }
         
         ui = UI.convertFromPayload((messageData["components"] as? [JSON] ?? []))
@@ -348,7 +344,16 @@ public class Message : Object, Hashable, Updateable {
     ///   - reason: The reason for creating the thread. This shows up in the guilds audit-logs.
     /// - Returns: The newly created thread.
     public func createThread(name: String, autoArchiveDuration: ThreadChannel.ArchiveDuration = .twentyfourHours, slowmode: Int? = nil, reason: String? = nil) async throws -> ThreadChannel {
-        return try await bot!.http.startThreadFromMessage(channelId: channel.id, messageId: id, threadName: name, autoArchiveDuration: autoArchiveDuration, slowmodeInSeconds: slowmode, reason: reason)
+        if isDmMessage { throw HTTPError.badRequest("Cannot create threads in DMs")  }
+        return try await bot!.http.startThreadFromMessage(
+            channelId: channel.id,
+            guildId: guildId!,
+            messageId: id,
+            threadName: name,
+            autoArchiveDuration: autoArchiveDuration,
+            slowmodeInSeconds: slowmode,
+            reason: reason
+        )
     }
     
     /// Edit the message.

@@ -191,6 +191,12 @@ public class Guild : Object, Hashable, Updateable  {
         let threads = channels.filter { $0.type == .publicThread || $0.type == .privateThread || $0.type == .announcementThread }
         return threads as! [ThreadChannel]
     }
+    
+    /// All categories.
+    public var categories: [CategoryChannel] {
+        let categories = channels.filter({ $0.type == .guildCategory })
+        return categories as! [CategoryChannel]
+    }
 
     /// The guilds default role. AKA the @everyone role.
     public var defaultRole: Role { getRole(id)! }
@@ -286,7 +292,7 @@ public class Guild : Object, Hashable, Updateable  {
         if fromGateway {
             for ch in guildData["channels"] as! [JSON] {
                 let chType = ch["type"] as! Int
-                cacheChannel(determineGuildChannelType(type: chType, data: ch, bot: bot))
+                cacheChannel(determineGuildChannelType(type: chType, data: ch, bot: bot, guildId: id))
             }
             for mem in guildData["members"] as! [JSON] {
                 let member = Member(bot: bot, memberData: mem, guildId: id)
@@ -294,7 +300,7 @@ public class Guild : Object, Hashable, Updateable  {
                 cacheMember(member)
             }
             for th in guildData["threads"] as! [JSON] {
-                cacheChannel(ThreadChannel(bot: bot, threadData: th))
+                cacheChannel(ThreadChannel(bot: bot, threadData: th, guildId: id))
             }
             for st in guildData["stage_instances"] as! [JSON] {
                 stageInstances.append(StageInstance(bot: bot, stageInstanceData: st))

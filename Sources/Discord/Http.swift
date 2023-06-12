@@ -367,9 +367,9 @@ class HTTPClient {
     
     /// Update a channel's settings and logs the reason.
     /// https://discord.com/developers/docs/resources/channel#modify-channel
-    func modifyChannel(channelId: Snowflake, json: JSON, reason: String?) async throws -> GuildChannel {
+    func modifyChannel(channelId: Snowflake, guildId: Snowflake, json: JSON, reason: String?) async throws -> GuildChannel {
         let data = try await request(.patch, route("/channels/\(channelId)"), json: json, additionalHeaders: withReason(reason)) as! JSON
-        return determineGuildChannelType(type: data["type"] as! Int, data: data, bot: bot)
+        return determineGuildChannelType(type: data["type"] as! Int, data: data, bot: bot, guildId: guildId)
     }
     
     /// Delete a channel and logs the reason, or close a private message. For Community guilds, the Rules or Guidelines channel and the Community Updates channel cannot be deleted.
@@ -584,7 +584,15 @@ class HTTPClient {
     
     /// Creates a new thread from an existing message.
     /// https://discord.com/developers/docs/resources/channel#start-thread-from-message
-    func startThreadFromMessage(channelId: Snowflake, messageId: Snowflake, threadName: String, autoArchiveDuration: ThreadChannel.ArchiveDuration? = nil, slowmodeInSeconds: Int? = nil, reason: String?) async throws -> ThreadChannel {
+    func startThreadFromMessage(
+        channelId: Snowflake,
+        guildId: Snowflake,
+        messageId: Snowflake,
+        threadName: String,
+        autoArchiveDuration: ThreadChannel.ArchiveDuration? = nil,
+        slowmodeInSeconds: Int? = nil,
+        reason: String?
+    ) async throws -> ThreadChannel {
         var payload: JSON = ["name": threadName]
         if let autoArchiveDuration {
             payload["auto_archive_duration"] = autoArchiveDuration.rawValue
@@ -592,9 +600,8 @@ class HTTPClient {
         if let slowmodeInSeconds {
             payload["rate_limit_per_user"] = slowmodeInSeconds
         }
-        
         let data = try await request(.post, route("/channels/\(channelId)/messages/\(messageId)/threads"), json: payload, additionalHeaders: withReason(reason)) as! JSON
-        return .init(bot: bot, threadData: data)
+        return .init(bot: bot, threadData: data, guildId: guildId)
     }
     
     /// Creates a new thread that is not connected to an existing message.
@@ -602,13 +609,13 @@ class HTTPClient {
     /// https://discord.com/developers/docs/resources/channel#start-thread-without-message
     func startThreadWithoutMessage(
         channelId: Snowflake,
+        guildId: Snowflake,
         threadName: String,
         autoArchiveDuration: ThreadChannel.ArchiveDuration,
         slowmodeInSeconds: Int?,
         invitable: Bool,
         reason: String?
     ) async throws -> ThreadChannel {
-        
         var payload: JSON = ["name": threadName, "invitable": invitable]
         payload["auto_archive_duration"] = autoArchiveDuration.rawValue
         
@@ -617,13 +624,14 @@ class HTTPClient {
         }
         
         let data = try await request(.post, route("/channels/\(channelId)/threads"), json: payload, additionalHeaders: withReason(reason)) as! JSON
-        return .init(bot: bot, threadData: data)
+        return .init(bot: bot, threadData: data, guildId: guildId)
     }
     
     /// Creates a new thread in a forum channel, and sends a message within the created thread
     /// https://discord.com/developers/docs/resources/channel#start-thread-in-forum-channel
     public func startThreadInForumChannel(
         channelId: Snowflake,
+        guildId: Snowflake,
         name: String,
         archiveDuration: ThreadChannel.ArchiveDuration,
         slowmode: Int?,
@@ -632,7 +640,7 @@ class HTTPClient {
     ) async throws -> (thread: ThreadChannel, message: Message) {
         let data = try await request(.post, route("/channels/\(channelId)/threads"), json: forumThreadMessage, files: files) as! JSON
         let nestedMessage = Message(bot: bot, messageData: data["message"] as! JSON)
-        return (ThreadChannel(bot: bot, threadData: data), nestedMessage)
+        return (ThreadChannel(bot: bot, threadData: data, guildId: guildId), nestedMessage)
     }
     
     /// Adds the current user to a thread.
@@ -795,7 +803,7 @@ class HTTPClient {
         var channels = [GuildChannel]()
         for channelObj in data {
             let type = channelObj["type"] as! Int
-            channels.append(determineGuildChannelType(type: type, data: channelObj, bot: bot))
+            channels.append(determineGuildChannelType(type: type, data: channelObj, bot: bot, guildId: guildId))
         }
         return channels
     }
@@ -824,7 +832,7 @@ class HTTPClient {
             "nsfw": nsfw
         ]
         let data = try await request(.post, route("/guilds/\(guildId)/channels"), json: payload, additionalHeaders: withReason(reason)) as! JSON
-        return .init(bot: bot, channelData: data)
+        return .init(bot: bot, channelData: data, guildId: guildId)
     }
     
     /// Create a forum channel.
@@ -865,7 +873,7 @@ class HTTPClient {
             "type": ChannelType.guildForum.rawValue
         ]
         let data = try await request(.post, route("/guilds/\(guildId)/channels"), json: payload, additionalHeaders: withReason(reason)) as! JSON
-        return .init(bot: bot, fcData: data)
+        return .init(bot: bot, fcData: data, guildId: guildId)
     }
     
     /// Create a new voice channel for the guild.
@@ -896,7 +904,7 @@ class HTTPClient {
             "nsfw": nsfw
         ]
         let data = try await request(.post, route("/guilds/\(guildId)/channels"), json: payload, additionalHeaders: withReason(reason)) as! JSON
-        return .init(bot: bot, vcData: data)
+        return .init(bot: bot, vcData: data, guildId: guildId)
     }
     
     /// Create a new stage channel for the guild.
@@ -919,7 +927,7 @@ class HTTPClient {
             "rtc_region": region == .automatic ? NIL : region.rawValue
         ]
         let data = try await request(.post, route("/guilds/\(guildId)/channels"), json: payload, additionalHeaders: withReason(reason)) as! JSON
-        return .init(bot: bot, scData: data)
+        return .init(bot: bot, scData: data, guildId: guildId)
     }
     
     /// Create a new category for the guild.
@@ -932,7 +940,7 @@ class HTTPClient {
             "permission_overwrites": overwrites?.map({ $0.convert() }) as Any,
         ]
         let data = try await request(.post, route("/guilds/\(guildId)/channels"), json: payload, additionalHeaders: withReason(reason)) as! JSON
-        return .init(bot: bot, categoryData: data)
+        return .init(bot: bot, categoryData: data, guildId: guildId)
     }
     
     // UNUSED
@@ -947,7 +955,7 @@ class HTTPClient {
         let threadObjs = data["threads"] as! [JSON]
         var threads = [ThreadChannel]()
         for threadObj in threadObjs {
-            threads.append(.init(bot: bot, threadData: threadObj))
+            threads.append(.init(bot: bot, threadData: threadObj, guildId: guildId))
         }
         return threads
     }

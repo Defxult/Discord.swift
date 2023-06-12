@@ -413,15 +413,15 @@ class WSGateway {
             
         case .channelCreate:
             let channelType = data["type"] as! Int
-            let channel = determineGuildChannelType(type: channelType, data: data, bot: bot)
             let guild = bot.getGuild(getGuildIdFromJSON(data))!
+            let channel = determineGuildChannelType(type: channelType, data: data, bot: bot, guildId: guild.id)
             guild.cacheChannel(channel)
             dispatch({ await $0.onChannelCreate(channel: channel) })
             
         case .channelUpdate:
             let channelId = Conversions.snowflakeToUInt(data["id"])
             let beforeChannel = bot.getChannel(channelId)! as! GuildChannel
-            let afterChannel = determineGuildChannelType(type: beforeChannel.type.rawValue, data: data, bot: bot)
+            let afterChannel = determineGuildChannelType(type: beforeChannel.type.rawValue, data: data, bot: bot, guildId: beforeChannel.guildId)
             afterChannel.guild.cacheChannel(afterChannel)
             dispatch({ await $0.onChannelUpdate(before: beforeChannel, after: afterChannel) })
             
@@ -440,8 +440,8 @@ class WSGateway {
             dispatch({ await $0.onChannelPinsUpdate(channel: channel, pinnedAt: pinnedAt) })
             
         case .threadCreate:
-            let thread = ThreadChannel(bot: bot, threadData: data)
-            let guild = bot.getGuild(thread.guild.id)!
+            let guild = bot.getGuild(getGuildIdFromJSON(data))!
+            let thread = ThreadChannel(bot: bot, threadData: data, guildId: guild.id)
             guild.cacheChannel(thread)
             dispatch({ await $0.onThreadCreate(thread: thread) })
             
@@ -453,7 +453,7 @@ class WSGateway {
             
             let guild = bot.getGuild(guildId)!
             let beforeThread = guild.channelsCache.removeValue(forKey: threadId) as! ThreadChannel
-            let afterThread = determineGuildChannelType(type: beforeThread.type.rawValue, data: data, bot: bot) as! ThreadChannel
+            let afterThread = determineGuildChannelType(type: beforeThread.type.rawValue, data: data, bot: bot, guildId: beforeThread.guildId) as! ThreadChannel
             guild.cacheChannel(afterThread)
             dispatch({ await $0.onThreadUpdate(before: beforeThread, after: afterThread) })
             
@@ -462,8 +462,8 @@ class WSGateway {
             let guildId = getGuildIdFromJSON(data)
             let parentId = Conversions.snowflakeToUInt(data["parent_id"])
             
-            if var thread = bot.getChannel(threadId) as? ThreadChannel {
-                thread = thread.guild.removeChannelFromCache(thread.id) as! ThreadChannel
+            if let thread = bot.getChannel(threadId) as? ThreadChannel {
+                thread.guild.removeChannelFromCache(thread.id)
                 dispatch({ await $0.onThreadDelete(thread: thread) })
             }
             
@@ -482,7 +482,7 @@ class WSGateway {
             let guild = bot.getGuild(guildId)!
             
             for threadObj in threadObjs {
-                let thread = ThreadChannel(bot: bot, threadData: threadObj)
+                let thread = ThreadChannel(bot: bot, threadData: threadObj, guildId: guildId)
                 syncedThreads.append(thread)
                 guild.cacheChannel(thread)
             }
@@ -794,7 +794,8 @@ class WSGateway {
                 case .guildStageVoice:
                     let c = channel as! StageChannel
                     c.lastMessageId = message.id
-                    
+                
+                // Not messageable
                 case .guildCategory, .guildForum:
                     break
                 }

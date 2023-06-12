@@ -24,27 +24,27 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 
-func determineGuildChannelType(type: Int, data: JSON, bot: Discord) -> GuildChannel {
+func determineGuildChannelType(type: Int, data: JSON, bot: Discord, guildId: Snowflake) -> GuildChannel {
     let type = ChannelType(rawValue: type)!
     var temp: GuildChannel!
     switch type {
     case .guildText, .guildAnnouncement:
-        temp = TextChannel(bot: bot, channelData: data)
+        temp = TextChannel(bot: bot, channelData: data, guildId: guildId)
         
     case .guildVoice:
-        temp = VoiceChannel(bot: bot, vcData: data)
+        temp = VoiceChannel(bot: bot, vcData: data, guildId: guildId)
         
     case .guildCategory:
-        temp = CategoryChannel(bot: bot, categoryData: data)
+        temp = CategoryChannel(bot: bot, categoryData: data, guildId: guildId)
         
     case .announcementThread, .publicThread, .privateThread:
-        temp = ThreadChannel(bot: bot, threadData: data)
+        temp = ThreadChannel(bot: bot, threadData: data, guildId: guildId)
         
     case .guildStageVoice:
-        temp = StageChannel(bot: bot, scData: data)
+        temp = StageChannel(bot: bot, scData: data, guildId: guildId)
         
     case .guildForum:
-        temp = ForumChannel(bot: bot, fcData: data)
+        temp = ForumChannel(bot: bot, fcData: data, guildId: guildId)
         
     case .dm:
         break
@@ -151,12 +151,21 @@ public protocol GuildChannel : Channel {
     
     /// The channel name.
     var name: String { get }
+    
+    /// The ID of the guild the channel belongs to.
+    var guildId: Snowflake { get }
+    
+    /// The ID of the category the channel belongs to.
+    var categoryId: Snowflake? { get }
 }
 
 extension GuildChannel {
     
-    /// The guild this channel belongs to.
-    var guild: Guild { getGuildFromBot(bot: bot!, channelId: id) }
+    /// The category the channel belongs to.
+    public var category: CategoryChannel? { categoryId != nil ? guild.getChannel(categoryId!) as? CategoryChannel : nil }
+    
+    /// The guild the channel belongs to.
+    public var guild: Guild { bot!.getGuild(guildId)! }
     
     /// Mention the channel.
     public var mention: String { Markdown.mentionChannel(id: id) }
@@ -280,12 +289,26 @@ public class CategoryChannel : GuildChannel, Hashable {
     public var overwrites: [PermissionOverwrites]? { getOverwritesFromGuild(guild: guild, permOverwritesObjs: overwriteData) }
     var overwriteData: [JSON]
     
+    // ---------- API Separated ----------
+    
+    /// The channels that belong to the category.
+    public var channels: [GuildChannel] { guild.channels.filter({ $0.categoryId == id && $0.type != .guildCategory }) }
+    
+    /// Will always be `nil` for a category. This is only here for the overall usefulness of conforming to protocol ``GuildChannel``.
+    public let categoryId: Snowflake? = nil
+    
+    /// The ID of the guild the channel belongs to.
+    public let guildId: Snowflake
+    
+    // -----------------------------------
+    
     // Hashable
     public static func == (lhs: CategoryChannel, rhs: CategoryChannel) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
-    init(bot: Discord, categoryData: JSON) {
+    init(bot: Discord, categoryData: JSON, guildId: Snowflake) {
         self.bot = bot
+        self.guildId = guildId
         id = Conversions.snowflakeToUInt(categoryData["id"])
         type = ChannelType(rawValue: categoryData["type"] as! Int)!
         position = categoryData["position"] as! Int
@@ -314,7 +337,7 @@ public class CategoryChannel : GuildChannel, Hashable {
                 payload["permission_overwrites"] = nullable(permOverwrites?.map({ $0.convert() }))
             }
         }
-        return try await bot!.http.modifyChannel(channelId: id, json: payload, reason: reason) as! CategoryChannel
+        return try await bot!.http.modifyChannel(channelId: id, guildId: guildId, json: payload, reason: reason) as! CategoryChannel
     }
 }
 
@@ -404,8 +427,8 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     /// Amount of seconds a user has to wait before sending another message (0-21600).
     public internal(set) var slowmodeDelay: Int
 
-    /// The category the channel belongs to
-    public internal(set) var category: CategoryChannel?
+    // docs set in `GuildChannel`
+    public internal(set) var categoryId: Snowflake?
     
     /// When the last pinned message was pinned.
     public internal(set) var lastPinned: Date?
@@ -422,14 +445,18 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     /// Whether the channel is an announcement channel.
     public var isAnnouncement: Bool { type == .guildAnnouncement }
     
+    /// The ID of the guild the channel belongs to.
+    public let guildId: Snowflake
+    
     // --------------------------------------------------------------------------------
     
     // Hashable
     public static func == (lhs: TextChannel, rhs: TextChannel) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
-    init(bot: Discord, channelData: JSON) {
+    init(bot: Discord, channelData: JSON, guildId: Snowflake) {
         self.bot = bot
+        self.guildId = guildId
         id = Conversions.snowflakeToUInt(channelData["id"])
         type = ChannelType(rawValue: channelData["type"] as! Int)!
         position = channelData["position"] as! Int
@@ -439,10 +466,7 @@ public class TextChannel : GuildChannelMessageable, Hashable {
         isNsfw = Conversions.optionalBooltoBool(channelData["nsfw"])
         lastMessageId = Conversions.snowflakeToOptionalUInt(channelData["last_message_id"])
         slowmodeDelay = channelData["rate_limit_per_user"] as? Int ?? 0
-
-        if let parentId = Conversions.snowflakeToOptionalUInt(channelData["parent_id"]) {
-            category = bot.getChannel(parentId) as? CategoryChannel
-        }
+        categoryId = Conversions.snowflakeToOptionalUInt(channelData["parent_id"])
 
         if let whenPinned = channelData["last_pin_timestamp"] as? String {
             lastPinned = Conversions.stringDateToDate(iso8601: whenPinned)
@@ -494,6 +518,7 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     ) async throws -> ThreadChannel {
         return try await bot!.http.startThreadWithoutMessage(
             channelId: id,
+            guildId: guildId,
             threadName: name,
             autoArchiveDuration: autoArchiveDuration,
             slowmodeInSeconds: slowmode,
@@ -533,7 +558,7 @@ public class TextChannel : GuildChannelMessageable, Hashable {
                 payload["parent_id"] = nullable(category?.id)
             }
         }
-        return try await bot!.http.modifyChannel(channelId: id, json: payload, reason: reason) as! TextChannel
+        return try await bot!.http.modifyChannel(channelId: id, guildId: guildId, json: payload, reason: reason) as! TextChannel
     }
     
     /// Follow the text channel.
@@ -628,7 +653,7 @@ public struct AsyncArchivedThreads : AsyncSequence, AsyncIteratorProtocol {
         }
         
         for obj in threadObjs {
-            threads.append(.init(bot: channel.bot!, threadData: obj))
+            threads.append(.init(bot: channel.bot!, threadData: obj, guildId: channel.guildId))
             if remaining != indefinite {
                 remaining -= 1
                 if remaining == 0 {
@@ -671,9 +696,9 @@ public class ForumChannel : GuildChannel, Hashable {
     
     /// Amount of seconds a user has to wait before sending another message.
     public internal(set) var slowmodeDelay: Int
-
-    /// The category the channel belongs to
-    public internal(set) var category: CategoryChannel?
+    
+    // docs set in `GuildChannel`
+    public internal(set) var categoryId: Snowflake?
     
     /// The set of tags that can be used.
     public internal(set) var tags = [Tag]()
@@ -688,12 +713,20 @@ public class ForumChannel : GuildChannel, Hashable {
     /// Your bot instance
     public weak private(set) var bot: Discord?
     
+    // ---------- API Separated ----------
+    
+    /// The ID of the guild the channel belongs to.
+    public let guildId: Snowflake
+    
+    // -----------------------------------
+    
     // Hashable
     public static func == (lhs: ForumChannel, rhs: ForumChannel) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
     
-    init(bot: Discord, fcData: JSON) {
+    init(bot: Discord, fcData: JSON, guildId: Snowflake) {
         self.bot = bot
+        self.guildId = guildId
         id = Conversions.snowflakeToUInt(fcData["id"])
         type = ChannelType(rawValue: fcData["type"] as! Int)!
         position = fcData["position"] as! Int
@@ -703,10 +736,7 @@ public class ForumChannel : GuildChannel, Hashable {
         isNsfw = fcData["nsfw"] as? Bool ?? false
         lastMessageId = Conversions.snowflakeToOptionalUInt(fcData["last_message_id"])
         slowmodeDelay = fcData["rate_limit_per_user"] as! Int
-
-        if let parentId = Conversions.snowflakeToOptionalUInt(fcData["parent_id"]) {
-            category = bot.getChannel(parentId) as? CategoryChannel
-        }
+        categoryId = Conversions.snowflakeToOptionalUInt(fcData["parent_id"])
         
         if let tagObjs = fcData["available_tags"] as? [JSON] {
             for tagObj in tagObjs {
@@ -798,6 +828,7 @@ public class ForumChannel : GuildChannel, Hashable {
         
         let info = try await bot!.http.startThreadInForumChannel(
             channelId: id,
+            guildId: guildId,
             name: name,
             archiveDuration: autoArchiveDuration,
             slowmode: slowmode,
@@ -1011,8 +1042,8 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
     /// The ID of the last message sent in this channel.
     public internal(set) var lastMessageId: Snowflake?
 
-    /// The category the channel belongs to.
-    public internal(set) var category: CategoryChannel?
+    // docs set in `GuildChannel`
+    public internal(set) var categoryId: Snowflake?
     
     /// The bitrate (in bits) of the voice channel.
     public internal(set) var bitrate: Int
@@ -1037,6 +1068,9 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
     
     // ---------------- API Separated ----------------
     
+    /// The ID of the guild the channel belongs to.
+    public let guildId: Snowflake
+    
     /// The members currently in the channel.
     public var members: [Member] {
         var members = [Member]()
@@ -1050,18 +1084,15 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
     
     // -----------------------------------------------
 
-    init(bot: Discord, vcData: JSON) {
+    init(bot: Discord, vcData: JSON, guildId: Snowflake) {
         self.bot = bot
+        self.guildId = guildId
         id = Conversions.snowflakeToUInt(vcData["id"])
         type = ChannelType(rawValue: vcData["type"] as! Int)!
         position = vcData["position"] as! Int
         overwriteData = vcData["permission_overwrites"] as! [JSON]
         lastMessageId = Conversions.snowflakeToOptionalUInt(vcData["last_message_id"])
-        
-        let parentId = Conversions.snowflakeToOptionalUInt(vcData["parent_id"])
-        if let parentId = parentId {
-            category = bot.getChannel(parentId) as? CategoryChannel
-        }
+        categoryId = Conversions.snowflakeToOptionalUInt(vcData["parent_id"])
 
         name = vcData["name"] as! String
         bitrate = vcData["bitrate"] as! Int
@@ -1103,7 +1134,7 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
                 payload["video_quality_mode"] = quality.rawValue
             }
         }
-        return try await bot!.http.modifyChannel(channelId: id, json: payload, reason: reason) as! VoiceChannel
+        return try await bot!.http.modifyChannel(channelId: id, guildId: guildId, json: payload, reason: reason) as! VoiceChannel
     }
 }
 
@@ -1284,12 +1315,9 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     
     /// The thread type.
     public let type: ChannelType
-    
-    /// The guild this thread belongs to.
-    public var guild: Guild { channel.guild }
 
     /// The channel this thread belongs to.
-    public var channel: GuildChannel { bot!.getChannel(parentChannelId) as! GuildChannel }
+    public var channel: GuildChannel { guild.getChannel(parentChannelId)! }
     
     /// Name of the thread.
     public internal(set) var name: String
@@ -1308,6 +1336,9 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     
     /// The ID of the last message sent in the thread.
     public internal(set) var lastMessageId: Snowflake?
+    
+    // docs set in `GuildChannel`
+    public var categoryId: Snowflake? { channel.categoryId }
     
     /// The tags applied to a ``ForumChannel`` thread. If the thread does not belong to a forum, this will always be empty.
     public var appliedTags: [ForumChannel.Tag] {
@@ -1345,6 +1376,13 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
 
     // -------------------------------------------------------------------------
     
+    // ---------- API Separated ----------
+    
+    /// The ID of the guild the channel belongs to.
+    public let guildId: Snowflake
+    
+    // -----------------------------------
+    
     // Hashable
     public static func == (lhs: ThreadChannel, rhs: ThreadChannel) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
@@ -1354,8 +1392,9 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     
     let parentChannelId: Snowflake
 
-    init(bot: Discord, threadData: JSON) {
+    init(bot: Discord, threadData: JSON, guildId: Snowflake) {
         self.bot = bot
+        self.guildId = guildId
         id = Conversions.snowflakeToUInt(threadData["id"])
         type = ChannelType(rawValue: threadData["type"] as! Int)!
         parentChannelId = Conversions.snowflakeToUInt(threadData["parent_id"])
@@ -1423,7 +1462,7 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
                 payload["applied_tags"] = tags.map({ $0.id })
             }
         }
-        return try await bot!.http.modifyChannel(channelId: id, json: payload, reason: reason) as! ThreadChannel
+        return try await bot!.http.modifyChannel(channelId: id, guildId: guildId, json: payload, reason: reason) as! ThreadChannel
     }
     
     /// Remove a member from the thread,
@@ -1529,8 +1568,8 @@ extension ThreadChannel {
 /// Represents a stage channel.
 public class StageChannel : VoiceChannel {
     
-    init(bot: Discord, scData: JSON) {
-        super.init(bot: bot, vcData: scData)
+    init(bot: Discord, scData: JSON, guildId: Snowflake) {
+        super.init(bot: bot, vcData: scData, guildId: guildId)
     }
     
     /// Creates a stage instance.
@@ -1571,7 +1610,7 @@ public class StageChannel : VoiceChannel {
                 payload["permission_overwrites"] = nullable(permOverwrites?.map({ $0.convert() }))
             }
         }
-        return try await bot!.http.modifyChannel(channelId: id, json: payload, reason: reason) as! StageChannel
+        return try await bot!.http.modifyChannel(channelId: id, guildId: guildId, json: payload, reason: reason) as! StageChannel
     }
     
     /// Requests the Stage instance.

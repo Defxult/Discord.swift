@@ -4,7 +4,15 @@ Pending Release
 #### New Features
 - Added function `channelLink()`.
 - Added function `messageLink()`.
+- Added property `Guild.categories`.
+- Added property `GuildChannel.guild`.
+- Added property `GuildChannel.guildId`.
+- Added property `CategoryChannel.channels`.
+- Added property `categoryId` to all channel types that conform to protocol `GuildChannel`.
 - Added init `Color(hex:)`.
+
+#### Bug Fixes
+- Fixed an issue where channels that have a `category` property would return `nil` even when they belonged to a category. 
 
 
 
