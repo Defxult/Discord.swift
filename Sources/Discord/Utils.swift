@@ -24,6 +24,27 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 
+
+/// Discord's Unix timestamp, the first second of 2015.
+public let discordEpoch: Snowflake = 1420070400000
+
+/// Represents a Discord ID.
+public typealias Snowflake = UInt
+
+/// Represents a base Discord object.
+public protocol Object {
+    
+    /// The ID of the object.
+    var id: Snowflake { get }
+}
+
+extension Object {
+    
+    /// The creation date converted from the objects snowflake.
+    public var created: Date { snowflakeDate(id) }
+}
+
+
 /// Constructs a channel link.
 /// - Parameters:
 ///   - guildId: Guild ID of the channel.
@@ -444,4 +465,12 @@ extension Log {
         case attention = "🟡"
         case warning = "🔴"
     }
+}
+
+// MARK: Other
+
+typealias JSON = [String: Any]
+
+protocol Updateable {
+    func update(_ data: JSON)
 }
