@@ -1,4 +1,4 @@
-## 0.0.5-alpha
+## [0.0.5-alpha](https://github.com/Defxult/Discord.swift/releases/tag/0.0.5-alpha)
 Released on June 13, 2023.
 
 #### New Features
