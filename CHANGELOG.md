@@ -13,6 +13,7 @@ Pending Release
 
 #### Bug Fixes
 - Fixed an issue where channels that have a `category` property would return `nil` even when they belonged to a category. 
+- Fixed an issue where audit logs were not being filtered by their `actionType` even when an action type was set.
 - Fixed an issue where the following methods would error if a message had a reaction:
   - `Messageable.history()`
   - `Messageable.requestMessage()`

@@ -337,6 +337,7 @@ public class Guild : Object, Hashable, Updateable  {
         queryItems.append(.init(name: "limit", value: "\(limit < 1 ? 1 : min(limit, 100))"))
         
         if let user { queryItems.append(.init(name: "user_id", value: String(user.id))) }
+        if let actionType { queryItems.append(.init(name: "action_type", value: actionType.rawValue.description)) }
         if let before { queryItems.append(.init(name: "before", value: "\(before.asSnowflake)")) }
         if let after { queryItems.append(.init(name: "after", value: "\(after.asSnowflake)")) }
         
