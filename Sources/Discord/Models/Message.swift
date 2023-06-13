@@ -225,12 +225,6 @@ public class Message : Object, Hashable, Updateable {
         for e in embedObjs {
             embeds.append(.init(embedData: e))
         }
-        
-        if let reactionObjs = messageData["reactions"] as? [JSON] {
-            for reactionObj in reactionObjs {
-                reactions.append(Reaction(bot: bot, reactionData: reactionObj, messageId: id))
-            }
-        }
 
         isPinned = messageData["pinned"] as! Bool
         webhookId = Conversions.snowflakeToOptionalUInt(messageData["webhook_id"])
@@ -278,6 +272,13 @@ public class Message : Object, Hashable, Updateable {
         
         expires = Message.cacheExpire
         setExpires()
+        
+        // This was moved to the end because `self` cannot be used before all stored proprties have been initalized.
+        if let reactionObjs = messageData["reactions"] as? [JSON] {
+            for reactionObj in reactionObjs {
+                reactions.append(Reaction(bot: bot, reactionData: reactionObj, message: self))
+            }
+        }
     }
     
     /// Updates the properties for the message. This method is called via event ``DiscordEvent/messageUpdate``.

@@ -264,12 +264,12 @@ public class Reaction {
     /// Your bot instance.
     public private(set) weak var bot: Discord?
     
-    init(bot: Discord, reactionData: JSON, messageId: Snowflake) {
+    init(bot: Discord, reactionData: JSON, message: Message) {
         self.bot = bot
         count = reactionData["count"] as! Int
         userReacted = reactionData["me"] as! Bool
         emoji = PartialEmoji(partialEmojiData: reactionData["emoji"] as! JSON)
-        message = bot.getMessage(messageId)!
+        self.message = message
     }
     
     /**

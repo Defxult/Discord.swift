@@ -871,7 +871,7 @@ class WSGateway {
                             "me": userReacted,
                             "emoji": data["emoji"] as! JSON
                         ]
-                        let newReaction = Reaction(bot: bot, reactionData: reactionObj, messageId: message.id)
+                        let newReaction = Reaction(bot: bot, reactionData: reactionObj, message: message)
                         message.reactions.append(newReaction)
                         dispatch({ await $0.onMessageReactionAdd(reaction: newReaction, user: user) })
                     }
