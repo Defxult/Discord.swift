@@ -112,7 +112,7 @@ public class Role : Object, Hashable {
     }
     
     /// Delete the role.
-    /// - Parameter reason: The reason for deleting the role. This shows up in the guilds audit-logs.
+    /// - Parameter reason: The reason for deleting the role. This shows up in the guilds audit log.
     public func delete(reason: String? = nil) async throws {
         try await bot!.http.deleteGuildRole(guildId: guild.id, roleId: id, reason: reason)
     }

@@ -53,10 +53,7 @@ public struct ApplicationCommand {
     public let applicationId: Snowflake
     
     /// Guild of the command, if not global.
-    public var guild: Guild? {
-        if let guildId { return bot!.getGuild(guildId) }
-        else { return nil }
-    }
+    public var guild: Guild? { guildId != nil ? bot!.getGuild(guildId!) : nil }
     
     /// Guild ID of the command, if not global.
     public let guildId: Snowflake?
@@ -136,7 +133,7 @@ public struct ApplicationCommand {
         
         dmPermission = applicationCommandData.keys.contains("dm_permission") ? (applicationCommandData["dm_permission"] as! Bool) : nil
         isNsfw = applicationCommandData["nsfw"] as! Bool
-        mention = type == .slashCommand ? Markdown.mentionSlashCommand(name: name, id: id) : nil
+        mention = (type == .slashCommand ? Markdown.mentionSlashCommand(name: name, id: id) : nil)
     }
     
     /// Edit the application command.
@@ -241,7 +238,7 @@ extension ApplicationCommand {
     }
 }
 
-class PendingAppCommand {
+class PendingAppCommand : Updateable {
     var type: ApplicationCommandType
     var name: String
     var guildId: Snowflake?
@@ -268,7 +265,7 @@ class PendingAppCommand {
         self.options = options
     }
     
-    fileprivate func update(_ data: JSON) {
+    func update(_ data: JSON) {
         for (k, v) in data {
             switch k {
             case "name":
@@ -619,19 +616,13 @@ public class Interaction {
     public private(set) var data: InteractionData?
     
     /// Guild that the interaction was sent from.
-    public var guild: Guild? {
-        if let guildId { return bot!.getGuild(guildId) }
-        else { return nil }
-    }
+    public var guild: Guild? { guildId != nil ? bot!.getGuild(guildId!) : nil }
     
     /// Guild ID that the interaction was sent from.
     public let guildId: Snowflake?
     
     /// Channel that the interaction was sent from.
-    public var channel: Channel? {
-        if let channelId { return bot!.getChannel(channelId) }
-        else { return nil }
-    }
+    public var channel: Channel? { channelId != nil ? bot!.getChannel(channelId!) : nil }
     
     /// Channel ID that the interaction was sent from.
     public let channelId: Snowflake?
