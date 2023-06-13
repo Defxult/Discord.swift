@@ -1,5 +1,5 @@
 ## 0.0.5-alpha
-Pending Release
+Released on June 13, 2023.
 
 #### New Features
 - Added function `channelLink()`.
