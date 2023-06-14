@@ -64,9 +64,7 @@ public class Discord {
     /// All emojis the bot has accesss to.
     public var emojis: Set<Emoji> {
         var e = Set<Emoji>()
-        for guild in guilds {
-            e.formUnion(guild.emojis)
-        }
+        guilds.forEach({ g in e.formUnion(g.emojis) })
         return e
     }
     
