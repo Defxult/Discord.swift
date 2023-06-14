@@ -1767,7 +1767,7 @@ class HTTPClient {
         case 429:
             let error = object as! JSON
             let retryAfter = error["retry_after"] as! Double
-            Log.notification("You are being ratelimited! (retrying after: \(retryAfter)s) Via endpoint: \(method.rawValue) \(endpoint)", level: .warning)
+            Log.message("You are being ratelimited! (retrying after: \(retryAfter)s) Via endpoint: \(method.rawValue) \(endpoint)")
             try await Task.sleep(for: .seconds(retryAfter))
             return try await makeRequest(method, endpoint, json: json, jsonArray: jsonArray, files: files, mpUploadType: mpUploadType, additionalHeaders: allHeaders)
         case 502:
