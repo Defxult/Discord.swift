@@ -24,7 +24,6 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 
-
 /// Discord's Unix timestamp, the first second of 2015.
 public let discordEpoch: Snowflake = 1420070400000
 
@@ -43,7 +42,6 @@ extension Object {
     /// The creation date converted from the objects snowflake.
     public var created: Date { snowflakeDate(id) }
 }
-
 
 /// Constructs a channel link.
 /// - Parameters:
