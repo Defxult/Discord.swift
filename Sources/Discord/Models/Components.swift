@@ -36,7 +36,6 @@ public enum ComponentType : Int {
     case channelSelect
 }
 
-
 /// Represents a message component. Either a ``Button`` or ``SelectMenu``.
 public protocol Component {
     var type: ComponentType { get }
@@ -295,6 +294,7 @@ public class Button : Component, InternalComponent {
              // Convert the data to the proper type
              let data = inter.data as! MessageComponentData
      
+             // Check which button was clicked based on the customId
              if data.customId == "ps" {
                  try! await inter.respondWithMessage("You chose PlayStation!")
              }
@@ -494,13 +494,13 @@ extension SelectMenu {
         /// User-facing name of the option; max 100 characters.
         public var label: String
         
-        /// Value of the option. This is not shown to the user. Max 100 characters
+        /// Value of the option. This is not shown to the user. Max 100 characters.
         public var value: String
         
         /// Additional description of the option; max 100 characters.
         public var description: String?
         
-        /// Emoji for the emoji.
+        /// Emoji for the option. Only used when the ``SelectMenu/menuType-swift.property`` is ``SelectMenu/MenuType-swift.enum/text``.
         public var emoji: PartialEmoji?
         
         /// Whether this option will show as selected by default.

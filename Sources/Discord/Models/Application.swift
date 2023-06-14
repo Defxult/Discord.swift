@@ -191,7 +191,7 @@ extension Application {
             /// The user information.
             public let userId: Snowflake
             
-            /// The user's username,.
+            /// The user's username.
             public let userName: String
             
             /// The user's 4-digit discord-tag.

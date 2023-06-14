@@ -101,11 +101,11 @@ public class Embed {
     }
     
     /**
-     Initializes a new embed.
+     Initializes an embed.
      
      Below is an example on how to create an embed:
      ```swift
-     // Setting via embed instance.
+     // Setting via methods
      let discord = Embed()
         .setTitle("Discord")
         .setDescription("Imagine a place")
@@ -114,6 +114,12 @@ public class Embed {
      // Setting via parameters
      let discord = Embed(title: "Discord", description: "Imagine a place")
      ```
+     - Parameters:
+        - title: The title; max 256 characters.
+        - description: The description; max 4096 characters.
+        - color: Embed color.
+        - url: URL for the embed.
+        - timestamp: Timestamp for the embed.
      */
     public init(title: String? = nil, description: String? = nil, color: Color? = nil, url: String? = nil, timestamp: Date? = nil) {
         self.title = title
@@ -417,7 +423,7 @@ public class Embed {
     }
     ```
     - Parameter data: The information the embed is bound to.
-    - Returns: An `Embed` object with it's properties set according to the data provided.
+    - Returns: An `Embed` object with its properties set according to the data provided.
     */
     public static func fromDict(_ data: [String: Any]) -> Embed {
         return .init(embedData: data)

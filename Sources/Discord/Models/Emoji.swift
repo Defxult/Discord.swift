@@ -71,8 +71,8 @@ public struct Emoji : Object, CustomStringConvertible, Hashable {
      
      ```swift
      let crownEmoji = guild.getEmoji(1234567890123456789)
-     channel.send(crownEmoji.description)
-     // Sends 👑
+     try await channel.send(crownEmoji.description)
+     // Sends "👑"
      ```
      */
     public let description: String
@@ -222,7 +222,7 @@ public struct PartialEmoji {
 
     /// Converts a string into a `PartialEmoji`.
     /// - Parameter emoji: A guild emoji or a standard unicode emoji.
-    /// - Returns: The converted string.
+    /// - Returns: The converted emoji.
     public static func fromString(_ emoji: String) -> PartialEmoji {
         
         // Guild emoji
