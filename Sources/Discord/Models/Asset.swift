@@ -53,4 +53,10 @@ public struct Asset {
             fatalError("Path must start with /")
         }
     }
+    
+    /// Convert the asset into a file.
+    /// - Returns: The file representation of the asset.
+    public func download() async throws -> File {
+        try await File.download(urls: [URL(string: url)!]).first!
+    }
 }

@@ -766,6 +766,7 @@ class WSGateway {
         case .messageCreate:
             let message = Message(bot: bot, messageData: data)
             if message.isDmMessage && !message.isEphemeral {
+                guard !bot.ignoreDms else { break }
                 bot.dms.update(with: message.channel as! DMChannel)
             }
             

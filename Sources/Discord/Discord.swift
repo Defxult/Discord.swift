@@ -70,6 +70,15 @@ public class Discord {
         return e
     }
     
+    /// Whether to ignore direct messages.
+    ///
+    /// If set to `true`, the following will be changed:
+    /// - ``EventListener/onMessageCreate(message:)`` events will not be dispatched for direct messages.
+    /// - The ``Message`` associated with the direct message will not be cached.
+    /// - The ``User`` associated with the direct message will not be cached.
+    /// - The ``DMChannel`` associated with the direct message will not be cached.
+    public var ignoreDms: Bool
+    
     var pendingApplicationCommands = [PendingAppCommand]()
     var pendingModals = [String: (Interaction) async -> Void]()
     let messagesCacheMaxSize: Int
@@ -85,11 +94,17 @@ public class Discord {
     ///   - intents: Gateway events the bot is subscribed to. Additional intents may need to be turned on via the Discord [developer portal](https://discord.com/developers/applications). *Applications > Bot > Privileged Gateway Intents*
     ///   - maxMessagesCache: The maximum amount of messages that should be cached.
     ///   - sharding: Whether automatic sharding is enabled. If your bot is in 2500 or more guilds, this **must** be enabled.
+    ///   - ignoreDms: Whether to ignore direct messages. If set to `true`, the following will be changed:
+    ///     - ``EventListener/onMessageCreate(message:)`` events will not be dispatched for direct messages.
+    ///     - The ``Message`` associated with the direct message will not be cached.
+    ///     - The ``User`` associated with the direct message will not be cached.
+    ///     - The ``DMChannel`` associated with the direct message will not be cached.
     /// - Important: When setting intents, it is highly recommended to at least have the ``Intents/guilds`` intent enabled in order for your bot to function properly.
-    public init(token: String, intents: Set<Intents>, maxMessagesCache: Int = 1500, sharding: Bool = false) {
+    public init(token: String, intents: Set<Intents>, maxMessagesCache: Int = 1500, sharding: Bool = false, ignoreDms: Bool = false) {
         self.token = token
         self.intents = intents
         self.sharding = sharding
+        self.ignoreDms = ignoreDms
         messagesCacheMaxSize = max(0, maxMessagesCache)
         http = .init(bot: self, token: token, version: version)
     }

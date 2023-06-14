@@ -1,3 +1,12 @@
+## 0.0.6-alpha
+Pending Release
+
+#### New Features
+- Added method `Asset.download()`.
+- Added parameter `ignoreDms` to `Discord.init()`.
+
+
+
 ## [0.0.5-alpha](https://github.com/Defxult/Discord.swift/releases/tag/0.0.5-alpha)
 Released on June 13, 2023.
 
