@@ -52,17 +52,6 @@ func determineGuildChannelType(type: Int, data: JSON, bot: Discord, guildId: Sno
     return temp
 }
 
-fileprivate func getGuildFromBot(bot: Discord, channelId: Snowflake) -> Guild {
-    var returnedGuild: Guild!
-    for (_, g) in bot.guildsCache {
-        if let _ = g.getChannel(channelId) {
-            returnedGuild = g
-            break
-        }
-    }
-    return returnedGuild
-}
-
 fileprivate func getOverwritesFromGuild(guild: Guild, permOverwritesObjs: [JSON]) -> [PermissionOverwrites]? {
     let intents = guild.bot!.intents
     if intents.contains(.guilds) && intents.contains(.guildMembers) {
