@@ -135,6 +135,8 @@ public enum Permission : Int, CaseIterable {
     case moderateMembers = 1099511627776                    // 1 << 40
     case viewCreatorMonetizationAnalytics = 2199023255552   // 1 << 41
     case useSoundboard = 4398046511104                      // 1 << 42
+    case useExternalSoundboard = 35184372088832             // 1 << 45
+    case sendVoiceMessages = 70368744177664                 // 1 << 46
 }
 
 /// Represents the permissions for a channel, user, or guild.
@@ -149,29 +151,53 @@ public class Permissions {
     /// The permissions that are disabled.
     public internal(set) var disabled = [Permission]()
     
-    /**
-     Returns a permissions object with the default Discord UI permissions:
-     
-     The following permissions are enabled:
-     * `viewChannel`
-     * `createInvite`
-     * `changeNickname`
-     * `sendMessages`
-     * `sendMessagesInThreads`
-     * `embedLinks`
-     * `attachFiles`
-     * `addReactions`
-     * `useExternalEmojis`
-     * `useExternalStickers`
-     * `readMessageHistory`
-     * `useApplicationCommands`
-     * `connect`
-     * `speak`
-     * `video`
-     * `useActivities`
-     * `requestToSpeak`
-     */
-    public static let `default` = Permissions(permsValue: 968585760321)
+    /// Returns a permissions object with default permissions.
+    ///
+    /// The following permissions are enabled:
+    /// - `viewChannel`
+    /// - `createInstantInvite`
+    /// - `changeNickname`
+    /// - `sendMessages`
+    /// - `sendMessagesInThreads`
+    /// - `embedLinks`
+    /// - `attachFiles`
+    /// - `addReactions`
+    /// - `useExternalEmojis`
+    /// - `useExternalStickers`
+    /// - `readMessageHistory`
+    /// - `useApplicationCommands`
+    /// - `connect`
+    /// - `speak`
+    /// - `stream`
+    /// - `useActivities`
+    /// - `useVoiceActivityDetection`
+    /// - `useSoundboard`
+    /// - `useExternalSoundboard`
+    /// - `sendVoiceMessages`
+    /// - `requestToSpeak`
+    public static let `default` = Permissions(enable: [
+        .viewChannel,
+        .createInstantInvite,
+        .changeNickname,
+        .sendMessages,
+        .sendMessagesInThreads,
+        .embedLinks,
+        .attachFiles,
+        .addReactions,
+        .useExternalEmojis,
+        .useExternalStickers,
+        .readMessageHistory,
+        .useApplicationCommands,
+        .connect,
+        .speak,
+        .stream,
+        .useActivities,
+        .useVoiceActivityDetection,
+        .useSoundboard,
+        .useExternalSoundboard,
+        .sendVoiceMessages,
+        .requestToSpeak
+    ])
     
     /// Returns a permissions object with all permissions disabled.
     public static let none = Permissions(permsValue: 0)

@@ -4,6 +4,16 @@ Pending Release
 #### New Features
 - Added method `Asset.download()`.
 - Added parameter `ignoreDms` to `Discord.init()`.
+- Added the following cases for `Permissions`:
+  - `Permissions.useExternalSoundboard`
+  - `Permissions.sendVoiceMessages`
+
+#### Updated
+- The following have been enabled in property `Permissions.default`:
+    - `Permissions.useVoiceActivityDetection`
+    - `Permissions.useSoundboard` 
+    - `Permissions.useExternalSoundboard` 
+    - `Permissions.sendVoiceMessages`
 
 
 
