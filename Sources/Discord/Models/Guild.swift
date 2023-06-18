@@ -334,17 +334,14 @@ public class Guild : Object, Hashable, Updateable  {
     ///         Omitting both `before` and `after` defaults to `before` the current timestamp and will show the most recent entries in descending order.
     public func auditLogs(user: User? = nil, actionType: AuditLog.Action? = nil, limit: Int = 50, before: Date? = nil, after: Date? = nil) async throws -> AuditLog {
         var queryItems = [URLQueryItem]()
-        queryItems.append(.init(name: "limit", value: "\(limit < 1 ? 1 : min(limit, 100))"))
+        queryItems.append(.init(name: "limit", value: (limit < 1 ? 1 : min(limit, 100)).description))
         
-        if let user { queryItems.append(.init(name: "user_id", value: String(user.id))) }
+        if let user { queryItems.append(.init(name: "user_id", value: user.id.description)) }
         if let actionType { queryItems.append(.init(name: "action_type", value: actionType.rawValue.description)) }
-        if let before { queryItems.append(.init(name: "before", value: "\(before.asSnowflake)")) }
-        if let after { queryItems.append(.init(name: "after", value: "\(after.asSnowflake)")) }
+        if let before { queryItems.append(.init(name: "before", value: before.asSnowflake.description)) }
+        if let after { queryItems.append(.init(name: "after", value: after.asSnowflake.description)) }
         
-        var queryParams = queryItems.map({ $0.description + "&" }).joined()
-        queryParams.removeLast() // Remove the last "&"
-        
-        return try await bot!.http.getGuildAuditLog(guildId: id, queryParams: queryParams)
+        return try await bot!.http.getGuildAuditLog(guildId: id, queryParams: queryItems)
     }
     
     /// Retrieve all moderation rules in the guild.

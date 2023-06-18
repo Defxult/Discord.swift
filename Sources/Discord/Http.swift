@@ -360,8 +360,10 @@ class HTTPClient {
     
     /// Returns an audit log object for the guild.
     /// https://discord.com/developers/docs/resources/audit-log#get-guild-audit-log
-    func getGuildAuditLog(guildId: Snowflake, queryParams: String) async throws -> AuditLog {
-        let data = try await request(.get, route("/guilds/\(guildId)/audit-logs?\(queryParams)")) as! JSON
+    func getGuildAuditLog(guildId: Snowflake, queryParams: [URLQueryItem]) async throws -> AuditLog {
+        var url = URL(string: route("/guilds/\(guildId)/audit-logs"))!
+        url.append(queryItems: queryParams)
+        let data = try await request(.get, url.absoluteString) as! JSON
         return .init(auditLogData: data)
     }
     
