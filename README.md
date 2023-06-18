@@ -6,7 +6,7 @@
 <p align="center">
     <a href="https://discord.gg/TYDZeruQ7N"><img src="https://img.shields.io/discord/1068105613323804733?label=discord&style=for-the-badge&logo=discord"></a>
     <img src="https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.0.6-alpha&color=ff992b">
-    <img src="https://img.shields.io/static/v1?label=guide&style=for-the-badge&message=gitbook&color=5865f2">
+    <a href="https://discord-swift.gitbook.io/discord.swift/"><img src="https://img.shields.io/static/v1?label=guide&style=for-the-badge&message=gitbook&color=5865f2"></a>
 </p>
 
 
