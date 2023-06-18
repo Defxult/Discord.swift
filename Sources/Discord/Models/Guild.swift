@@ -968,7 +968,7 @@ public class Guild : Object, Hashable, Updateable  {
     /// - Parameters:
     ///   - name: Their username or nickname.
     ///   - limit: Max number of members to return (1-1000).
-    /// - Returns: All members whose username or nickname starts with a provided `name`.
+    /// - Returns: All members whose username or nickname starts with the provided `name`.
     public func searchMembers(name: String, limit: Int = 1000) async throws -> [Member] {
         return try await bot!.http.searchGuildMembers(guildId: id, query: name, limit: limit)
     }

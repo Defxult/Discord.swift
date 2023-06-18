@@ -1131,6 +1131,7 @@ class HTTPClient {
 //        return data["pruned"] as! Int
 //    }
 
+    /// ⚠️ Needs testing.
     /// Begin a prune operation.
     /// https://discord.com/developers/docs/resources/guild#begin-guild-prune
     func beginGuildPrune(guildId: Snowflake, days: Int, computePruneCount: Bool, includeRoles: [Role]) async throws -> Int? {
