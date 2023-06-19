@@ -85,6 +85,21 @@ public class Member : Object, Hashable {
     /// The users voice state.
     public var voice: VoiceChannel.State? { guild.voiceStates.first(where: { $0.user.id == id }) }
     
+    /// All guilds the bot and the member shares.
+    ///
+    /// This is reliant on whether Privileged Intents have been enabled in your developer portal. As well as
+    /// intents ``Intents/guildMembers`` and ``Intents/guildPresences`` being enabled
+    /// so that ``Guild/members`` can be fully loaded.
+    public var mutualGuilds: [Guild] {
+        var mutuals = [Guild]()
+        bot!.guilds.forEach({ g in
+            if let _ = g.getMember(id) {
+                mutuals.append(g)
+            }
+        })
+        return mutuals
+    }
+    
     // --------------------------------------------------------------------------------
     
     // Hashable extras
