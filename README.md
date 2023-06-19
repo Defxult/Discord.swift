@@ -4,7 +4,6 @@
 </p>
 
 <p align="center">
-    <a href="https://discord.gg/TYDZeruQ7N"><img src="https://img.shields.io/discord/1068105613323804733?label=discord&style=for-the-badge&logo=discord"></a>
     <img src="https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.0.6-alpha&color=ff992b">
     <a href="https://discord-swift.gitbook.io/discord.swift/"><img src="https://img.shields.io/static/v1?label=guide&style=for-the-badge&message=gitbook&color=5865f2"></a>
 </p>
@@ -12,7 +11,13 @@
 
 A Discord API library written in Swift, kept up-to-date with the latest features. Simple, elegant, and easy to use. Have fun creating your own bot! 🤖 Whether it's for moderation, only for you and your friends, or something entirely unique!
 
-Enjoying the library? Don't forget to leave a ⭐️ 😄. There is also a community support [Discord server](https://discord.gg/TYDZeruQ7N) for help and discussions.
+Enjoying the library? Don't forget to leave a ⭐️ 😄.
+
+## Links
+- [Discord server](https://discord.gg/TYDZeruQ7N)
+- [Changelog](https://discord-swift.gitbook.io/discord.swift/resources/changelog)
+- [Documentation](https://discord-swift.gitbook.io/discord.swift/resources/documentation)
+- [Setup guide](https://discord-swift.gitbook.io/discord.swift/overview/getting-started)
 
 ## Key Features
 - Asynchronous functionality using `async` and `await`.
