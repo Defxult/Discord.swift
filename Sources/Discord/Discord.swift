@@ -384,7 +384,7 @@ public class Discord {
      try await createDm(with: 123456789012345).send(...)
      ```
      - Parameter with: The  ID of the user to create the DM channel for.
-     - Returns: The newly created DM channel.
+     - Returns: The newly created DM channel. If one already exists it will be returned instead.
      */
     public func createDm(with: Snowflake) async throws -> DMChannel {
         let dmCh = try await http.createDm(recipientId: with)
