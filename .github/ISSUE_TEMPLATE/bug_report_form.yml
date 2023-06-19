@@ -1,5 +1,5 @@
 name: Bug Report
-description: Create a report to help us improve
+description: Report something that isn't working/is broken.
 labels: unconfirmed bug
 body:
   - type: markdown
