@@ -454,10 +454,12 @@ public class Discord {
     }
     
     /// Retrieve a member from the bots internal cache.
-    /// - Parameter id: The ID of the member.
+    /// - Parameters:
+    ///   - id: The ID of the member.
+    ///   - in: The ID of the guild.
     /// - Returns: The member matching the provided ID, or `nil` if not found.
-    public func getMember(_ id: Snowflake) -> Member? {
-        for guild in guilds {
+    public func getMember(_ id: Snowflake, in guildId: Snowflake) -> Member? {
+        if let guild = getGuild(guildId) {
             if let member = guild.getMember(id) { return member }
         }
         return nil

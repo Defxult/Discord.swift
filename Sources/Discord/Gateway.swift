@@ -623,7 +623,7 @@ class WSGateway {
             let userId = Conversions.snowflakeToUInt(userObj["id"])
             let guildId = getGuildIdFromJSON(data)
             
-            if let member = bot.getMember(userId) {
+            if let member = bot.getMember(userId, in: guildId) {
                 dispatch({ await $0.onGuildMemberRemove(member: member) })
                 member.guild.removeMemberFromCache(member.id)
             }
