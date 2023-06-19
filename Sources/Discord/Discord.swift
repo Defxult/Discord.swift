@@ -68,6 +68,16 @@ public class Discord {
         return e
     }
     
+    /// All channels the bot has access to.
+    public var channels: [Channel] {
+        var channels = [Channel]()
+        channels.append(contentsOf: dms.map({ $0 }))
+        guilds.forEach({ g in
+            channels.append(contentsOf: g.channels)
+        })
+        return channels
+    }
+    
     /// Whether to ignore direct messages.
     ///
     /// If set to `true`, the following will be changed:
