@@ -154,7 +154,7 @@ public class Guild : Object, Hashable, Updateable  {
     /// The scheduled events in the guild.
     public internal(set) var scheduledEvents = [ScheduledEvent]()
     
-    /// Members voice connection status.
+    /// Member voice connection statuses.
     public internal(set) var voiceStates = [VoiceChannel.State]()
 
     // --------------------------------------------------------------------------------------------------------------------

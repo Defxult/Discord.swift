@@ -76,6 +76,13 @@ public class Discord {
         return channels
     }
     
+    /// All member voice connection statuses.
+    public var voiceStates: [VoiceChannel.State] {
+        var voiceStates = [VoiceChannel.State]()
+        guilds.forEach({ g in voiceStates.append(contentsOf: g.voiceStates)})
+        return voiceStates
+    }
+    
     /// Whether to ignore direct messages.
     ///
     /// If set to `true`, the following will be changed:
