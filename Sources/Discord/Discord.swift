@@ -167,7 +167,7 @@ public class Discord {
         }
     }
     
-    /// Retrieve all global application commands.
+    /// Retrieve all global application commands. If you need the commands for a specific guild, use ``Guild/applicationCommands()``.
     /// - Returns: All global application commands.
     public func applicationCommands() async throws -> [ApplicationCommand] {
         return try await http.getGlobalApplicationCommands(botId: try await getClientID())

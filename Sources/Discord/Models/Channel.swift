@@ -1465,10 +1465,10 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
 
     // --------- The below properties are apart of the thread metadata ---------
     
-    /// Whether the thread is archived.
+    /// Whether the thread is archived (closed).
     public internal(set) var archived: Bool
     
-    /// When to automatically archive the thread.
+    /// When to automatically archive (close) the thread.
     public internal(set) var autoArchiveDuration: ArchiveDuration
     
     /// Timestamp when the thread's archive status was last changed.
@@ -1526,7 +1526,7 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
         createdAt = metadata["create_timestamp"] as? String == nil ? nil : Conversions.stringDateToDate(iso8601: metadata["create_timestamp"] as! String)
     }
     
-    /// Archive the thread.
+    /// Archive (close) the thread.
     public func archive() async throws {
         try await edit(.archived(true))
     }
@@ -1621,10 +1621,10 @@ extension ThreadChannel {
         /// The channels name.
         case name(String)
 
-        /// Whether the thread is archived.
+        /// Whether the thread is archived (closed).
         case archived(Bool)
 
-        /// The thread will stop showing in the channel list after x amount of minutes of inactivity
+        /// The thread will stop showing in the channel list after x amount of minutes of inactivity.
         case autoArchiveDuration(ThreadChannel.ArchiveDuration)
 
         /// Whether the thread is locked; when a thread is locked.
