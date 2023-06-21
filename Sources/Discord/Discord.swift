@@ -63,18 +63,16 @@ public class Discord {
     
     /// All emojis the bot has accesss to.
     public var emojis: Set<Emoji> {
-        var e = Set<Emoji>()
-        guilds.forEach({ g in e.formUnion(g.emojis) })
-        return e
+        var emojis = Set<Emoji>()
+        guilds.forEach({ g in emojis.formUnion(g.emojis) })
+        return emojis
     }
     
     /// All channels the bot has access to.
     public var channels: [Channel] {
         var channels = [Channel]()
         channels.append(contentsOf: dms.map({ $0 }))
-        guilds.forEach({ g in
-            channels.append(contentsOf: g.channels)
-        })
+        guilds.forEach({ g in channels.append(contentsOf: g.channels) })
         return channels
     }
     
@@ -338,6 +336,8 @@ public class Discord {
         }
     }
     
+    // Get the bot ID. If it's connected to Discord, get it from the `ClientUser`.
+    // Otherwise, get it via `applicationInfo()`
     func getClientID() async throws -> Snowflake {
         if let user { return user.id }
         else { return (try await applicationInfo()).id }
