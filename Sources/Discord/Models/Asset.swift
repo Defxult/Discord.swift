@@ -54,7 +54,7 @@ public struct Asset {
         }
     }
     
-    /// Convert the asset into a file.
+    /// Converts the contents of the asset to a ``File``.
     /// - Returns: The file representation of the asset.
     public func download() async throws -> File {
         try await File.download(urls: [URL(string: url)!]).first!

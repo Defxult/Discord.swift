@@ -631,11 +631,9 @@ extension Message {
         }
         
         /// Converts the contents of the attachment to a ``File``.
-        /// - Returns: The file. Additionally, the raw `Data` of the file can be accessed via file ``File/data``.
-        public func toFile() async throws -> File {
-            let req = URLRequest(url: URL(string: url)!)
-            let data = try await URLSession.shared.data(for: req).0
-            return .init(name: filename, using: data)
+        /// - Returns: The file representation of the attachment.
+        public func download() async throws -> File {
+            try await File.download(urls: [URL(string: url)!]).first!
         }
     }
     
