@@ -604,7 +604,7 @@ extension Embed {
     /// Represents an embeds video information.
     public struct Video {
 
-        /// Source URL of image. Only supports HTTP(S).
+        /// Source URL of video. Only supports HTTP(S).
         public let url: String?
         
         /// Height of image.

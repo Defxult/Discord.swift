@@ -146,7 +146,6 @@ extension Messageable {
     /**
      Trigger the typing indicator in the channel. Each trigger lasts 10 seconds unless a message is sent sooner. If you need more than 10 seconds, use the `while` parameter.
      
-     - Parameter while: Code block to execute. If the workload will take longer than 10 seconds, this will continuously display the typing indicator until a message is sent (see discussion).
      ```swift
      try await channel.triggerTyping(while: {
         // Heavy lifting code...
@@ -161,6 +160,7 @@ extension Messageable {
         try! await channel.send("...")
      })
      ```
+     - Parameter while: Code block to execute. If the workload will take longer than 10 seconds, this will continuously display the typing indicator until a message is sent (see discussion).
      */
     public func triggerTyping(while: (() async -> Void)? = nil) async throws {
         if let closure = `while` {

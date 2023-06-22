@@ -587,10 +587,10 @@ extension Message {
         /// Size of file in bytes.
         public let size: Int
         
-        /// Source url of file.
+        /// Source URL of file.
         public let url: String
         
-        /// A proxied url of file.
+        /// A proxied URL of file.
         public let proxyUrl: String
         
         /// Height of file (if image).

@@ -70,7 +70,7 @@ public struct Emoji : Object, CustomStringConvertible, Hashable {
      The actual representation of the emoji.
      
      ```swift
-     let crownEmoji = guild.getEmoji(1234567890123456789)
+     let crownEmoji = guild.getEmoji(1234567890123456789)!
      try await channel.send(crownEmoji.description)
      // Sends "👑"
      ```
