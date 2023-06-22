@@ -25,7 +25,7 @@ DEALINGS IN THE SOFTWARE.
 import Foundation
 
 /// Represents a Discord CDN.
-public struct Asset {
+public struct Asset : Downloadable {
 
     /// The hash value of the asset.
     public let hash: String
@@ -53,10 +53,21 @@ public struct Asset {
             fatalError("Path must start with /")
         }
     }
+}
+
+/// Represents an object that has a URL where its contents can be converted into a ``File``.
+public protocol Downloadable {
     
-    /// Converts the contents of the asset to a ``File``.
-    /// - Returns: The file representation of the asset.
-    public func download() async throws -> File {
-        try await File.download(urls: [URL(string: url)!]).first!
+    /// The URL of the object.
+    var url: String { get }
+}
+
+extension Downloadable {
+    
+    /// Converts the contents of the objects URL into a ``File``. For successful conversion, the URL of the downloadable
+    /// must match the specifications of parameter `urls` in ``File/download(urls:)``.
+    /// - Returns: The file representation of the URL, or `nil` if the conversion failed.
+    public func download() async throws -> File? {
+        try await File.download(urls: [URL(string: url)!]).first
     }
 }

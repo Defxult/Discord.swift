@@ -25,7 +25,7 @@ DEALINGS IN THE SOFTWARE.
 import Foundation
 
 /// Represents a Discord guild emoji.
-public struct Emoji : Object, CustomStringConvertible, Hashable {
+public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
     
     /// Emoji ID.
     public let id: Snowflake

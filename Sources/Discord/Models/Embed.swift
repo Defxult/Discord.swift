@@ -552,7 +552,7 @@ extension Embed {
     }
 
     /// Represents an embed image.
-    public struct Image: Imageable {
+    public struct Image: Imageable, Downloadable {
         
         /// Source URL of image. Only supports HTTP(S).
         public let url: String
@@ -577,7 +577,7 @@ extension Embed {
     }
 
     /// Represents an embed thumbnail.
-    public struct Thumbnail: Imageable {
+    public struct Thumbnail: Imageable, Downloadable {
 
         /// Source URL of image. Only supports HTTP(S).
         public let url: String

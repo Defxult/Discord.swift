@@ -570,7 +570,7 @@ extension Message {
     }
 
     /// Represents a message attachment.
-    public struct Attachment {
+    public struct Attachment : Downloadable {
         
         /// Attachment ID.
         public let id: Snowflake
@@ -628,12 +628,6 @@ extension Message {
                 "weight": width as Any,
                 "ephemeral": ephemeral
             ]
-        }
-        
-        /// Converts the contents of the attachment to a ``File``.
-        /// - Returns: The file representation of the attachment.
-        public func download() async throws -> File {
-            try await File.download(urls: [URL(string: url)!]).first!
         }
     }
     
