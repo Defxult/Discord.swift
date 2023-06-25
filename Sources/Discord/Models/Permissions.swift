@@ -235,22 +235,24 @@ public class Permissions {
 /// Represents the permission overwrites for a channel.
 public struct PermissionOverwrites {
     
-    /// The ``Member`` or ``Role`` to set overwrites for.
-    public internal(set) var target: Object
+    /// The overwrite type.
+    public let type: OverwriteType
     
-    /// The permissions that will be enabled.
-    public internal(set) var enabled = Set<Permission>()
+    /// ID of the ``Member`` or ``Role`` that the overwrites will be applied to.
+    public let id: Snowflake
     
-    /// The permissions that will be disabled.
-    public internal(set) var disabled = Set<Permission>()
+    /// The permissions that are enabled.
+    public let enabled: Set<Permission>
+    
+    /// The permissions that are disabled.
+    public let disabled: Set<Permission>
     
     private var allowedBitSet = 0
     private var deniedBitSet = 0
     
-    init(guild: Guild, overwriteData: JSON) {
-        let snowflake = Conversions.snowflakeToUInt(overwriteData["id"])
-        let typeValue = overwriteData["type"] as! Int
-        target = typeValue == 0 ? guild.getRole(snowflake)! : guild.getMember(snowflake)!
+    init(overwriteData: JSON) {
+        id = Conversions.snowflakeToUInt(overwriteData["id"])
+        type = OverwriteType(rawValue: overwriteData["type"] as! Int)!
         
         let allowedValue = Int(overwriteData["allow"] as! String) ?? 0
         let deniedValue = Int(overwriteData["deny"] as! String) ?? 0
@@ -262,14 +264,13 @@ public struct PermissionOverwrites {
     
     /// Set permissions to be enabled or disabled.
     /// - Parameters:
-    ///   - target: The target to set overwrites for. Must be a ``Member`` or ``Role`` object.
-    ///   - enable: The permissions that will be enabled.
-    ///   - disable: The permissions that will be disabled.
-    /// - Note: This initializer is failable and will fail if parameter `for` is not a ``Member`` or ``Role`` object.
-    public init?(for target: Object, enable: Set<Permission>, disable: Set<Permission>) {
-        if target is Member == false && target is Role == false { return nil }
-        
-        self.target = target
+    ///   - type: The overwrite type.
+    ///   - id: ID of the ``Member`` or ``Role`` that the overwrites will be applied to.
+    ///   - enable: Permissions to enable.
+    ///   - disable: Permissions to disable.
+    public init(for type: OverwriteType, id: Snowflake, enable: Set<Permission>, disable: Set<Permission>) {
+        self.type = type
+        self.id = id
         enabled = enable
         disabled = disable
         
@@ -279,10 +280,10 @@ public struct PermissionOverwrites {
     
     func convert() -> JSON {
         return [
-            "id": target.id,
-            "type": target is Member ? 1 : 0,
-            "allow": String(allowedBitSet),
-            "deny": String(deniedBitSet)
+            "id": id,
+            "type": type.rawValue,
+            "allow": allowedBitSet.description,
+            "deny": deniedBitSet.description
         ]
     }
 

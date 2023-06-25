@@ -495,7 +495,7 @@ class HTTPClient {
     /// Edit the channel permission overwrites for a user or role in a channel
     /// https://discord.com/developers/docs/resources/channel#edit-channel-permissions
     func editChannelPermissions(channelId: Snowflake, overwrites: PermissionOverwrites, reason: String?) async throws {
-        _ = try await request(.put, route("/channels/\(channelId)/permissions/\(overwrites.target.id)"), json: overwrites.convert(), additionalHeaders: withReason(reason))
+        _ = try await request(.put, route("/channels/\(channelId)/permissions/\(overwrites.id)"), json: overwrites.convert(), additionalHeaders: withReason(reason))
     }
     
     /// Returns a list of invite objects (with invite metadata) for the channel.

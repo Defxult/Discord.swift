@@ -52,17 +52,12 @@ func determineGuildChannelType(type: Int, data: JSON, bot: Discord, guildId: Sno
     return temp
 }
 
-fileprivate func getOverwritesFromGuild(guild: Guild, permOverwritesObjs: [JSON]) -> [PermissionOverwrites]? {
-    let intents = guild.bot!.intents
-    if intents.contains(.guilds) && intents.contains(.guildMembers) {
-        var ovrw = [PermissionOverwrites]()
-        for overwritesObj in permOverwritesObjs {
-            ovrw.append(PermissionOverwrites(guild: guild, overwriteData: overwritesObj))
-        }
-        return ovrw
-    } else {
-        return nil
-    }
+fileprivate func getChannelOverwrites(_ overwrites: [JSON]) -> [PermissionOverwrites] {
+    var ovrw = [PermissionOverwrites]()
+    overwrites.forEach({ obj in
+        ovrw.append(.init(overwriteData: obj))
+    })
+    return ovrw
 }
 
 /// Represents a channel where messages are able to be sent.
@@ -253,7 +248,7 @@ public protocol GuildChannel : Channel {
     var lastMessageId: Snowflake? { get }
     
     /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will return `nil`.
-    var overwrites: [PermissionOverwrites]? { get }
+    var overwrites: [PermissionOverwrites] { get }
     
     /// The channel name.
     var name: String { get }
@@ -329,7 +324,7 @@ extension GuildChannel {
     /// - Returns: The overwrites matching the parameters.
     /// - Note: The method is only available for non-thread channels.
     public func getOverwrites(for item: Object) -> PermissionOverwrites? {
-        overwrites?.first(where: { $0.target.id == item.id })
+        overwrites.first(where: { $0.id == item.id })
     }
     
     /// Update the channel overwrites.
@@ -391,8 +386,8 @@ public class CategoryChannel : GuildChannel, Hashable {
     /// Your bot instance.
     public weak private(set) var bot: Discord?
     
-    /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will return `nil`.
-    public var overwrites: [PermissionOverwrites]? { getOverwritesFromGuild(guild: guild, permOverwritesObjs: overwriteData) }
+    /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will be empty.
+    public var overwrites: [PermissionOverwrites] { getChannelOverwrites(overwriteData) }
     var overwriteData: [JSON]
     
     // ---------- API Separated ----------
@@ -539,8 +534,8 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     /// When the last pinned message was pinned.
     public internal(set) var lastPinned: Date?
     
-    /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will return `nil`.
-    public var overwrites: [PermissionOverwrites]? { getOverwritesFromGuild(guild: guild, permOverwritesObjs: overwriteData) }
+    /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will be empty.
+    public var overwrites: [PermissionOverwrites] { getChannelOverwrites(overwriteData) }
     var overwriteData: [JSON]
 
     /// Your bot instance.
@@ -812,8 +807,8 @@ public class ForumChannel : GuildChannel, Hashable {
     /// The channels flag.
     public internal(set) var flag: Flag?
     
-    /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will return `nil`.
-    public var overwrites: [PermissionOverwrites]? { getOverwritesFromGuild(guild: guild, permOverwritesObjs: overwriteData) }
+    /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will be empty.
+    public var overwrites: [PermissionOverwrites] { getChannelOverwrites(overwriteData) }
     var overwriteData: [JSON]
     
     /// Your bot instance
@@ -1160,8 +1155,8 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
     /// Voice region ID for the voice channel.
     public internal(set) var rtcRegion: RtcRegion?
     
-    /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will return `nil`.
-    public var overwrites: [PermissionOverwrites]? { getOverwritesFromGuild(guild: guild, permOverwritesObjs: overwriteData) }
+    /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will be empty.
+    public var overwrites: [PermissionOverwrites] { getChannelOverwrites(overwriteData) }
     var overwriteData: [JSON]
 
     /// Your bot instance.
@@ -1437,8 +1432,8 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     /// The amount of messages in the thread.
     public internal(set) var messageCount: Int
     
-    /// Permission overwrites for the channel. Will always be `nil` for a thread channel.
-    public let overwrites: [PermissionOverwrites]? = nil
+    /// Permission overwrites for the channel. Will always be empty for a thread channel.
+    public let overwrites = [PermissionOverwrites]()
     
     /// The ID of the last message sent in the thread.
     public internal(set) var lastMessageId: Snowflake?
