@@ -161,7 +161,7 @@ public class Message : Object, Hashable, Updateable {
 
     // ------------------------------ API Separated -----------------------------------
     
-    /// The author of this message but optionally returns the ``Member`` object instead. This depends on whether the member has been cached in the guild.
+    /// The ``author`` of this message but optionally returns their ``Member`` object instead. This depends on whether the member has been cached in the guild.
     /// If the member is not cached, the proper ``Discord/intents`` were not set. You can also get the member object via ``Guild/requestMember(_:)``.
     public var member: Member? { guild?.getMember(author.id) }
 
@@ -311,7 +311,6 @@ public class Message : Object, Hashable, Updateable {
                 let newUI = UI.convertFromPayload((v as? [JSON]) ?? [])
                 newUI?.onInteraction = ui?.onInteraction ?? { _ in }
                 ui = newUI
-                break
             case "pinned":
                 isPinned = v as! Bool
             default:
@@ -530,7 +529,7 @@ extension Message {
         /// Files attached to the message. To remove all files, provide an empty array.
         case files([File])
         
-        /// Thew new UI for the message.
+        /// The new UI for the message.
         case ui(UI)
     }
 
@@ -795,13 +794,13 @@ public struct AllowedMentions {
     public var exemptRoles = Set<Role>()
     
     /// An `AllowedMentions` object with everything enabled.
-    public static var all: AllowedMentions { .init(users: true, roles: true, repliedUser: true, everyone: true) }
+    public static let all = AllowedMentions(users: true, roles: true, repliedUser: true, everyone: true)
     
     /// An `AllowedMentions` object with only `users` and `repliedUser` enabled.
-    public static var `default`: AllowedMentions { .init(users: true, roles: false, repliedUser: true, everyone: false) }
+    public static let `default` = AllowedMentions(users: true, roles: false, repliedUser: true, everyone: false)
     
     /// An `AllowedMentions` object with everything disabled.
-    public static var none: AllowedMentions { .init(users: false, roles: false, repliedUser: false, everyone: false) }
+    public static let none = AllowedMentions(users: false, roles: false, repliedUser: false, everyone: false)
     
     /// Initializes a new allowed mentions object.
     /// - Parameters:
