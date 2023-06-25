@@ -14,7 +14,7 @@ A Discord API library written in Swift, kept up-to-date with the latest features
 Enjoying the library? Don't forget to leave a ⭐️ 😄.
 
 ## Links
-- [Discord server](https://discord.gg/TYDZeruQ7N)
+- [Discord support server](https://discord.gg/TYDZeruQ7N)
 - [Changelog](https://discord-swift.gitbook.io/discord.swift/resources/changelog)
 - [Documentation](https://discord-swift.gitbook.io/discord.swift/resources/documentation)
 - [Setup guide](https://discord-swift.gitbook.io/discord.swift/overview/getting-started)
@@ -29,7 +29,6 @@ Enjoying the library? Don't forget to leave a ⭐️ 😄.
     - [x] Buttons
     - [x] Select menus
     - [x] Modals/text input
-- Implementation of the latest Discord API updates.
 
 ## Application Commands Example
 ```swift
