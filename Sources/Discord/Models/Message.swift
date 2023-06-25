@@ -728,7 +728,7 @@ extension Message {
         public let guildId: Snowflake?
 
         /// When sending, whether to error if the referenced message doesn't exist instead of sending as a normal (non-reply) message.
-        public let failIfNotExists: Bool = true
+        public var failIfNotExists = true
 
         init(messageId: Snowflake?, channelId: Snowflake?, guildId: Snowflake?) {
             self.messageId = messageId
