@@ -264,7 +264,7 @@ public struct PermissionOverwrites {
     
     /// Set permissions to be enabled or disabled.
     /// - Parameters:
-    ///   - type: The overwrite type.
+    ///   - for: The overwrite type.
     ///   - id: ID of the ``Member`` or ``Role`` that the overwrites will be applied to.
     ///   - enable: Permissions to enable.
     ///   - disable: Permissions to disable.
