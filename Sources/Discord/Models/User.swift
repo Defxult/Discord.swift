@@ -84,7 +84,7 @@ public class User : Object, Updateable, Hashable {
         banner = bannerHash != nil ? Asset(hash: bannerHash!, fullURL: "/banners/\(id)/\(Asset.imageType(hash: bannerHash!))") : nil
         
         let flagValue = userData["public_flags"] as? Int
-        if let flagValue = flagValue {
+        if let flagValue {
             publicUserFlags = PublicUserFlags.getUserFlags(userFlagValue: flagValue)
         }
 

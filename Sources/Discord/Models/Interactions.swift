@@ -71,7 +71,7 @@ public struct ApplicationCommand {
     /// Description localizations for the command.
     public private(set) var descriptionLocalizations: [Locale: String]?
     
-    /// Parameters for the command if it's type is ``ApplicationCommandType/slashCommand``, max of 25.
+    /// Parameters for the command if its type is ``ApplicationCommandType/slashCommand``, max of 25.
     public private(set) var options: [ApplicationCommandOption]?
     
     /// Default permissions for members.

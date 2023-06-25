@@ -357,7 +357,7 @@ public class Discord {
     }
     
     /// Connect to Discord.
-    /// - Attention: This function is blocking to maintain the connection to Discord.
+    /// - Attention: This method is blocking to maintain the connection to Discord.
     public func connect() async throws {
         // Gateway
         let gateway = try await http.getGateway()
@@ -573,7 +573,6 @@ public struct Version : CustomStringConvertible {
 
 /// The current release level of the library.
 public enum ReleaseLevel {
-    case preAlpha
     case alpha
     case beta
     case rc

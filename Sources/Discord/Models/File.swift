@@ -30,7 +30,7 @@ public struct File {
     /// The absolute path of the file.
     public let path: String
     
-    /// Name of the file including it's extension.
+    /// Name of the file including its extension.
     public let name: String
     
     /// Data representaion of the file.
@@ -41,7 +41,7 @@ public struct File {
     
     /// Initializes a new a file using the direct patch of an existing file.
     /// - Parameters:
-    ///   - name: The name of the file **to include** it's file extension.
+    ///   - name: The name of the file **to include** its file extension.
     ///   - path: The *absolute path* of the file from which to read.
     public init(name: String, path: String) throws {
         self.name = name
@@ -55,9 +55,9 @@ public struct File {
         }
     }
     
-    /// Create a file by using it's name and data.
+    /// Create a file by using its name and data.
     /// - Parameters:
-    ///   - name: Name of the file **to include** it's file extension.
+    ///   - name: Name of the file **to include** its file extension.
     ///   - using: The files data.
     /// - Note: The file extension should match the data being used. For example, if the data you're *using* is a text file, the *name* should be "Example.txt".
     public init(name: String, using: Data) {

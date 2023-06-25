@@ -136,7 +136,7 @@ class HTTPClient {
     
     
     
-    // MARK: HTTP Functions
+    // MARK: HTTP Methods
     
     
     
@@ -337,7 +337,7 @@ class HTTPClient {
     
     
     
-    // MARK: Other HTTP Functions
+    // MARK: Other HTTP Methods
     
     /// Returns the guilds onboarding.
     /// https://discord.com/developers/docs/resources/guild#get-guild-onboarding
@@ -427,7 +427,7 @@ class HTTPClient {
     /// https://discord.com/developers/docs/resources/channel#crosspost-message
     func crosspostMessage(channelId: Snowflake, messageId: Snowflake) async throws {
         // This returns the same exact message that was crossposted (publushed), but there's
-        // no point in returning the same message when you have access to said message to use this function
+        // no point in returning the same message when you have access to said message to use this method
         _ = try await request(.post, route("/channels/\(channelId)/messages/\(messageId)/crosspost"), json: [:]) as! JSON
     }
     

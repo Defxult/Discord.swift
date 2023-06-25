@@ -137,7 +137,7 @@ public struct Color {
     }
     
     // If the HTTP POST request color value is < 0 or > `.maximumColorValue`
-    // an HTTP bad request error occurs (invalid form body). This function simply
+    // an HTTP bad request error occurs (invalid form body). This method simply
     // verifies/corrects the value so that doesn't occur.
     private static func verifyValue(_ value: Int) -> Int {
         value < 0 ? 0 : min(value, maximumColorValue)

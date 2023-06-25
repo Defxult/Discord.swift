@@ -330,7 +330,7 @@ class WSGateway {
                 if interaction.type == .applicationCommand {
                     await appCmd.onInteraction(interaction)
                 } else {
-                    // Find the options and it's suggestion that matches the currently dispatched
+                    // Find the options and its suggestion that matches the currently dispatched
                     if let dataOptions = appData.options {
                         let autocompleteName = dataOptions.last!.name
                         if let cmdOptions = appCmd.options {
@@ -1638,7 +1638,7 @@ open class EventListener {
     /// - `messageId`: The ID of the message that was reacted to.
     /// - `emoji`: The emoji that was added.
     /// - `guildId`: The guild ID where the reaction took place. Will be `nil` if it's a DM.
-    /// - `member`: The member who reaction to the message. Will be `nil` if it's a DM.
+    /// - `member`: The member who reacted to the message. Will be `nil` if it's a DM.
     ///
     /// - Parameter payload: The raw event payload information.
     /// - Requires: Intent ``Intents/guildMessageReactions`` and or ``Intents/dmReactions``.

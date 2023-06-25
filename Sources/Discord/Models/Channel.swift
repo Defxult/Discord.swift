@@ -327,7 +327,7 @@ extension GuildChannel {
     /// Get the channel overwrites.
     /// - Parameter for: The ``Member`` or ``Role`` to retrieve the overwrites for.
     /// - Returns: The overwrites matching the parameters.
-    /// - Note: The function is only available for non-thread channels.
+    /// - Note: The method is only available for non-thread channels.
     public func getOverwrites(for item: Object) -> PermissionOverwrites? {
         overwrites?.first(where: { $0.target.id == item.id })
     }
@@ -593,7 +593,7 @@ public class TextChannel : GuildChannelMessageable, Hashable {
      }
      ```
      Each iteration of the for-loop contains batched threads. Meaning `threads` will be an array of at most 50 threads. You will receive batched threads until
-     all threads matching the function parameters are fully received.
+     all threads matching the method parameters are fully received.
      
      - Parameters:
         - before: Returns threads before this date.
@@ -869,7 +869,7 @@ public class ForumChannel : GuildChannel, Hashable {
      }
      ```
      Each iteration of the for-loop contains batched threads. Meaning `threads` will be an array of at most 50 threads. You will receive batched threads until
-     all threads matching the function parameters are fully received.
+     all threads matching the method parameters are fully received.
      
      - Parameters:
         - before: Returns threads before this date.

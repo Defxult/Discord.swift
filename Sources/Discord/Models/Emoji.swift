@@ -286,7 +286,7 @@ public class Reaction {
      }
      ```
      Each iteration of the async for-loop contains batched users. Meaning `users` will be an array of at most 100 users. You will receive batched users until
-     all users matching the function parameters are fully received.
+     all users matching the method parameters are fully received.
      
      - Parameters:
         - limit: The amount of users to return. If `nil`, all users will be returned. The more users, the longer this will take.

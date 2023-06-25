@@ -398,7 +398,7 @@ public class Guild : Object, Hashable, Updateable  {
      }
      ```
      Each iteration of the async for-loop contains batched entries. Meaning `entries` will be an array of at most 1000 entries. You will receive batched entries until
-     all entries matching the function parameters are fully received.
+     all entries matching the method parameters are fully received.
      
      - Parameters:
         - limit: Number of entries to return. If `nil`, all entries are returned. The more banned users, the longer this will take.
@@ -428,7 +428,7 @@ public class Guild : Object, Hashable, Updateable  {
         name: String,
         eventType: AutoModerationRule.EventType,
         triggerType: AutoModerationRule.TriggerType,
-        metadata: AutoModerationRule.Metadata?, // Only when it's `TriggerType.spam`, this can be `nil`
+        metadata: AutoModerationRule.Metadata?, // Only when its `TriggerType.spam`, this can be `nil`
         actions: [AutoModerationRule.Action],
         enabled: Bool = false,
         exemptRoles: [Role]? = nil,
@@ -933,7 +933,7 @@ public class Guild : Object, Hashable, Updateable  {
      }
      ```
      Each iteration of the async for-loop contains batched members. Meaning `members` will be an array of at most 1000 members. You will receive batched members until
-     all members matching the function parameters are fully received.
+     all members matching the method parameters are fully received.
      
      - Parameters:
         - limit: The amount of members to return. If `nil`, all members will be returned. The larger the guild, the longer this will take.
@@ -1251,7 +1251,7 @@ extension Guild {
         private func req(limit: Int, before: Snowflake, after: Snowflake) async throws -> [JSON] {
             // Set the values to `nil` if 0. `http.getGuildBans()` doesnt take into account that 0
             // means `nil` in this context. So change that ourselves here to prevent both URL queries
-            // from being added unless intentionally added via function call.
+            // from being added unless intentionally added via method call.
             let newBefore = before == 0 ? nil : before
             let newAfter = after == 0 ? nil : after
             
@@ -2132,7 +2132,7 @@ extension Guild {
          }
          ```
          Each iteration of the async for-loop contains batched users. Meaning `users` will be an array of at most 100 users. You will receive batched users until
-         all users matching the function parameters are fully received.
+         all users matching the method parameters are fully received.
          
          - Parameters:
             - limit: Number of users to return. If `nil`, all users will be returned. The more users who are subscribed, the longer this will take.
@@ -2184,7 +2184,7 @@ extension Guild {
         // which also supports channels and roles. Given the fact that when recieving a template, you don't
         // have access to the source guild. Meaning almost all of `Guild`s methods/properties would be useless.
         // The source guild ID is still availabe, and if someone really wants to access the guild, I think it's
-        // better to just use .requestGuild() to access all it's features if the bot shares that guild.
+        // better to just use .requestGuild() to access all its features if the bot shares that guild.
         
         // -------------- API Separated --------------
         
@@ -2331,7 +2331,7 @@ extension Guild.ScheduledEvent {
         private func req(limit: Int, before: Snowflake, after: Snowflake) async throws -> [JSON] {
             // Set the values to `nil` if 0. `http.getGuildScheduledEventUsers()` doesnt take into account that 0
             // means `nil` in this context. So change that ourselves here to prevent both URL queries
-            // from being added unless intentionally added in the function call.
+            // from being added unless intentionally added in the method call.
             let newBefore = before == 0 ? nil : before
             let newAfter = after == 0 ? nil : after
             
