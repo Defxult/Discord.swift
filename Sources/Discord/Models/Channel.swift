@@ -52,7 +52,7 @@ func determineGuildChannelType(type: Int, data: JSON, bot: Discord, guildId: Sno
     return temp
 }
 
-fileprivate func getChannelOverwrites(_ overwrites: [JSON]) -> [PermissionOverwrites] {
+fileprivate func buildChannelOverwrites(_ overwrites: [JSON]) -> [PermissionOverwrites] {
     var ovrw = [PermissionOverwrites]()
     overwrites.forEach({ obj in
         ovrw.append(.init(overwriteData: obj))
@@ -387,7 +387,7 @@ public class CategoryChannel : GuildChannel, Hashable {
     public weak private(set) var bot: Discord?
     
     /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will be empty.
-    public var overwrites: [PermissionOverwrites] { getChannelOverwrites(overwriteData) }
+    public var overwrites: [PermissionOverwrites] { buildChannelOverwrites(overwriteData) }
     var overwriteData: [JSON]
     
     // ---------- API Separated ----------
@@ -535,7 +535,7 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     public internal(set) var lastPinned: Date?
     
     /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will be empty.
-    public var overwrites: [PermissionOverwrites] { getChannelOverwrites(overwriteData) }
+    public var overwrites: [PermissionOverwrites] { buildChannelOverwrites(overwriteData) }
     var overwriteData: [JSON]
 
     /// Your bot instance.
@@ -808,7 +808,7 @@ public class ForumChannel : GuildChannel, Hashable {
     public internal(set) var flag: Flag?
     
     /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will be empty.
-    public var overwrites: [PermissionOverwrites] { getChannelOverwrites(overwriteData) }
+    public var overwrites: [PermissionOverwrites] { buildChannelOverwrites(overwriteData) }
     var overwriteData: [JSON]
     
     /// Your bot instance
@@ -1156,7 +1156,7 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
     public internal(set) var rtcRegion: RtcRegion?
     
     /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will be empty.
-    public var overwrites: [PermissionOverwrites] { getChannelOverwrites(overwriteData) }
+    public var overwrites: [PermissionOverwrites] { buildChannelOverwrites(overwriteData) }
     var overwriteData: [JSON]
 
     /// Your bot instance.
