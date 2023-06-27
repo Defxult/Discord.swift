@@ -23,7 +23,7 @@ DEALINGS IN THE SOFTWARE.
  */
 
 /// Represents a color on Discord.
-public struct Color {
+public struct Color : Hashable {
 
     private static let maximumColorValue = 16_777_215
     
@@ -98,6 +98,7 @@ public struct Color {
     public var value: Int { didSet { value = Color.verifyValue(value) } }
     
     public static func == (lhs: Color, rhs: Color) -> Bool { lhs.value == rhs.value }
+    public func hash(into hasher: inout Hasher) { hasher.combine(value) }
 
     /// Initializes a new color.
     /// - Parameter value: A color value.

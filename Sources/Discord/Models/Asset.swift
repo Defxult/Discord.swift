@@ -25,7 +25,7 @@ DEALINGS IN THE SOFTWARE.
 import Foundation
 
 /// Represents a Discord CDN.
-public struct Asset : Downloadable {
+public struct Asset : Downloadable, Hashable {
 
     /// The hash value of the asset.
     public let hash: String
@@ -39,10 +39,9 @@ public struct Asset : Downloadable {
     public let animated: Bool
     
     // ----------------------
-
-    static func imageType(hash: String) -> String {
-        hash.starts(with: "a_") ? hash + ".gif" : hash + ".png"
-    }
+    
+    public static func == (lhs: Asset, rhs: Asset) -> Bool { lhs.url == rhs.url }
+    public func hash(into hasher: inout Hasher) { hasher.combine(url) }
 
     init(hash: String, fullURL: String) {
         self.hash = hash
@@ -52,6 +51,10 @@ public struct Asset : Downloadable {
         } else {
             fatalError("Path must start with /")
         }
+    }
+    
+    static func imageType(hash: String) -> String {
+        hash.starts(with: "a_") ? hash + ".gif" : hash + ".png"
     }
 }
 
