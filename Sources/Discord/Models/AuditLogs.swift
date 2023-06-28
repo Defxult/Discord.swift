@@ -123,7 +123,7 @@ extension AuditLog {
         /// Member was removed from the guild.
         case memberKick = 20
         
-        /// Members were pruned from the guild
+        /// Members were pruned from the guild.
         case memberPrune = 21
         
         /// Member was banned from the guild.

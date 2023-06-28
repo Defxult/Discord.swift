@@ -88,7 +88,7 @@ public class Webhook : Object {
     /// Edit the webhook.
     /// - Parameters:
     ///   - edits: The enum containing all values to be updated or removed for the webhook.
-    ///   - reason: The reason for editing the webhook. This shows up in the guilds audit-logs.
+    ///   - reason: The reason for editing the webhook. This shows up in the guilds audit-log.
     /// - Returns: The updated webhook.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> Webhook {

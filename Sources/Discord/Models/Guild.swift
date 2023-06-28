@@ -2033,7 +2033,7 @@ extension Guild {
         /// Edit the scheduled event.
         /// - Parameters:
         ///   - edits: Values that should be changed.
-        ///   - reason: The reason for editing the scheduled event. This shows up in the guilds audit-logs.
+        ///   - reason: The reason for editing the scheduled event. This shows up in the guilds audit-log.
         /// - Returns: The updated scheduled event.
         @discardableResult
         public func edit(_ edits: ScheduledEvent.Edit..., reason: String? = nil) async throws -> ScheduledEvent {

@@ -341,7 +341,7 @@ public class Message : Object, Hashable, Updateable {
     ///   - name: Name of the thread.
     ///   - autoArchiveDuration: Duration to automatically archive the thread after recent activity.
     ///   - slowmode: Amount of seconds a user has to wait before sending another message.
-    ///   - reason: The reason for creating the thread. This shows up in the guilds audit-logs.
+    ///   - reason: The reason for creating the thread. This shows up in the guilds audit-log.
     /// - Returns: The newly created thread.
     public func createThread(name: String, autoArchiveDuration: ThreadChannel.ArchiveDuration = .twentyfourHours, slowmode: Int? = nil, reason: String? = nil) async throws -> ThreadChannel {
         if isDmMessage { throw HTTPError.badRequest("Cannot create threads in DMs")  }
