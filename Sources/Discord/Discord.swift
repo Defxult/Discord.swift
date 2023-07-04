@@ -394,17 +394,17 @@ public class Discord {
     }
     
     /**
-     Creates a DM channel between the bot and the user with the provided ID.
+     Creates a DM channel between the bot and the user.
      
      Creating the DM channel does not automatically send the user a DM. That must be done separately:
      ```swift
-     try await createDm(with: 123456789012345).send(...)
+     try await createDm(with: user).send(...)
      ```
-     - Parameter with: The  ID of the user to create the DM channel for.
+     - Parameter with: The user to create the DM channel for.
      - Returns: The newly created DM channel. If one already exists it will be returned instead.
      */
-    public func createDm(with: Snowflake) async throws -> DMChannel {
-        let dmCh = try await http.createDm(recipientId: with)
+    public func createDm(with: User) async throws -> DMChannel {
+        let dmCh = try await http.createDm(recipientId: with.id)
         dms.update(with: dmCh)
         return dmCh
     }
