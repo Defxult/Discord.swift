@@ -2212,7 +2212,7 @@ extension Guild {
         }
         
         /// Edit the template.
-        /// - Parameter edits: Values that should be changed.
+        /// - Parameter edits: The enum containing all values to be updated or removed for the template.
         /// - Returns: The updated template.
         @discardableResult
         public func edit(_ edits: Template.Edit...) async throws -> Template {

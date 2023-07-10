@@ -136,7 +136,7 @@ public class Member : Object, Hashable {
     
     /// Edit the member.
     /// - Parameters:
-    ///   - edits: Values that should be changed.
+    ///   - edits: The enum containing all values to be updated or removed for the member.
     ///   - reason: The reason for editing the member. This shows up in the guilds audit log.
     /// - Returns: The updated member.
     @discardableResult
@@ -208,7 +208,7 @@ extension Member {
     /// Represents a ``Member``s flags.
     public enum Flag : Int, CaseIterable {
         
-        ///  Member has left and rejoined the guild.
+        /// Member has left and rejoined the guild.
         case didRejoin = 1
         
         /// Member has completed onboarding.

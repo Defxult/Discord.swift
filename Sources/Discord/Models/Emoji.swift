@@ -213,9 +213,7 @@ public struct PartialEmoji {
     }
     
     func convert() -> JSON {
-        var payload: JSON = [:]
-        payload["id"] = nullable(id)
-        payload["name"] = name
+        var payload: JSON = ["id": nullable(id), "name": name as Any]
         if let animated { payload["animated"] = animated }
         return payload
     }

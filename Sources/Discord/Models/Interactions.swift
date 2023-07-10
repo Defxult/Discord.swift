@@ -137,7 +137,7 @@ public struct ApplicationCommand {
     }
     
     /// Edit the application command.
-    /// - Parameter edits: Values that should be changed.
+    /// - Parameter edits: The enum containing all values to be updated or removed for the application command.
     /// - Returns: The updated application command.
     @discardableResult
     public func edit(_ edits: Edit...) async throws -> ApplicationCommand {
@@ -600,7 +600,7 @@ public struct ApplicationCommandOptionChoice {
 /// Represents the data specific to an interaction.
 public protocol InteractionData {}
 
-/// Represents a discord interaction.
+/// Represents a Discord interaction.
 public class Interaction {
     
     /// ID of the interaction.
@@ -829,7 +829,7 @@ public class Interaction {
         try await bot!.http.deleteOriginalInteractionResponse(botId: bot!.user!.id, interactionToken: token)
     }
     
-    /// Respond to a discord ping interaction. This is only used if you're recieving webhook-based interactions.
+    /// Respond to a Discord ping interaction. This is only used if you're recieving webhook-based interactions.
     public func respondWithPong() async throws {
         try await bot!.http.createInteractionResponse(
             interactionId: id,

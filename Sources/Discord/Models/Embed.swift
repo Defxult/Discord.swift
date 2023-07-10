@@ -523,11 +523,11 @@ extension Embed {
         case link = "link"
         
         static func getEmbedType(_ type: String) -> EmbedType {
-            // NOTE: When initially testing, I did run into a "auto_moderation_message" type. This occurs when a auto-moderation
+            // NOTE:
+            // When initially testing, I did run into a "auto_moderation_message" type. This occurs when a auto-moderation
             // message is sent. It's not officially documented (https://discord.com/developers/docs/resources/channel#embed-object-embed-types)
             // so it's better to just default as .rich
-            if let match = EmbedType(rawValue: type) { return match }
-            else { return .rich }
+            return EmbedType(rawValue: type) ?? .rich
         }
     }
 
@@ -570,9 +570,9 @@ extension Embed {
         }
         
         init(imageData: JSON) {
-            self.url = imageData["url"] as! String
-            self.height = imageData["height"] as? Int
-            self.width = imageData["width"] as? Int
+            url = imageData["url"] as! String
+            height = imageData["height"] as? Int
+            width = imageData["width"] as? Int
         }
     }
 
@@ -630,8 +630,8 @@ extension Embed {
         public let url: String?
 
         init(providerData: JSON) {
-            self.name = providerData["name"] as? String
-            self.url = providerData["url"] as? String
+            name = providerData["name"] as? String
+            url = providerData["url"] as? String
         }
     }
 
@@ -654,9 +654,9 @@ extension Embed {
         }
 
         init(authorData: JSON) {
-            self.name = authorData["name"] as! String
-            self.url = authorData["url"] as? String
-            self.iconUrl = authorData["icon_url"] as? String
+            name = authorData["name"] as! String
+            url = authorData["url"] as? String
+            iconUrl = authorData["icon_url"] as? String
         }
     }
 

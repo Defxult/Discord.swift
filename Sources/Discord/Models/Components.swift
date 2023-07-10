@@ -317,7 +317,7 @@ public class Button : Component, InternalComponent {
         self.emoji = emoji
         
         if style == .link { self.customId = String.empty }
-        else { self.customId = customId ?? String(arc4random()) }
+        else { self.customId = customId ?? arc4random().description }
         
         self.url = url
         self.disabled = disabled
@@ -586,7 +586,7 @@ public class TextInput : Component, InternalComponent {
     public var placeholder: String?
     
     /// Always `nil` for this component type.
-    public internal(set) var onInteraction: ((Interaction) async -> Void)? = nil
+    public let onInteraction: ((Interaction) async -> Void)? = nil
     
     /// Initializes a text input.
     /// - Parameters:

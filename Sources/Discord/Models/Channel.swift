@@ -869,8 +869,8 @@ public class ForumChannel : GuildChannel, Hashable {
      - Parameters:
         - before: Returns threads before this date.
         - limit: The amount of threads to retrieve.
-        - private: Whether to retrieve private archived threads.
         - joined: Whether to retrieve private archived threads that you’ve joined. You cannot set this to `true` and `private` to `false`.
+        - private: Whether to retrieve private archived threads.
      - Returns: The threads matching the parameters.
      - Note: Setting parameters `joined` & `private` to `true`, parameter `joined` will take priority.
      */
