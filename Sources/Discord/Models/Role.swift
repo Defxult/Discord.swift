@@ -135,11 +135,11 @@ public class Role : Object, Hashable {
             case .permissions(let perms):
                 payload["permissions"] = perms.value
             case .color(let color):
-                payload["color"] = color.value
+                payload["color"] = nullable(color?.value)
             case .hoist(let hoist):
                 payload["hoist"] = hoist
             case .icon(let icon):
-                payload["icon"] = icon.asImageData
+                payload["icon"] = nullable(icon?.asImageData)
             case .mentionable(let mentionable):
                 payload["mentionable"] = mentionable
             }
@@ -148,9 +148,7 @@ public class Role : Object, Hashable {
         return try await bot!.http.modifyGuildRole(guildId: guild.id, roleId: id, data: payload, reason: reason)
     }
 
-    static func toSnowflakes(_ roles: [Role]) -> [Snowflake] {
-        return roles.map({ $0.id })
-    }
+    static func toSnowflakes(_ roles: [Role]) -> [Snowflake] { roles.map({ $0.id }) }
 }
 
 extension Role {
@@ -189,14 +187,14 @@ extension Role {
         /// The role permissions.
         case permissions(Permissions)
         
-        /// The color for the role.
-        case color(Color)
+        /// The color for the role. Can be set to `nil` to remove the color.
+        case color(Color?)
         
         /// If this role is pinned in the user listing.
         case hoist(Bool)
         
-        /// The role icon.
-        case icon(File)
+        /// The role icon. Can be set to `nil` to remove the icon.
+        case icon(File?)
         
         /// Whether this role is mentionable.
         case mentionable(Bool)
