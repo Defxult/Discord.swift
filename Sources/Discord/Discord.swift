@@ -87,9 +87,7 @@ public class Discord {
     ///
     /// If set to `true`, the following will be changed:
     /// - ``EventListener/onMessageCreate(message:)`` events will not be dispatched for direct messages.
-    /// - The ``Message`` associated with the direct message will not be cached.
-    /// - The ``User`` associated with the direct message will not be cached.
-    /// - The ``DMChannel`` associated with the direct message will not be cached.
+    /// - The ``Message``, ``User``, and ``DMChannel`` associated with the direct message will not be cached.
     public var ignoreDms: Bool
     
     var pendingApplicationCommands = [PendingAppCommand]()
@@ -109,9 +107,7 @@ public class Discord {
     ///   - sharding: Whether automatic sharding is enabled. If your bot is in 2500 or more guilds, this **must** be enabled.
     ///   - ignoreDms: Whether to ignore direct messages. If set to `true`, the following will be changed:
     ///     - ``EventListener/onMessageCreate(message:)`` events will not be dispatched for direct messages.
-    ///     - The ``Message`` associated with the direct message will not be cached.
-    ///     - The ``User`` associated with the direct message will not be cached.
-    ///     - The ``DMChannel`` associated with the direct message will not be cached.
+    ///     - The ``Message``, ``User``, and ``DMChannel`` associated with the direct message will not be cached.
     /// - Important: When setting intents, it is highly recommended to at least have the ``Intents/guilds`` intent enabled in order for your bot to function properly.
     public init(token: String, intents: Set<Intents>, maxMessagesCache: Int = 1500, sharding: Bool = false, ignoreDms: Bool = false) {
         self.token = token
