@@ -1,0 +1,9 @@
+name: Feature Request
+description: Suggest a feature that should be added to the library.
+labels: feature request
+body:
+  - type: textarea
+    attributes:
+      label: Describe the feature request
+    validations:
+      required: true
