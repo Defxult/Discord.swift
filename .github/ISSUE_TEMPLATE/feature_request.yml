@@ -5,5 +5,6 @@ body:
   - type: textarea
     attributes:
       label: Describe the feature request
+      description: This can be a request for the library itself or a request to add/remove/correct [documentation](https://defxult.github.io/Discord.swift/documentation/discord/).
     validations:
       required: true
