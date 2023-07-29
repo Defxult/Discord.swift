@@ -353,13 +353,6 @@ public struct ApplicationCommandOption {
     /// If autocomplete interactions are enabled for this ``ApplicationCommandOptionType/string``, ``ApplicationCommandOptionType/integer``, or ``ApplicationCommandOptionType/double`` type option.
     public private(set) var autocomplete: Bool
     
-    // ---------- API Separated ----------
-    
-    /// The autocomplete suggestions that will show up for the option if `autocomplete` is enabled.
-    public private(set) var suggestions: [ApplicationCommandOptionChoice]?
-    
-    // -----------------------------------
-    
     /// Initializes a application command option.
     /// - Parameters:
     ///   - type: Type of option.
@@ -376,7 +369,6 @@ public struct ApplicationCommandOption {
     ///   - minLength: The minimum allowed length if the `type` is ``ApplicationCommandOptionType/string``. Minimum of 1, maximum of 6000.
     ///   - maxLength: The maximum allowed length if the `type` is ``ApplicationCommandOptionType/string``. Minimum of 1, maximum of 6000.
     ///   - autocomplete: If autocomplete interactions are enabled for this ``ApplicationCommandOptionType/string``, ``ApplicationCommandOptionType/integer``, or ``ApplicationCommandOptionType/double`` type option.
-    ///   - suggestions: The autocomplete suggestions that will show up for the option if ``autocomplete`` is enabled.
     public init(
         _ type: ApplicationCommandOptionType,
         name: String,
@@ -391,8 +383,7 @@ public struct ApplicationCommandOption {
         maxValue: Double? = nil,
         minLength: Int? = nil,
         maxLength: Int? = nil,
-        autocomplete: Bool = false,
-        suggestions: [ApplicationCommandOptionChoice]? = nil) {
+        autocomplete: Bool = false) {
             self.type = type
             self.name = ApplicationCommand.verifyName(name)
             self.description = description
@@ -407,7 +398,6 @@ public struct ApplicationCommandOption {
             self.minLength = minLength
             self.maxLength = maxLength
             self.autocomplete = autocomplete
-            self.suggestions = suggestions
             
             // HTTPError.badRequest("Invalid form body") if `required` is set to `true` when
             // the `type` is `.subCommand` or `.subCommandGroup`. Required isn't utilized in subcommands
@@ -419,15 +409,6 @@ public struct ApplicationCommandOption {
             
             // Discord: "autocomplete may not be set to true if choices are present."
             if let _ = choices { self.autocomplete = false }
-            
-            // If autocomplete is set to true, suggestions must be present. If they aren't, set autocomplete to false
-            // and suggestions to nil
-            if autocomplete {
-                if suggestions == nil || suggestions?.count == 0 {
-                    self.autocomplete = false
-                    self.suggestions = nil
-                }
-            }
     }
     
     init(appCommandOptionData: JSON) {
@@ -934,8 +915,9 @@ public class Interaction {
         return response
     }
     
-    // Respond with the autocomplete suggestions the user created.
-    func respondWithAutocomplete(choices: [ApplicationCommandOptionChoice]) async throws {
+    /// Respond with the autocomplete choices based on the users input.
+    /// - Parameter choices: The options to choose from.
+    public func respondWithAutocomplete(choices: [ApplicationCommandOptionChoice]) async throws {
         let payload: JSON = [
             "type": InteractionCallbackType.applicationCommandAutocompleteResult.rawValue,
             "data": ["choices": choices.map({ $0.convert() })]

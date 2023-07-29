@@ -327,19 +327,7 @@ class WSGateway {
         case .applicationCommand, .applicationCommandAutocomplete:
             let appData = interaction.data as! ApplicationCommandData
             if let appCmd = interaction.bot!.pendingApplicationCommands.first(where: { $0.name == appData.name && $0.guildId == appData.guildId && $0.type == appData.type }) {
-                if interaction.type == .applicationCommand {
-                    await appCmd.onInteraction(interaction)
-                } else {
-                    // Find the options and its suggestion that matches the currently dispatched
-                    if let dataOptions = appData.options {
-                        let autocompleteName = dataOptions.last!.name
-                        if let cmdOptions = appCmd.options {
-                            if let cmdOptionMatch = cmdOptions.first(where: { $0.name == autocompleteName }) {
-                                try! await interaction.respondWithAutocomplete(choices: cmdOptionMatch.suggestions!)
-                            }
-                        }
-                    }
-                }
+                await appCmd.onInteraction(interaction)
             }
         case .messageComponent:
             if let cachedMsg = interaction.bot!.getMessage(interaction.message!.id) {
