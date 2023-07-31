@@ -35,17 +35,22 @@ public struct File {
     
     /// Data representaion of the file.
     public let data: Data
+    
+    /// Whether the file is blurred as a spoiler.
+    public let spoiler: Bool
 
     let mimetype: String
     var asImageData: String { "data:\(mimetype);base64,\(data.base64EncodedString())" }
     
     /// Initializes a new a file using the direct patch of an existing file.
     /// - Parameters:
-    ///   - name: The name of the file **to include** its file extension.
+    ///   - name: Name of the file **to include** its file extension.
     ///   - path: The *absolute path* of the file from which to read.
-    public init(name: String, path: String) throws {
-        self.name = name
+    ///   - spoiler: Whether the file is blurred as a spoiler.
+    public init(name: String, path: String, spoiler: Bool = false) throws {
+        self.name = File.setSpoiler(name: name, spoiler: spoiler)
         self.path = path
+        self.spoiler = spoiler
         if let nsData = NSData(contentsOfFile: path) {
             data = Data(base64Encoded: nsData.base64EncodedData())!
             mimetype = MimeType(path: path).value
@@ -59,16 +64,18 @@ public struct File {
     /// - Parameters:
     ///   - name: Name of the file **to include** its file extension.
     ///   - using: The files data.
+    ///   - spoiler: Whether the file is blurred as a spoiler.
     /// - Note: The file extension should match the data being used. For example, if the data you're *using* is a text file, the *name* should be "Example.txt".
-    public init(name: String, using: Data) {
+    public init(name: String, using: Data, spoiler: Bool = false) {
         path = .empty
-        self.name = name
+        self.name = File.setSpoiler(name: name, spoiler: spoiler)
         data = using
+        self.spoiler = spoiler
         mimetype = MimeType(path: name).value
     }
     
     /// Convert the URLs into files.
-    /// - Parameter urls: The URLs to extract the data from. These must have a path extension (.png, .gif, .mp3, etc). If a URL does not have a path extension it is ignored.
+    /// - Parameter urls: URLs to extract the data from. These must have a path extension (.png, .gif, .mp3, etc). If a URL does not have a path extension it is ignored.
     /// - Returns: The files that were converted from the given URLs.
     public static func download(urls: [URL]) async throws -> [File] {
         // Extract the URLs that contain a path extension because the extension is needed for `File.init()`
@@ -89,5 +96,9 @@ public struct File {
             
             return files
         })
+    }
+    
+    private static func setSpoiler(name: String, spoiler: Bool) -> String {
+        spoiler ? "SPOILER_\(name)" : name
     }
 }

@@ -600,6 +600,13 @@ extension Message {
         
         /// Whether this attachment is ephemeral.
         public let ephemeral: Bool
+        
+        // ------------ API Separated ------------
+        
+        /// Whether this attachment is marked as a spoiler.
+        public let spoiler: Bool
+        
+        // ---------------------------------------
 
         init(attachmentData: JSON) {
             id = Conversions.snowflakeToUInt(attachmentData["id"])
@@ -612,6 +619,7 @@ extension Message {
             height = attachmentData["height"] as? Int
             width = attachmentData["width"] as? Int
             ephemeral = Conversions.optionalBooltoBool(attachmentData["ephemeral"])
+            spoiler = filename.starts(with: "SPOILER_")
         }
         
         func convert() -> JSON {
