@@ -646,10 +646,10 @@ public struct Modal {
     /// Title of the modal; max 45 characters.
     public var title: String
     
-    /// The ID of the modal.
+    /// ID of the modal.
     public var customId: String
     
-    /// The inputs on the modal; max 5.
+    /// Inputs on the modal; max 5.
     public var inputs: [TextInput]
     
     /// The closure that is called when the modal is submitted.
@@ -658,8 +658,8 @@ public struct Modal {
     /// Initializes a pop-up modal.
     /// - Parameters:
     ///   - title: Title of the modal; max 45 characters.
-    ///   - customId: The ID of the modal.
-    ///   - inputs: The inputs on the modal; max 5.
+    ///   - customId: ID of the modal.
+    ///   - inputs: Inputs on the modal; max 5.
     ///   - onSubmit: The closure that is called when the modal is submitted.
     public init(title: String, customId: String, inputs: [TextInput], onSubmit: @escaping (Interaction) async -> Void) {
         self.title = title
