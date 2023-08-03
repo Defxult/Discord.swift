@@ -72,6 +72,9 @@ public struct Color : Hashable {
     /// Returns a `Color` with its value set to `0x2f3136`.
     public static let darkTheme = Color(value: 0x2f3136)
     
+    /// Returns a `Color` with its value set to `0x008080`.
+    public static let teal = Color(value: 0x008080)
+    
     /// Returns a random `Color`.
     public static var random: Color { Color(value: .random(in: 0...Color.maximumColorValue)) }
 
