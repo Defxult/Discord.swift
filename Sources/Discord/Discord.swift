@@ -478,7 +478,7 @@ public class Discord {
         return nil
     }
     
-    /// Requests the guild. Unlike ``getGuild(_:)``, this is an API call. For general use purposes, use ``getGuild(_:)`` instead if you have the ``Intents/guilds`` intent enabled.
+    /// Request a guild. This is an API call. For general use purposes, use ``getGuild(_:)`` instead if you have the ``Intents/guilds`` intent enabled.
     /// - Parameters:
     ///   - id: The guild ID.
     ///   - withCounts: If `true`, the returned guild will have properties ``Guild/approximateMemberCount`` and ``Guild/approximatePresenceCount`` available.
@@ -488,27 +488,27 @@ public class Discord {
         return try await http.getGuild(guildId: id, withCounts: withCounts)
     }
     
-    /// Request a discord invite.
-    /// - Parameter code: The invite code
+    /// Request a Discord invite.
+    /// - Parameter code: The invite code.
     /// - Returns: The partial invite information.
     public func requestInvite(code: String) async throws -> PartialInvite {
         return try await http.getInvite(code: code)
     }
     
     /// Request the sticker packs available with Discord Nitro.
-    /// - Returns: The discord nitro sticker pack.
+    /// - Returns: The Discord Nitro sticker pack.
     public func requestNitroStickerPacks() async throws -> [Sticker.Pack] {
         return try await http.getNitroStickerPacks()
     }
     
-    /// Request a sticker.
+    /// Request a sticker. This is an API call. For general use purposes, use ``Guild/getSticker(_:)`` instead.
     /// - Parameter id: ID of the sticker.
     /// - Returns: The sticker matching the given ID.
     public func requestSticker(_ id: Snowflake) async throws -> Sticker {
         return try await http.getSticker(stickerId: id)
     }
     
-    /// Request a user. Unlike ``getUser(_:)`` this is an API call.
+    /// Request a user. This is an API call. For general use purposes, use ``getUser(_:)`` instead.
     /// - Parameter id: ID of the user.
     /// - Returns: The user matching the given ID.
     public func requestUser(_ id: Snowflake) async throws -> User {

@@ -241,7 +241,6 @@ class HTTPClient {
         return ApplicationCommand(bot: bot, applicationCommandData: data)
     }
     
-    
     /// Delete an application command.
     /// https://discord.com/developers/docs/interactions/application-commands#delete-global-application-command
     /// https://discord.com/developers/docs/interactions/application-commands#delete-guild-application-command
@@ -328,8 +327,11 @@ class HTTPClient {
         return .init(bot: bot, applicationCommandData: data)
     }
     
-    /// https://discord.com/developers/docs/interactions/application-commands#edit-application-command-permissions
-    func editApplicationCommandPermissions() {}
+    // UNUSED
+    // Edits command permissions for a specific command for your application in a guild and returns a guild application
+    // command permissions object. Fires an Application Command Permissions Update Gateway event. Requires Bearer token.
+    // https://discord.com/developers/docs/interactions/application-commands#edit-application-command-permissions
+    // func editApplicationCommandPermissions() {}
     
     
     // -------------------------------------------------------------------------
@@ -501,7 +503,7 @@ class HTTPClient {
     /// Returns a list of invite objects (with invite metadata) for the channel.
     /// https://discord.com/developers/docs/resources/channel#get-channel-invites
     func getChannelInvites(channelId: Snowflake) async throws -> [Invite] {
-        var invites = [Invite] ()
+        var invites = [Invite]()
         let data = try await request(.get, route("/channels/\(channelId)/invites")) as! [JSON]
         for inviteObj in data {
             invites.append(.init(bot: bot, inviteData: inviteObj))
@@ -629,7 +631,7 @@ class HTTPClient {
         return .init(bot: bot, threadData: data, guildId: guildId)
     }
     
-    /// Creates a new thread in a forum channel, and sends a message within the created thread
+    /// Creates a new thread in a forum channel, and sends a message within the created thread.
     /// https://discord.com/developers/docs/resources/channel#start-thread-in-forum-channel
     public func startThreadInForumChannel(
         channelId: Snowflake,
@@ -1185,7 +1187,7 @@ class HTTPClient {
     /// https://discord.com/developers/docs/resources/guild#modify-guild-widget
     func modifyGuildWidget(guildId: Snowflake, enabled: Bool, widgetChannelId: Snowflake?, reason: String?) async throws {
         // Documention (link above) states that this returns the updated guild widget but thats not the case. Looking at the
-        // payload thats recieved after the request, the payload is a widget settings object, not a widget object. So in order
+        // payload thats received after the request, the payload is a widget settings object, not a widget object. So in order
         // to get the updated widget, a secondary call to `guild.widget()` must be made.
         let payload: JSON = ["enabled": enabled, "channel_id": nullable(widgetChannelId)]
         _ = try await request(.patch, route("/guilds/\(guildId)/widget"), json: payload, additionalHeaders: withReason(reason)) as! JSON
@@ -1287,7 +1289,7 @@ class HTTPClient {
     }
 
     /// Get a list of guild scheduled event users subscribed to a guild scheduled event (up to 100 maximum).
-    ///  https://discord.com/developers/docs/resources/guild-scheduled-event#get-guild-scheduled-event-users
+    /// https://discord.com/developers/docs/resources/guild-scheduled-event#get-guild-scheduled-event-users
     func getGuildScheduledEventUsers(guildId: Snowflake, eventId: Snowflake, limit: Int, before: Snowflake?, after: Snowflake?) async throws -> [JSON] {
         // HTTPError.badRequest() if `limit` is above/below expected values
         let limit = (limit > 100 || limit < 1) ? 100 : limit

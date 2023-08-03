@@ -128,7 +128,7 @@ public class Member : Object, Hashable {
     
     /// Bans the member from the guild.
     /// - Parameters:
-    ///   - deleteMessageSeconds: Number of seconds to delete messages for, between 0 and 604800 (7 days).
+    ///   - deleteMessageSeconds: Number of seconds to delete messages for, between 0 and 604800 (7 days). For example, if set to 172800 (2 days), 2 days worth of messages will be deleted.
     ///   - reason: The reason for banning the member. This shows up in the guilds audit log.
     public func ban(deleteMessageSeconds: Int = 0, reason: String? = nil) async throws {
         try await guild.ban(user: user!, deleteMessageSeconds: deleteMessageSeconds, reason: reason)

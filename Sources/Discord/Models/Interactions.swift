@@ -837,7 +837,7 @@ public class Interaction {
     /// - Parameter modal: The modal that will be presented to the user.
     public func respondWithModal(_ modal: Modal) async throws {
         // With modals, the components setup is a little different. With other components like buttons, the inner "components"
-        // array would house all the buttons. But with modals, it basically an array of an action row with a single component
+        // array would house all the buttons. But with modals, its basically an array of an action row with a single component
         // in the inner "components" array.
         var componentsPayload: [JSON] = []
         for txtInput in modal.inputs {

@@ -376,7 +376,7 @@ class WSGateway {
             Log.message("Gateway resumed", withTimestamp: true)
             
         case .reconnect, .invalidSession:
-            Log.message("Recieved event -> \(event) - reconnecting...", withTimestamp: true)
+            Log.message("Received event -> \(event) - reconnecting...", withTimestamp: true)
             await reconnect()
             
         case .applicationCommandPermissionsUpdate:
@@ -993,7 +993,7 @@ class WSGateway {
             user?.update(data)
             
         case .voiceStateUpdate:
-            // Docs say guild_id is optional. When tested, it's missing when recieved over the gateway, but seems to always be present here
+            // Docs say guild_id is optional. When tested, it's missing when received over the gateway, but seems to always be present here
             let guild = bot.getGuild(getGuildIdFromJSON(data))!
             
             let sessionId = data["session_id"] as! String

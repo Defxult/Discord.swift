@@ -91,7 +91,7 @@ public class User : Object, Updateable, Hashable {
         mention = Markdown.mentionUser(id: id)
     }
     
-    /// Updates the properties of the user when recieved via `GuildEvent.userUpdate` and `GuildEvent.presenceUpdate`.
+    /// Updates the properties of the user when received via `GuildEvent.userUpdate` and `GuildEvent.presenceUpdate`.
     func update(_ data: JSON) {
         for (k, v) in data {
             switch k {

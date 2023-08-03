@@ -370,7 +370,7 @@ public class Guild : Object, Hashable, Updateable  {
     /// Ban a user from the guild.
     /// - Parameters:
     ///   - user: User to ban.
-    ///   - deleteMessageSeconds: Number of seconds to delete messages for, between 0 and 604800 (7 days).
+    ///   - deleteMessageSeconds: Number of seconds to delete messages for, between 0 and 604800 (7 days). For example, if set to 172800 (2 days), 2 days worth of messages will be deleted.
     ///   - reason: The reason for creating the ban. This shows up in the guilds audit log.
     public func ban(user: User, deleteMessageSeconds: Int = 0, reason: String? = nil) async throws {
         try await bot!.http.createGuildBan(guildId: id, userId: user.id, deleteMessageSeconds: deleteMessageSeconds, reason: reason)
@@ -670,7 +670,7 @@ public class Guild : Object, Hashable, Updateable  {
     /// - Parameters:
     ///   - name: Name of the sticker.
     ///   - description: Description of the sticker.
-    ///   - emoji: The **name** of a unicode emoji. You can typically find the name of a unicode emoji by typing a colon in the discord app. For example, the 🍕 emoji's name would be "pizza".
+    ///   - emoji: The **name** of a unicode emoji. You can typically find the name of a unicode emoji by typing a colon in the Discord app. For example, the 🍕 emoji's name would be "pizza".
     ///   - file: The sticker file.
     ///   - reason: The reason for creating the sticker. This shows up in the guilds audit log.
     /// - Returns: The newly created sticker.
@@ -901,7 +901,7 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getScheduledEventForGuild(guildId: self.id, eventId: id)
     }
     
-    /// Request all scheduled events. This is an API call. For general use purposes, use ``scheduledEvents``.
+    /// Request all scheduled events. This is an API call. For general use purposes, use ``scheduledEvents`` instead.
     public func requestScheduledEvents() async throws -> [ScheduledEvent] {
         return try await bot!.http.getListScheduledEventsForGuild(guildId: id)
     }
@@ -955,7 +955,7 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getGuildSticker(guildId: self.id, stickerId: id)
     }
     
-    /// Request all stickers in the guild. This is an API call. For general use purposes, use ``stickers``.
+    /// Request all stickers in the guild. This is an API call. For general use purposes, use ``stickers`` instead.
     /// - Returns: All guild stickers.
     public func requestAllStickers() async throws -> [GuildSticker] {
         return try await bot!.http.getAllGuildStickers(guildId: id)
@@ -976,7 +976,7 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getGuildTemplates(guildId: id)
     }
     
-    /// Updates the properties of the guild when recieved via `GUILD_UPDATE`.
+    /// Updates the properties of the guild when received via gateway event`GUILD_UPDATE`.
     func update(_ data: JSON) {
         for (k, v) in data {
             switch k {
@@ -2180,8 +2180,8 @@ extension Guild {
         
         // NOTE:
         // serializedSourceGuild is intentionally excluded. Using a template, you
-        // only recieve a partial guild object, and it's not worth creating an entire PartialGuild class
-        // which also supports channels and roles. Given the fact that when recieving a template, you don't
+        // only receive a partial guild object, and it's not worth creating an entire PartialGuild class
+        // which also supports channels and roles. Given the fact that when receiving a template, you don't
         // have access to the source guild. Meaning almost all of `Guild`s methods/properties would be useless.
         // The source guild ID is still availabe, and if someone really wants to access the guild, I think it's
         // better to just use .requestGuild() to access all its features if the bot shares that guild.
@@ -2376,7 +2376,7 @@ extension Guild.ScheduledEvent {
 
 extension Guild.Integration {
     
-    /// Representst the bot/OAuth2 application for discord integrations.
+    /// Representst the bot/OAuth2 application for Discord integrations.
     public struct Application {
         
         /// The ID of the app.
