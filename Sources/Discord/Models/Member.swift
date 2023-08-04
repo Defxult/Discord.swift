@@ -82,7 +82,7 @@ public class Member : Object, Hashable {
     
     // ------------------------------ API Separated -----------------------------------
     
-    /// The users voice state.
+    /// The users voice state. Contains information such as ``VoiceChannel/State/selfMuted`` and more.
     public var voice: VoiceChannel.State? { guild.voiceStates.first(where: { $0.user.id == id }) }
     
     /// All guilds the bot and the member shares.
@@ -102,7 +102,7 @@ public class Member : Object, Hashable {
     
     // --------------------------------------------------------------------------------
     
-    // Hashable extras
+    // Hashable
     public static func == (lhs: Member, rhs: Member) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
     

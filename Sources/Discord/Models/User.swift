@@ -54,7 +54,7 @@ public class User : Object, Updateable, Hashable {
     /// The public flags on a user's account.
     public internal(set) var publicUserFlags: [PublicUserFlags]?
     
-    // Hashable extras
+    // Hashable
     public static func == (lhs: User, rhs: User) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 

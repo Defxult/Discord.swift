@@ -100,6 +100,7 @@ public struct Color : Hashable {
     /// The color value.
     public var value: Int { didSet { value = Color.verifyValue(value) } }
     
+    // Hashable
     public static func == (lhs: Color, rhs: Color) -> Bool { lhs.value == rhs.value }
     public func hash(into hasher: inout Hasher) { hasher.combine(value) }
 

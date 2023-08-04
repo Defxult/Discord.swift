@@ -47,7 +47,7 @@ public class Message : Object, Hashable, Updateable {
     /// The guild the message was sent in. Will be `nil` if the message was sent in a DM or the message was ephemeral.
     public var guild: Guild? { guildId != nil ? bot!.getGuild(guildId!) : nil }
     
-    /// The author of this message. If you need the `Member` object instead, see the ``member`` property.
+    /// The author of this message. If you need the ``Member`` object instead, see the ``member`` property.
     public let author: User
     
     /// Contents of the message.
@@ -155,7 +155,7 @@ public class Message : Object, Hashable, Updateable {
     /// The referenced representation of the message.
     public var asReference: Reference { Reference(messageId: id, channelId: channel.id, guildId: guild?.id) }
     
-    // Hashable extras
+    // Hashable
     public static func == (lhs: Message, rhs: Message) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
@@ -341,7 +341,7 @@ public class Message : Object, Hashable, Updateable {
     ///   - name: Name of the thread.
     ///   - autoArchiveDuration: Duration to automatically archive the thread after recent activity.
     ///   - slowmode: Amount of seconds a user has to wait before sending another message.
-    ///   - reason: The reason for creating the thread. This shows up in the guilds audit-log.
+    ///   - reason: The reason for creating the thread. This shows up in the guilds audit log.
     /// - Returns: The newly created thread.
     public func createThread(name: String, autoArchiveDuration: ThreadChannel.ArchiveDuration = .twentyfourHours, slowmode: Int? = nil, reason: String? = nil) async throws -> ThreadChannel {
         if isDmMessage { throw HTTPError.badRequest("Cannot create threads in DMs")  }

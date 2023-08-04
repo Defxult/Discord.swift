@@ -212,7 +212,7 @@ public class Guild : Object, Hashable, Updateable  {
 
     // --------------------------------------------------------------------------------
     
-    // Hashable extras
+    // Hashable
     public static func == (lhs: Guild, rhs: Guild) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
     
@@ -1354,27 +1354,27 @@ extension Guild {
         /// Integration name.
         public let name: String
         
-        /// Integration type. Either twitch, youtube, discord, or guild subscription.
+        /// Integration type. Either Twitch, YouTube, Discord, or guild subscription.
         public let type: String
         
         /// Is this integration enabled.
         public let enabled: Bool
         
-        /// Is this integration syncing. Not provided for discord bot integrations.
+        /// Is this integration syncing. Not provided for Discord bot integrations.
         public let syncing: Bool?
         
-        /// ID that this integration uses for "subscribers". Not provided for discord bot integrations.
+        /// ID that this integration uses for "subscribers". Not provided for Discord bot integrations.
         public let roleId: Snowflake?
         
         private let guildId: Snowflake
         
-        /// Whether emoticons should be synced for this integration (twitch only currently). Not provided for discord bot integrations.
+        /// Whether emoticons should be synced for this integration (twitch only currently). Not provided for Discord bot integrations.
         public let emoticonsEnabled: Bool?
         
-        /// The behavior of expiring subscribers. Not provided for discord bot integrations.
+        /// The behavior of expiring subscribers. Not provided for Discord bot integrations.
         public let expireBehavior: ExpireBehavior?
         
-        /// Tthe grace period (in days) before expiring subscribers. Not provided for discord bot integrations.
+        /// Tthe grace period (in days) before expiring subscribers. Not provided for Discord bot integrations.
         public let expireGracePeriod: Int?
         
         /// User for this integration. Some older integrations may not have an attached user.
@@ -1383,16 +1383,16 @@ extension Guild {
         /// Integration account information.
         public let account: Account
         
-        /// When this integration was last synced. Not provided for discord bot integrations.
+        /// When this integration was last synced. Not provided for Discord bot integrations.
         public let syncedAt: Date?
         
-        /// How many subscribers this integration has. Not provided for discord bot integrations.
+        /// How many subscribers this integration has. Not provided for Discord bot integrations.
         public let subscriberCount: Int?
         
-        /// Has this integration been revoked. Not provided for discord bot integrations.
+        /// Has this integration been revoked. Not provided for Discord bot integrations.
         public let revoked: Bool?
         
-        /// The bot/OAuth2 application for discord integrations.
+        /// The bot/OAuth2 application for Discord integrations.
         public let application: Integration.Application?
             
         /// The scopes the application has been authorized for.
@@ -1486,7 +1486,7 @@ extension Guild {
         /// The emoji ID, if the emoji is custom.
         public let emojiId: Snowflake?
         
-        /// The emoji name if custom, the unicode character if standard, or null if no emoji is set.
+        /// The emoji name if custom, the unicode character if standard, or `nil` if no emoji is set.
         public let emojiName: String?
         
         /// Initializes a new welcome screen channel
@@ -1494,7 +1494,7 @@ extension Guild {
         ///   - channelId: The channel's ID.
         ///   - description: The description shown for the channel.
         ///   - emojiId: The emoji ID, if the emoji is custom.
-        ///   - emojiName: The emoji name if custom, the unicode character if standard, or null if no emoji is set.
+        ///   - emojiName: The emoji name if custom, the unicode character if standard, or `nil` if no emoji is set.
         public init(channelId: Snowflake, description: String?, emojiId: Snowflake?, emojiName: String?) {
             self.channelId = channelId
             self.description = description ?? String.empty
@@ -2032,8 +2032,8 @@ extension Guild {
         
         /// Edit the scheduled event.
         /// - Parameters:
-        ///   - edits: Values that should be changed.
-        ///   - reason: The reason for editing the scheduled event. This shows up in the guilds audit-log.
+        ///   - edits: The enum containing all values to be updated for the scheduled event.
+        ///   - reason: The reason for editing the scheduled event. This shows up in the guilds audit log.
         /// - Returns: The updated scheduled event.
         @discardableResult
         public func edit(_ edits: ScheduledEvent.Edit..., reason: String? = nil) async throws -> ScheduledEvent {
@@ -2252,14 +2252,14 @@ extension Guild.Template {
         /// Name of the template (100 characters max).
         case name(String)
         
-        /// Description for the template (120 characters ax).
+        /// Description for the template (120 characters max).
         case description(String?)
     }
 }
 
 extension Guild.ScheduledEvent {
     
-    /// Represents the schduled events status.
+    /// Represents the scheduled events status.
     public enum Status : Int {
         case scheduled = 1
         case active
@@ -2376,7 +2376,7 @@ extension Guild.ScheduledEvent {
 
 extension Guild.Integration {
     
-    /// Representst the bot/OAuth2 application for Discord integrations.
+    /// Represents the bot/OAuth2 application for Discord integrations.
     public struct Application {
         
         /// The ID of the app.

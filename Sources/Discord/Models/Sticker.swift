@@ -77,6 +77,7 @@ public struct GuildSticker : Object, Hashable {
     /// The user that uploaded the guild sticker.
     public let user: User?
     
+    // Hashable
     public static func == (lhs: GuildSticker, rhs: GuildSticker) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
     

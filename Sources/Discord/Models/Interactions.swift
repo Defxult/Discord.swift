@@ -224,7 +224,7 @@ extension ApplicationCommand {
         /// Description localizations for the command.
         case descriptionLocalizations([Locale: String]?)
         
-        /// Parameters for the command if it's type is ``ApplicationCommandType/slashCommand``, max of 25.
+        /// Parameters for the command if its type is ``ApplicationCommandType/slashCommand``, max of 25.
         case options([ApplicationCommandOption])
         
         /// The default member permissions.
@@ -400,7 +400,7 @@ public struct ApplicationCommandOption {
             self.autocomplete = autocomplete
             
             // HTTPError.badRequest("Invalid form body") if `required` is set to `true` when
-            // the `type` is `.subCommand` or `.subCommandGroup`. Required isn't utilized in subcommands
+            // the `type` is `.subCommand` or `.subCommandGroup`. `required` isn't utilized in subcommands
             // and subcommand groups (as noted in the init documentation now), but just in case (and to make it less of a headache)
             // just set `required` to `false`.
             let subs = [ApplicationCommandOptionType.subCommand, ApplicationCommandOptionType.subCommandGroup]
@@ -469,7 +469,7 @@ public struct ApplicationCommandOption {
         if let nameLocalizations { payload["name_localizations"] = convertFromLocalizations(nameLocalizations) }
         if let descriptionLocalizations { payload["description_localizations"] = convertFromLocalizations(descriptionLocalizations) }
         
-        // With minValue and maxValue, the API accepts the the value based on the `type`, so just do the conversion here
+        // With minValue and maxValue, the API accepts the value based on the `type`, so just do the conversion here
         if let minValue {
             if type == .integer { payload["min_value"] = Int(minValue) }
             else if type == .double { payload["min_value"] = minValue }
@@ -1018,7 +1018,7 @@ public struct ApplicationCommandData : InteractionData {
     }
 }
 
-/// Represents the the parameters and values from the user.
+/// Represents the parameters and values from the user.
 public class ApplicationCommandInteractionDataOption {
     
     /// Name of the parameter.
@@ -1033,7 +1033,7 @@ public class ApplicationCommandInteractionDataOption {
     /// Present if this option is a command group or subcommand.
     public private(set) var options: [ApplicationCommandInteractionDataOption]?
     
-    /// If this is `true`, this option is the currently focused option for autocomplete
+    /// If this is `true`, this option is the currently focused option for autocomplete.
     public let focused: Bool?
     
     init(_ appCommandInteractionDataOption: JSON) {

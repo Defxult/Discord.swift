@@ -33,13 +33,14 @@ public struct Asset : Downloadable, Hashable {
     /// The direct URL of the asset.
     public let url: String
 
-    // ---- API Separate ----
+    // --------- API Separate ---------
  
     /// Whether the asset is animated.
     public let animated: Bool
     
-    // ----------------------
+    // --------------------------------
     
+    // Hashable
     public static func == (lhs: Asset, rhs: Asset) -> Bool { lhs.url == rhs.url }
     public func hash(into hasher: inout Hasher) { hasher.combine(url) }
 

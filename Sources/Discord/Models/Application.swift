@@ -37,7 +37,7 @@ public struct Application : Object {
     /// The description of the app.
     public private(set) var description: String?
     
-    /// An array of rpc origin URLs, if rpc is enabled
+    /// An array of RPC origin URLs, if RPC is enabled
     public private(set) var rpcOrigins: [String]?
     
     /// When `false`, only the app owner can join the app's bot to guilds.
@@ -188,7 +188,7 @@ extension Application {
             /// The ID of the parent team of which they are a member.
             public let teamId: Snowflake
             
-            /// The user information.
+            /// The user ID.
             public let userId: Snowflake
             
             /// The user's username.

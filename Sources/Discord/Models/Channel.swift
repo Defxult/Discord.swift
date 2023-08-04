@@ -77,7 +77,7 @@ extension Messageable {
         try await bot!.http.bulkDeleteMessages(channelId: id, messagesToDelete: toDelete, reason: reason)
     }
     
-    /// Recieve the channels message history.
+    /// Receive the channels message history.
     /// - Parameters:
     ///   - limit: Max number of messages to return (1-100).
     ///   - search: What to search by. Either before, after, or around a specified message. If `nil`, no filter is used.
@@ -164,7 +164,7 @@ extension Messageable {
                     try await bot!.http.triggerTypingIndicator(channelId: id)
                     
                     // The delay isn't 10s because once it hits the 10s mark, the "is typing"
-                    // disappears and reappears. To avoid that just trigger the typing indicator
+                    // disappears and reappears. To avoid that, trigger the typing indicator
                     // just a little bit sooner so that it's continuous.
                     await sleep(9500)
                 }
@@ -575,7 +575,7 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     }
     
     /**
-     Recieve the archived threads in the channel.
+     Receive the archived threads in the channel.
      
      Below is an example on how to request archived threads:
      ```swift
@@ -631,7 +631,7 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     /// Edit the text channel.
     /// - Parameters:
     ///   - edits: The enum containing all values to be updated or removed for the text channel.
-    ///   - reason: The reason for editing the text channel. This shows up in the guilds audit logs
+    ///   - reason: The reason for editing the text channel. This shows up in the guilds audit log.
     /// - Returns: The updated text channel.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> TextChannel {
@@ -664,7 +664,7 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     
     /// Follow the text channel.
     /// - Parameter sendUpdatesTo: The channel where messages will be sent when they are published.
-    /// - Returns: A webhook assoiciated with the announcement channel.
+    /// - Returns: A webhook associated with the announcement channel.
     public func follow(sendUpdatesTo: TextChannel) async throws -> Webhook {
         // The discord error message isn't helpful here (invalid form body)
         if type != .guildAnnouncement { throw HTTPError.badRequest("Cannot follow non-announcement channels") }
@@ -777,7 +777,7 @@ public class ForumChannel : GuildChannel, Hashable {
     /// ID of the channel.
     public let id: Snowflake
     
-     /// The channel type.
+    /// The channel type.
     public let type: ChannelType
 
     /// Sorting position of the channel.
@@ -811,7 +811,7 @@ public class ForumChannel : GuildChannel, Hashable {
     public var overwrites: [PermissionOverwrites] { buildChannelOverwrites(overwriteData) }
     var overwriteData: [JSON]
     
-    /// Your bot instance
+    /// Your bot instance.
     public weak private(set) var bot: Discord?
     
     // ---------- API Separated ----------
@@ -851,7 +851,7 @@ public class ForumChannel : GuildChannel, Hashable {
     }
     
     /**
-     Recieve the archived threads in the channel.
+     Receive the archived threads in the channel.
      
      Below is an example on how to request archived threads:
      ```swift
@@ -1001,7 +1001,7 @@ extension ForumChannel {
         /// The emoji to show in the add reaction button on a thread.
         case defaultReactionEmoji(PartialEmoji?)
         
-        /// This is shown in the "Guidelines" section within the Discord.
+        /// This is shown in the "Guidelines" section within the Discord app.
         case topic(String?)
         
         /// Sorting position of the channel. Can be `nil` for automatic sorting.

@@ -88,6 +88,7 @@ public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
     private let rolesData: [String]
     private let guildId: Snowflake
     
+    // Hashable
     public static func == (lhs: Emoji, rhs: Emoji) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 

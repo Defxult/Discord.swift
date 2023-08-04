@@ -52,7 +52,7 @@ public class UI {
     /// The components that make up the UI.
     public internal(set) var items = [Component]()
     
-    /// The closure that is called when the UI recieves an interaction.
+    /// The closure that is called when the UI receives an interaction.
     public internal(set) var onInteraction: ((Interaction) async -> Void) = { _ in }
     
     /// The closure that is called when the `timeout` is reached. By default, this disables all items.
@@ -135,8 +135,8 @@ public class UI {
         items.removeAll()
     }
     
-    /// Set the closure that's called when the UI recieves an interaction.
-    /// - Parameter callback: The closure that's called when the UI recieves an interaction.
+    /// Set the closure that's called when the UI receives an interaction.
+    /// - Parameter callback: The closure that's called when the UI receives an interaction.
     /// - Returns: The UI instance.
     public func onInteraction(_ callback: @escaping (Interaction) async -> Void) -> Self {
         onInteraction = callback

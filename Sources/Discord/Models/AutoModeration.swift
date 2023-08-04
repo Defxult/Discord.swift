@@ -258,7 +258,7 @@ extension AutoModerationRule {
         /// Regular expression patterns which will be matched against content (maximum of 10). Only relevant for `TriggerType.keyword`. Each regex pattern must be 260 characters or less.
         public var regexPatterns: [String]?
         
-        /// The wordsets defined by discord which will be searched for in content. Only relevant for `TriggerType.keywordPreset`.
+        /// The wordsets defined by Discord which will be searched for in content. Only relevant for `TriggerType.keywordPreset`.
         public var presets: Set<KeywordPresetType>?
         
         /// Substrings which should **not** trigger the rule. Maximum of 100 for `TriggerType.keyword` or 1000 for `TriggerType.keywordPreset`. Each string also has a limit of 60 characters.
@@ -274,7 +274,7 @@ extension AutoModerationRule {
         /// - Parameters:
         ///   - keywordFilter: Substrings which will be searched for in content (maximum of 1000). Only relevant for `TriggerType.keyword`.
         ///   - regexPatterns: Regular expression patterns which will be matched against content (maximum of 10). Only relevant for `TriggerType.keyword`. Each regex pattern must be 260 characters or less.
-        ///   - presets: The wordsets defined by discord which will be searched for in content. Only relevant for `TriggerType.keywordPreset`.
+        ///   - presets: The wordsets defined by Discord which will be searched for in content. Only relevant for `TriggerType.keywordPreset`.
         ///   - allowList: Substrings which should **not** trigger the rule. Maximum of 100 for `TriggerType.keyword` or 1000 for `TriggerType.keywordPreset`. Each string also has a limit of 60 characters.
         public init?(
             keywordFilter: Triggers? = nil,
