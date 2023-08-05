@@ -266,6 +266,8 @@ class WSGateway {
                     
                     if gatewayPayload.op == Opcode.dispatch {
                         let event = WSGateway.getEvent(name: gatewayPayload.t!)
+                        guard let event else { continue }
+                        
                         if event == .ready {
                             wsResume = ResumePayload(data: resumePayload)
                             wsResume?.resumeGatewayURL = gatewayPayload.d?["resume_gateway_url"] as? String
@@ -315,8 +317,12 @@ class WSGateway {
         }
     }
     
-    private static func getEvent(name: String) -> DiscordEvent {
-        return DiscordEvent(rawValue: name)!
+    private static func getEvent(name: String) -> DiscordEvent? {
+        let event = DiscordEvent(rawValue: name)
+        if event == nil {
+            Log.message("Discord Event \"\(name)\" is undefined (most likely undocumented)")
+        }
+        return event
     }
     
     /// Handles the process of calling the `onInteraction` closures set by the users for interactions
