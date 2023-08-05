@@ -799,11 +799,25 @@ public class Guild : Object, Hashable, Updateable  {
         return scheduledEvents.first(where: { $0.id == id })
     }
     
+    /// Retrieve a stage instance.
+    /// - Parameter id: ID of the stage instance.
+    /// - Returns: The stage instance, or `nil` if not found.
+    public func getStageInstance(_ id: Snowflake) -> StageInstance? {
+        return stageInstances.first(where: { $0.id == id })
+    }
+    
     /// Retrieve a thread from the guilds internal cache.
     /// - Parameter id: ID of the thread.
     /// - Returns: The thread that matches the given ID, or `nil` if not found.
     public func getThread(_ id: Snowflake) -> ThreadChannel? {
         return threads.first(where: { $0.id == id })
+    }
+    
+    /// Retrieve a members voice state.
+    /// - Parameter id: ID of the member.
+    /// - Returns: The members voice state, or `nil` if not found.
+    public func getVoiceState(_ id: Snowflake) -> VoiceChannel.State? {
+        return voiceStates.first(where: { $0.user.id == id })
     }
     
 //    /// Get the amount of members that would be kicked via ``Guild/prune(days:includeRoles:computePruneCount:)``.
