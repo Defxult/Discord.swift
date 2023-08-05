@@ -63,8 +63,8 @@ public class User : Object, Updateable, Hashable {
     /// Mention the user.
     public let mention: String
     
-    /// The users name and discriminator.
-    public var description: String { "\(name)#\(discriminator)" }
+    /// The users name. If their discriminator is still available it will be included.
+    public var description: String { discriminator == "0" ? name : "\(name)#\(discriminator)" }
 
     // -----------------------------------
 
