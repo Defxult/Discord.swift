@@ -269,7 +269,7 @@ extension GuildChannel {
     public var guild: Guild { bot!.getGuild(guildId)! }
     
     /// Mention the channel.
-    public var mention: String { Markdown.mentionChannel(id: id) }
+    public var mention: String { type == .guildCategory ? name : Markdown.mentionChannel(id: id) }
     
     /// The direct URL for the channel.
     public var jumpUrl: String {
