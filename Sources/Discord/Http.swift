@@ -483,10 +483,9 @@ class HTTPClient {
     /// Delete multiple messages in a single request.
     /// https://discord.com/developers/docs/resources/channel#bulk-delete-messages
     func bulkDeleteMessages(channelId: Snowflake, messagesToDelete: [Message], reason: String?) async throws {
-        var messagesToDelete = messagesToDelete
         
         // If there are any messages older than 2 weeks, an HTTPError.badRequest will occur
-        messagesToDelete = messagesToDelete.filter({ $0.createdAt > Calendar.current.date(byAdding: .day, value: -14, to: .now)! })
+        let messagesToDelete = messagesToDelete.filter({ $0.createdAt > Calendar.current.date(byAdding: .day, value: -14, to: .now)! })
         
         // If there are any duplicate snowflakes, an HTTPError.badRequest will occur
         let messageSnowflakesToDelete = Array(Set(messagesToDelete.map({ $0.id })))
