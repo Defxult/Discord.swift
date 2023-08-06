@@ -742,6 +742,8 @@ public class Guild : Object, Hashable, Updateable  {
                 payload["description"] = nullable(description)
             case .premiumProgressBarEnabled(let enabled):
                 payload["premium_progress_bar_enabled"] = enabled
+            case .safetyAlertsChannel(let safetyAlertsChannelId):
+                payload["safety_alerts_channel_id"] = nullable(safetyAlertsChannelId)
             }
         }
         return try await bot!.http.modifyGuild(guildId: id, payload: payload, reason: reason)
@@ -999,15 +1001,17 @@ public class Guild : Object, Hashable, Updateable  {
             case "icon":
                 if let hash = v as? String {
                     icon = Asset(hash: hash, fullURL: "/icons/\(id)/\(Asset.imageType(hash: hash))")
-                }
+                } else { icon = nil }
             case "owner_id":
                 ownerId = Conversions.snowflakeToUInt(v as! String)
             case "splash":
-                let splashHash = v as! String
-                splash = Asset(hash: splashHash, fullURL: "/splash/\(id)/\(Asset.imageType(hash: splashHash))")
+                if let splashHash = v as? String {
+                    splash = Asset(hash: splashHash, fullURL: "/splash/\(id)/\(Asset.imageType(hash: splashHash))")
+                } else { splash = nil }
             case "discovery_splash":
-                let discoverySplashHash = v as! String
-                discoverySplash = Asset(hash: discoverySplashHash, fullURL: "/discovery-splashes/\(id)/\(Asset.imageType(hash: discoverySplashHash))")
+                if let discoverySplashHash = v as? String {
+                    discoverySplash = Asset(hash: discoverySplashHash, fullURL: "/discovery-splashes/\(id)/\(Asset.imageType(hash: discoverySplashHash))")
+                } else { discoverySplash = nil }
             case "afk_channel_id":
                 afkChannelId = Conversions.snowflakeToOptionalUInt(v as? String)
             case "afk_timeout":
@@ -1055,8 +1059,9 @@ public class Guild : Object, Hashable, Updateable  {
             case "description":
                 description = v as? String
             case "banner":
-                let bannerHash = v as? String
-                banner = bannerHash != nil ? Asset(hash: bannerHash!, fullURL: "/banners/\(id)/\(Asset.imageType(hash: bannerHash!))") : nil
+                if let bannerHash = v as? String {
+                    banner = Asset(hash: bannerHash, fullURL: "/banners/\(id)/\(Asset.imageType(hash: bannerHash))")
+                } else { banner = nil }
             case "premium_tier":
                 premiumTier = PremiumTier(rawValue: v as! Int)!
             case "premium_subscription_count":
@@ -1082,6 +1087,8 @@ public class Guild : Object, Hashable, Updateable  {
                 self.stickers = stickers
             case "premium_progress_bar_enabled":
                 premiumProgressBarEnabled = v as! Bool
+            case "safety_alerts_channel_id":
+                safetyAlertsChannelId = Conversions.snowflakeToOptionalUInt(v)
             default:
                 break
             }
@@ -1089,7 +1096,7 @@ public class Guild : Object, Hashable, Updateable  {
     }
     
     /// Retrieve the guilds vanity invite. The guild needs to have feature ``Guild/Feature/vanityUrl``.
-    ///  - Returns: The vanity invite. If the guild does not have one, `code`
+    ///  - Returns: The vanity invite.
     public func vanityInvite() async throws -> Invite {
         return try await bot!.http.getGuildVanityUrl(guildId: id)
     }
@@ -1592,6 +1599,10 @@ extension Guild {
         
         /// Enable/disable the guild's boost progress bar.
         case premiumProgressBarEnabled(Bool)
+        
+        /// The ID of the channel where admins and moderators of Community guilds receive safety alerts from Discord.
+        /// Can be set to `nil` to disable the safety channel.
+        case safetyAlertsChannel(Snowflake?)
     }
 
     /// Represents a guild widget.
