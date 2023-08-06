@@ -72,7 +72,7 @@ public class User : Object, Updateable, Hashable {
         id = Conversions.snowflakeToUInt(userData["id"])
         name = userData["username"] as! String
         discriminator = userData["discriminator"] as! String
-        defaultAvatarUrl = HTTPClient.buildEndpoint(.cdn, endpoint: "/embed/avatars/\(Conversions.defaultUserAvatar(discriminator: discriminator))")
+        defaultAvatarUrl = HTTPClient.buildEndpoint(.cdn, endpoint: "/embed/avatars/\(Conversions.defaultUserAvatar(discriminator: discriminator, userId: id))")
         
         let avatarHash = userData["avatar"] as? String
         avatar = avatarHash != nil ? Asset(hash: avatarHash!, fullURL: "/avatars/\(id)/\(Asset.imageType(hash: avatarHash!))") : nil

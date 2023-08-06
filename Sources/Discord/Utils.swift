@@ -408,8 +408,14 @@ struct Conversions {
         return UInt(str)
     }
 
-    static func defaultUserAvatar(discriminator: String) -> String {
-        return String(Int(discriminator)! % 5) + ".png"
+    static func defaultUserAvatar(discriminator: String, userId: Snowflake) -> String {
+        var value: String
+        if discriminator == "0" {
+            value = ((userId >> 22) % 6).description
+        } else {
+            value = (Int(discriminator)! % 5).description
+        }
+        return value + ".png"
     }
     
     static func stringDateToDate(iso8601: String) -> Date? {
