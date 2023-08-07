@@ -704,6 +704,8 @@ public class Guild : Object, Hashable, Updateable  {
         guard !(edits.count == 0) else { return self }
         
         var payload: JSON = [:]
+        var editedFeatures = Set<Feature>(features)
+        
         for edit in edits {
             switch edit {
             case .name(let name):
@@ -744,8 +746,30 @@ public class Guild : Object, Hashable, Updateable  {
                 payload["premium_progress_bar_enabled"] = enabled
             case .safetyAlertsChannel(let safetyAlertsChannelId):
                 payload["safety_alerts_channel_id"] = nullable(safetyAlertsChannelId)
+            case .community(let rulesId, let publicUpdatesId):
+                if let rulesId, let publicUpdatesId {
+                    payload["rules_channel_id"] = rulesId
+                    payload["public_updates_channel_id"] = publicUpdatesId
+                    editedFeatures.insert(.community)
+                } else if [rulesId, publicUpdatesId].allSatisfy({ $0 == nil }) {
+                    payload["rules_channel_id"] = NIL
+                    payload["public_updates_channel_id"] = NIL
+                    editedFeatures.remove(.community)
+                } else {
+                    throw HTTPError.badRequest("Rule channel ID and public updates channel ID must be set")
+                }
+            case .discoverable(let discoverable):
+                if discoverable { editedFeatures.insert(.discoverable) }
+                else { editedFeatures.remove(.discoverable) }
+            case .invitesDisabled(let disabled):
+                if disabled {  editedFeatures.insert(.invitesDisabled) }
+                else { editedFeatures.remove(.invitesDisabled) }
+            case .raidAlertsDisabled(let disabled):
+                if disabled { editedFeatures.insert(.raidAlertsDisabled) }
+                else { editedFeatures.remove(.raidAlertsDisabled) }
             }
         }
+        payload["features"] = editedFeatures.map({ $0.rawValue })
         return try await bot!.http.modifyGuild(guildId: id, payload: payload, reason: reason)
     }
     
@@ -1603,6 +1627,19 @@ extension Guild {
         /// The ID of the channel where admins and moderators of Community guilds receive safety alerts from Discord.
         /// Can be set to `nil` to disable the safety channel.
         case safetyAlertsChannel(Snowflake?)
+        
+        /// Enable/disable Community Features in the guild. Both parameters are required to be set in order for it to be enabled.
+        /// To disable, set both parameters to `nil`.
+        case community(rulesChannel: Snowflake?, publicUpdatesChannel: Snowflake?)
+        
+        /// Enable/disable discovery in the guild.
+        case discoverable(Bool)
+        
+        /// Pauses all invites/access to the guild.
+        case invitesDisabled(Bool)
+        
+        /// Enable/disable alerts for join raids.
+        case raidAlertsDisabled(Bool)
     }
 
     /// Represents a guild widget.
