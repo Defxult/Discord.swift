@@ -1582,7 +1582,14 @@ extension Guild {
         /// The new AFK channel. Can be set to `nil` to disable AFK channels.
         case afkChannel(Snowflake?)
         
-        /// Update the amount of time it takes for someone to be automatically moved to the AFK channel.
+        /// Update the amount of time it takes for someone to be automatically moved to the AFK channel. See discussion for valid time intervals.
+        ///
+        /// The only valid time intervals are:
+        /// - 60 (1 minute)
+        /// - 300 (5 minutes)
+        /// - 900 (15 minutes)
+        /// - 1800 (30 minutes)
+        /// - 3600 (60 minutes)
         case afkTimeout(Int)
         
         /// The new guild icon. Can be animated if the guild has the ``Guild/Feature/animatedIcon`` feature. Can be set to `nil` to remove the icon.
