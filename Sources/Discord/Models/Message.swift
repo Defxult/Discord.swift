@@ -711,6 +711,12 @@ extension Message {
         /// This message failed to mention some roles and add their members to the thread.
         case failedToMentionSomeRolesInThread = 256
         
+        /// This message will not trigger push and desktop notifications.
+        case suppressNotifications = 4096
+        
+        /// This message is a voice message.
+        case isVoiceMessage = 8192
+        
         /// Convert the flag value to an array of message flags.
         static func get(_ messageFlagValue: Int) -> [Message.Flags] {
             var flags = [Message.Flags]()
