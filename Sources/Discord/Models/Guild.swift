@@ -186,6 +186,12 @@ public class Guild : Object, Hashable, Updateable  {
         return forums as! [ForumChannel]
     }
     
+    /// All media channels.
+    public var mediaChannels: [MediaChannel] {
+        let media = channels.filter({ $0.type == .guildMedia })
+        return media as! [MediaChannel]
+    }
+    
     /// All active threads in the guild that current user has permission to view.
     public var threads: [ThreadChannel] {
         let threads = channels.filter { $0.type == .publicThread || $0.type == .privateThread || $0.type == .announcementThread }

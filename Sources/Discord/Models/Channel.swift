@@ -46,6 +46,9 @@ func determineGuildChannelType(type: Int, data: JSON, bot: Discord, guildId: Sno
     case .guildForum:
         temp = ForumChannel(bot: bot, fcData: data, guildId: guildId)
         
+    case .guildMedia:
+        temp = MediaChannel(bot: bot, mcData: data, guildId: guildId)
+        
     case .dm:
         break
     }
@@ -242,6 +245,9 @@ public enum ChannelType : Int, CaseIterable {
     
     /// Represents a ``ForumChannel`` type.
     case guildForum = 15
+    
+    /// Represents a ``MediaChannel`` type.
+    case guildMedia
 }
 
 /// Represents a channel that's in a guild.
@@ -1125,6 +1131,13 @@ extension ForumChannel {
             }
             return payload
         }
+    }
+}
+
+/// Represents a media channel.
+public class MediaChannel : ForumChannel {
+    init(bot: Discord, mcData: JSON, guildId: Snowflake) {
+        super.init(bot: bot, fcData: mcData, guildId: guildId)
     }
 }
 

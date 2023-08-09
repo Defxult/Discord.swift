@@ -790,8 +790,8 @@ class WSGateway {
                     let c = channel as! StageChannel
                     c.lastMessageId = message.id
                 
-                // Not messageable
-                case .guildCategory, .guildForum:
+                // Not directly messageable
+                case .guildCategory, .guildForum, .guildMedia:
                     break
                 }
             }
