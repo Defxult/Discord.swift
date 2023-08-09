@@ -436,6 +436,14 @@ class WSGateway {
         case .threadCreate:
             let guild = bot.getGuild(getGuildIdFromJSON(data))!
             let thread = ThreadChannel(bot: bot, threadData: data, guildId: guild.id)
+            
+            // Update the parent channel `lastMessageId` (last created thread ID)
+            if thread.channel.type == .guildForum {
+                (thread.channel as! ForumChannel).lastMessageId = thread.id
+            } else if thread.channel.type == .guildMedia {
+                (thread.channel as! MediaChannel).lastMessageId = thread.id
+            }
+            
             guild.cacheChannel(thread)
             dispatch({ await $0.onThreadCreate(thread: thread) })
             

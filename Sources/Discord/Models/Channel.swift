@@ -801,7 +801,7 @@ public class ForumChannel : GuildChannel, Hashable {
     /// Whether the channel is NSFW.
     public internal(set) var isNsfw: Bool
 
-    /// The ID of the last **thread** sent in this channel.
+    /// The ID of the last **thread** created in this channel.
     public internal(set) var lastMessageId: Snowflake?
     
     /// Amount of seconds a user has to wait before sending another message.
