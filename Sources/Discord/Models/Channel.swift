@@ -113,6 +113,7 @@ extension Messageable {
     ///   - files: Files to attach to the message.
     ///   - stickers: Stickers to attach to the message (3 max).
     ///   - reference: The message to reply to.
+    ///   - silent: Whether this message suppresses push and desktop notifications.
     /// - Returns: The message that was sent.
     @discardableResult
     public func send(
@@ -123,7 +124,8 @@ extension Messageable {
         ui: UI? = nil,
         files: [File]? = nil,
         stickers: [GuildSticker]? = nil,
-        reference: Message.Reference? = nil
+        reference: Message.Reference? = nil,
+        silent: Bool = false
     ) async throws -> Message {
         var payload: JSON = ["tts": tts, "allowed_mentions": allowedMentions.convert() ]
         
@@ -132,6 +134,7 @@ extension Messageable {
         if let reference { payload["message_reference"] = reference.convert() }
         if let ui { payload["components"] = try ui.convert() }
         if let stickers { payload["sticker_ids"] = stickers.map({ $0.id }) }
+        if silent { payload["flags"] = Message.Flags.suppressNotifications.rawValue }
         
         let message = try await bot!.http.createMessage(channelId: id, json: payload, files: files)
         UI.setUI(message: message, ui: ui)
