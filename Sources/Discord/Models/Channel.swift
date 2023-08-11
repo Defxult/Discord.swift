@@ -139,6 +139,11 @@ extension Messageable {
         if let stickers { payload["sticker_ids"] = stickers.map({ $0.id }) }
         if silent { payload["flags"] = Message.Flags.suppressNotifications.rawValue }
         
+        // NOTE:
+        // Suppressing embeds is intentionally excluded. I don't see the point of adding embeds just so they can
+        // be suppressed. If a user is going to suppress embeds, why add them at all in the first place? Maybe
+        // in the future there will be a reason for suppressing them, but for now I can't think of a good reason.
+        
         let message = try await bot!.http.createMessage(channelId: id, json: payload, files: files)
         UI.setUI(message: message, ui: ui)
         return message
