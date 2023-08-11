@@ -386,6 +386,14 @@ extension Sequence<EventListener> {
 
 struct Conversions {
     
+    static func bitfield(_ seq: any Sequence<Int>) -> Int {
+        var value = 0
+        seq.forEach({ i in
+            value |= i
+        })
+        return value
+    }
+    
     static func strArraySnowflakeToSnowflake(_ arrayIds: [String]) -> [Snowflake] {
         var ids = [Snowflake]()
         for id in ids { ids.append(Conversions.snowflakeToUInt(id)) }
