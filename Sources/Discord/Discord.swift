@@ -434,6 +434,13 @@ public class Discord {
         }
     }
     
+    /// Retrieve an emoji from the bots internal cache.
+    /// - Parameter id: ID of the emoji.
+    /// - Returns: The emoji matching the provided ID, or `nil` if not found.
+    public func getEmoji(_ id: Snowflake) -> Emoji? {
+        return emojis.first(where: { $0.id == id })
+    }
+    
     /// Retrieve a guild from the bots internal cache.
     /// - Parameter id: The ID of the guild.
     /// - Returns: The guild matching the provided ID, or `nil` if not found.
