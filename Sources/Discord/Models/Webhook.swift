@@ -45,7 +45,7 @@ public class Webhook : Object {
     /// The default name of the webhook.
     public let name: String?
 
-    /// The default user avatar hash of the webhook.
+    /// The default user avatar of the webhook.
     public let avatar: Asset?
 
     /// The secure token of the webhook.
@@ -88,7 +88,7 @@ public class Webhook : Object {
     /// Edit the webhook.
     /// - Parameters:
     ///   - edits: The enum containing all values to be updated or removed for the webhook.
-    ///   - reason: The reason for editing the webhook. This shows up in the guilds audit-log.
+    ///   - reason: The reason for editing the webhook. This shows up in the guilds audit log.
     /// - Returns: The updated webhook.
     @discardableResult
     public func edit(_ edits: Edit..., reason: String? = nil) async throws -> Webhook {
@@ -177,7 +177,7 @@ extension Webhook {
         /// Channel Follower Webhooks are internal webhooks used with Channel Following to post new messages into channels.
         case channelFollower
         
-        ///  Application webhooks are webhooks used with Interactions.
+        /// Application webhooks are webhooks used with Interactions.
         case application
     }
 }

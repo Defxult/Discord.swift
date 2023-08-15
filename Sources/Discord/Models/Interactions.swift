@@ -952,7 +952,7 @@ public enum InteractionCallbackType : Int {
     /// ACK an interaction and edit a response later, the user sees a loading state.
     case deferredChannelMessageWithSource
     
-    /// For components, ACK an interaction and edit the original message later; the user does not see a loading state,
+    /// For components, ACK an interaction and edit the original message later; the user does not see a loading state.
     case deferredUpdateMessage
     
     /// For components, edit the message the component was attached to.
@@ -986,7 +986,7 @@ public struct ApplicationCommandData : InteractionData {
     /// ID of the user or message targeted by a user or message command.
     public let targetId: Snowflake?
     
-    /// The message the message application command was used on.
+    /// The message a message application command was used on.
     public private(set) var message: Message?
     
     /// The values resulting from the end users choices.

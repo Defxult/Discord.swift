@@ -290,13 +290,13 @@ public class Button : Component, InternalComponent {
      let platforms = UI()
          .addItem(Button(style: .primary, label: "PlayStation", customId: "ps"))
          .addItem(Button(style: .primary, label: "Xbox", customId: "xb"))
-         .onInteraction({ inter async in
+         .onInteraction({ interaction async in
              // Convert the data to the proper type
-             let data = inter.data as! MessageComponentData
+             let data = interaction.data as! MessageComponentData
      
              // Check which button was clicked based on the customId
              if data.customId == "ps" {
-                 try! await inter.respondWithMessage("You chose PlayStation!")
+                 try! await interaction.respondWithMessage("You chose PlayStation!")
              }
              // ...
          })
@@ -414,7 +414,7 @@ public class SelectMenu : Component, InternalComponent {
     ///   - placeholder: Placeholder text if nothing is selected; max 150 characters.
     ///   - minValues: Minimum number of items that must be chosen; min 0, max 25.
     ///   - maxValues: Maximum number of items that can be chosen; max 25.
-    ///   - disabled: Whether select menu is disabled.
+    ///   - disabled: Whether the select menu is disabled.
     public init(
         menuType: MenuType,
         customId: String,
