@@ -359,7 +359,7 @@ public class Message : Object, Hashable, Updateable {
     /// Edit the message.
     /// - Parameters:
     ///   - edits: The enum containing all values to be updated or removed for the message.
-    ///   - keeping:  The attachments that should stay on the message. If set to an empty array, all attachments that were previously attached will be removed.
+    ///   - keeping: The attachments that should stay on the message. If set to an empty array, all attachments that were previously attached will be removed.
     /// - Returns: The updated message.
     @discardableResult
     public func edit(_ edits: Message.Edit..., keeping: [Attachment]? = nil) async throws -> Message {
@@ -418,7 +418,7 @@ public class Message : Object, Hashable, Updateable {
     ///   - after: The amount of seconds to wait before deleting the message.
     ///   - reason: The reason for deleting the message. This shows up in the guilds audit log.
     public func delete(after: TimeInterval = 0, reason: String? = nil) async throws {
-        let after = after < 0 ? 0 : after
+        let after = max(0, after)
         if after > 0 {
             Task {
                 await sleep(Int(after * 1000))
@@ -770,7 +770,7 @@ extension Message {
 
 extension Message.Activity {
     
-    /// Represenets a messages activity type.
+    /// Represents a messages activity type.
     public enum ActivityType : Int {
         case join = 1
         case spectate

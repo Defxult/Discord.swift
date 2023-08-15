@@ -148,7 +148,9 @@ public class Role : Object, Hashable {
         return try await bot!.http.modifyGuildRole(guildId: guild.id, roleId: id, data: payload, reason: reason)
     }
 
-    static func toSnowflakes(_ roles: [Role]) -> [Snowflake] { roles.map({ $0.id }) }
+    static func toSnowflakes(_ roles: [Role]) -> [Snowflake] {
+        roles.map({ $0.id })
+    }
 }
 
 extension Role {
