@@ -82,6 +82,12 @@ public class Member : Object, Hashable {
     
     // ------------------------------ API Separated -----------------------------------
     
+    /// The direct message channel associated with the member, or `nil` if not found.
+    public var dmChannel: DMChannel? {
+        let dmChs = bot!.dms.filter({ $0.recipientId != nil })
+        return dmChs.first(where: { $0.recipientId! == id })
+    }
+    
     /// The users voice state. Contains information such as ``VoiceChannel/State/selfMuted`` and more.
     public var voice: VoiceChannel.State? { guild.voiceStates.first(where: { $0.user.id == id }) }
     
