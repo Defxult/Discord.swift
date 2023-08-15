@@ -418,7 +418,7 @@ struct Conversions {
 
     static func defaultUserAvatar(discriminator: String, userId: Snowflake) -> String {
         var value: String
-        if discriminator == "0" {
+        if User.migrated(discriminator) {
             value = ((userId >> 22) % 6).description
         } else {
             value = (Int(discriminator)! % 5).description

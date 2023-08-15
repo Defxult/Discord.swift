@@ -64,7 +64,7 @@ public class User : Object, Updateable, Hashable {
     public let mention: String
     
     /// The users name. If their discriminator is still available it will be included.
-    public var description: String { discriminator == "0" ? name : name + "#" + discriminator }
+    public var description: String { User.migrated(discriminator) ? name : name + "#" + discriminator }
 
     // -----------------------------------
 
@@ -115,6 +115,11 @@ public class User : Object, Updateable, Hashable {
                 break
             }
         }
+    }
+    
+    /// Whether the user has migrated to the new naming system.
+    static func migrated(_ discriminator: String) -> Bool {
+        discriminator == "0"
     }
 }
 
