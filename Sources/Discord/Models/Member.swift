@@ -194,6 +194,12 @@ public class Member : Object, Hashable {
         try await bot!.http.removeGuildMember(guildId: guild.id, userId: id, reason: reason)
     }
     
+    /// Whether the member was mentioned in the message. See ``User/mentionedIn(_:)`` for the ``User`` variant.
+    /// - Parameter message: The message to check if the member was mentioned.
+    public func mentionedIn(_ message: Message) -> Bool {
+        return message.mentionedUsers.contains(user!)
+    }
+    
     /// Timeout the member for up to 28 days.
     /// - Parameters:
     ///   - until: When the timeout will expire. Can be set to `nil` to remove timeout.

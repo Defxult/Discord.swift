@@ -91,6 +91,12 @@ public class User : Object, Updateable, Hashable {
         mention = Markdown.mentionUser(id: id)
     }
     
+    /// Whether the user was mentioned in the message. See ``Member/mentionedIn(_:)`` for the ``Member`` variant.
+    /// - Parameter message: The message to check if the user was mentioned.
+    public func mentionedIn(_ message: Message) -> Bool {
+        return message.mentionedUsers.contains(self)
+    }
+    
     /// Updates the properties of the user when received via `GuildEvent.userUpdate` and `GuildEvent.presenceUpdate`.
     func update(_ data: JSON) {
         for (k, v) in data {
