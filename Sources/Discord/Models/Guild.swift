@@ -783,7 +783,7 @@ public class Guild : Object, Hashable, Updateable  {
     /// - Parameters:
     ///   - positions: New positions for each role.
     ///   - reason: The reason for editing the role positions. This shows up in the guilds audit log.
-    /// - Returns: Alll roles in the guild.
+    /// - Returns: All roles in the guild.
     @discardableResult
     public func editRolePositions(_ positions: [Role: Int], reason: String? = nil) async throws -> [Role] {
         return try await bot!.http.modifyGuildRolePositions(guildId: id, positions: positions, reason: reason)
