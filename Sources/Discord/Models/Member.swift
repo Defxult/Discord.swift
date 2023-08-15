@@ -66,7 +66,7 @@ public class Member : Object, Hashable {
     public internal(set) var premiumSince: Date?
     
     /// Whether the user has not yet passed the guild's Membership Screening requirements.
-    public internal(set) var isPending: Bool?
+    public internal(set) var isPending: Bool
 
     /// When the user's timeout will expire and the user will be able to communicate in the guild again.
     public internal(set) var timedOutUntil: Date?
@@ -115,7 +115,7 @@ public class Member : Object, Hashable {
         nick = memberData["nick"] as? String
         memberRoleArrayStr = memberData["roles"] as! [String]
         joinedAt = Conversions.stringDateToDate(iso8601: memberData["joined_at"] as! String)!
-        isPending = memberData["pending"] as? Bool
+        isPending = Conversions.optionalBooltoBool(memberData["pending"] as? Bool)
         guildAvatarHash = memberData["avatar"] as? String
         
         let timedOutDate = memberData["communication_disabled_until"] as? String
