@@ -325,7 +325,7 @@ class WSGateway {
         return event
     }
     
-    /// Handles the process of calling the `onInteraction` closures set by the users for interactions
+    /// Handles the process of calling the `onInteraction` closures set by the user for interactions
     private func handleInteractions(interaction: Interaction) async {
         switch interaction.type {
         case .ping:
@@ -1757,11 +1757,11 @@ open class EventListener {
     
     // MARK: Presence
     
-    /// Dispatched when a users presence is updated.
+    /// Dispatched when a user's presence is updated.
     /// - Parameters:
     ///   - user: The user who's presence was updated.
-    ///   - status: The users updated status.
-    ///   - activities: The users updated activity. Will be `nil` if no activity was updated.
+    ///   - status: The user's updated status.
+    ///   - activities: The user's updated activity. Will be `nil` if no activity was updated.
     /// - Requires: Intent ``Intents/guildPresences``.
     open func onPresenceUpdate(user: User, status: User.Status, activities: [User.Activity]?) async {}
     

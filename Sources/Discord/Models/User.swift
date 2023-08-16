@@ -27,7 +27,7 @@ import Foundation
 /// Represents a Discord user.
 public class User : Object, Updateable, Hashable {
     
-    /// The users ID.
+    /// The user's ID.
     public let id: Snowflake
     
     /// The user's username.
@@ -63,7 +63,7 @@ public class User : Object, Updateable, Hashable {
     /// Mention the user.
     public let mention: String
     
-    /// The users name. If their discriminator is still available it will be included.
+    /// The user's name. If their discriminator is still available it will be included.
     public var description: String { User.migrated(discriminator) ? name : name + "#" + discriminator }
 
     // -----------------------------------
@@ -139,7 +139,7 @@ extension User {
         case offline = "offline"
     }
     
-    /// Represents a users activity.
+    /// Represents a user's activity.
     public struct Activity {
         
         /// Activity's name.
@@ -270,7 +270,7 @@ extension User {
         }
     }
     
-    /// Represents a users activity type.
+    /// Represents a user's activity type.
     public enum ActivityType : Int {
         
         /// "Playing Rocket League"
@@ -295,7 +295,7 @@ extension User {
     /// Represents the information used to update the bots presence via ``Discord/Discord/updatePresence(status:activity:)``.
     public struct PresenceActivity {
         
-        /// The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``, a `url` must be set.
+        /// The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``,  a `url` must be set.
         public var type: ActivityType
         
         /// The name of the activity.
@@ -306,7 +306,7 @@ extension User {
         
         /// Initializes a presence activity for use in ``Discord/Discord/updatePresence(status:activity:)``.
         /// - Parameters:
-        ///   - type: The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``, a `url` must be set.
+        ///   - type: The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``,  a `url` must be set.
         ///   - name: The name of the activity.
         ///   - url: The associated URL when using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``.
         public init(_ type: ActivityType, name: String, url: String? = nil) {

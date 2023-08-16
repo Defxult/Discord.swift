@@ -30,14 +30,14 @@ public class Member : Object, Hashable {
     /// The members ID.
     public var id: Snowflake { user!.id }
     
-    /// The users guild nickname.
+    /// The user's guild nickname.
     public internal(set) var nick: String?
 
     /// The guild the user belongs to.
     public var guild: Guild { bot!.getGuild(guildId)! }
     private let guildId: Snowflake
     
-    /// The users guild avatar.
+    /// The user's guild avatar.
     public var guildAvatar: Asset? {
         if let guildAvatarHash {
             let baseUrl = "/guilds/\(guild.id)/users/\(user!.id)/avatars/"
@@ -88,7 +88,7 @@ public class Member : Object, Hashable {
         return dmChs.first(where: { $0.recipientId! == id })
     }
     
-    /// The users voice state. Contains information such as ``VoiceChannel/State/selfMuted`` and more.
+    /// The user's voice state. Contains information such as ``VoiceChannel/State/selfMuted`` and more.
     public var voice: VoiceChannel.State? { guild.voiceStates.first(where: { $0.user.id == id }) }
     
     /// All guilds the bot and the member shares.
@@ -243,7 +243,7 @@ extension Member {
         }
     }
     
-    /// Represents the values that should be edited in a ``Member``.
+    /// Represents the values that can be edited in a ``Member``.
     public enum Edit {
         
         /// Allows a member who does not meet verification requirements to participate in a server.

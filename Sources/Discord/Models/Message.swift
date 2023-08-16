@@ -514,7 +514,7 @@ public class Message : Object, Hashable, Updateable {
 
 extension Message {
 
-    /// Represents the values that should be edited in a ``Message``.
+    /// Represents the values that can be edited in a ``Message``.
     public enum Edit {
         
         /// Content for the message. Can be `nil` to remove all content.

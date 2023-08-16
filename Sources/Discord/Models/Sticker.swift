@@ -135,7 +135,7 @@ public struct GuildSticker : Object, Hashable {
 
 extension GuildSticker {
     
-    /// Represents the values that should be edited in a ``GuildSticker``.
+    /// Represents the values that can be edited in a ``GuildSticker``.
     public enum Edit {
         
         /// Name of the sticker.

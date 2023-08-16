@@ -458,7 +458,7 @@ public class CategoryChannel : GuildChannel, Hashable {
 
 extension CategoryChannel {
     
-    /// Represents the values that should be edited in a ``CategoryChannel``.
+    /// Represents the values that can be edited in a ``CategoryChannel``.
     public enum Edit {
         
         /// The name of the category.
@@ -695,7 +695,7 @@ public class TextChannel : GuildChannelMessageable, Hashable {
 
 extension TextChannel {
 
-    /// Represents the values that should be edited in a ``TextChannel``.
+    /// Represents the values that can be edited in a ``TextChannel``.
     public enum Edit {
 
         /// The name of the channel.
@@ -1003,7 +1003,7 @@ public class ForumChannel : GuildChannel, Hashable {
 
 extension ForumChannel {
     
-    /// Represents the values that should be edited in a ``ForumChannel``.
+    /// Represents the values that can be edited in a ``ForumChannel``.
     public enum Edit {
         
         /// Name of the forum.
@@ -1262,7 +1262,7 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
 
 extension VoiceChannel {
 
-    /// Represents the values that should be edited in a ``VoiceChannel``.
+    /// Represents the values that can be edited in a ``VoiceChannel``.
     public enum Edit {
         
         /// The bitrate (in bits) of the voice channel.
@@ -1324,7 +1324,7 @@ extension VoiceChannel {
         case full
     }
 
-    /// Represent a users voice connection status.
+    /// Represent a user's voice connection status.
     public class State : Updateable {
         
         /// The channel the user is connected to.
@@ -1631,7 +1631,7 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
 
 extension ThreadChannel {
     
-    /// Represents the values that should be edited in a ``ThreadChannel``.
+    /// Represents the values that can be edited in a ``ThreadChannel``.
     public enum Edit {
         
         /// The channels name.
@@ -1744,7 +1744,7 @@ public class StageChannel : VoiceChannel {
 
 extension StageChannel {
     
-    /// Represents the values that should be edited in a ``StageChannel``.
+    /// Represents the values that can be edited in a ``StageChannel``.
     public enum Edit {
         
         /// The bitrate (in bits) of the stage channel. Maximum of 64000.

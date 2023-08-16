@@ -1576,7 +1576,7 @@ extension Guild {
         }
     }
     
-    /// Represents the values that should be edited in a ``Guild``.
+    /// Represents the values that can be edited in a ``Guild``.
     public enum Edit {
         
         /// The new name for the guild.
@@ -2327,7 +2327,7 @@ extension Guild {
 
 extension Guild.Template {
     
-    /// Represents the values that should be edited in a ``Guild/Template``.
+    /// Represents the values that can be edited in a ``Guild/Template``.
     public enum Edit {
         
         /// Name of the template (100 characters max).
@@ -2360,7 +2360,7 @@ extension Guild.ScheduledEvent {
         case guildOnly = 2
     }
     
-    /// Represents the values that should be edited in a ``Guild/ScheduledEvent``.
+    /// Represents the values that can be edited in a ``Guild/ScheduledEvent``.
     public enum Edit {
         
         /// The new channel of the scheduled event.

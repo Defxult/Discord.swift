@@ -209,7 +209,7 @@ public struct ApplicationCommand {
 
 extension ApplicationCommand {
     
-    /// Represents the values that should be edited in a ``ApplicationCommand``.
+    /// Represents the values that can be edited in a ``ApplicationCommand``.
     public enum Edit {
         
         /// Name of the command.
@@ -915,7 +915,7 @@ public class Interaction {
         return response
     }
     
-    /// Respond with the autocomplete choices based on the users input.
+    /// Respond with the autocomplete choices based on the user's input.
     /// - Parameter choices: The options to choose from.
     public func respondWithAutocomplete(choices: [ApplicationCommandOptionChoice]) async throws {
         let payload: JSON = [
@@ -989,7 +989,7 @@ public struct ApplicationCommandData : InteractionData {
     /// The message a message application command was used on.
     public private(set) var message: Message?
     
-    /// The values resulting from the end users choices.
+    /// The values resulting from the end user's choices.
     public let results: Resolved
     
     init(bot: Discord, appCommandData: JSON) {
@@ -1052,7 +1052,7 @@ public class ApplicationCommandInteractionDataOption {
     }
 }
 
-/// Represents the values/results from the end users choices.
+/// Represents the values/results from the end user's choices.
 public struct Resolved {
     
     /// The IDs of the users that were selected in the application command/message component.
@@ -1101,7 +1101,7 @@ public struct MessageComponentData : InteractionData {
     /// The type of the component.
     public let componentType: ComponentType
     
-    /// The values resulting from the end users choices.
+    /// The values resulting from the end user's choices.
     public private(set) var results: Resolved
     
     init(_ messageComponentData: JSON) {

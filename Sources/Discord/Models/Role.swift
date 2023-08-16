@@ -180,7 +180,7 @@ extension Role {
         }
     }
     
-    /// Represents the values that should be edited in a ``Role``.
+    /// Represents the values that can be edited in a ``Role``.
     public enum Edit {
         
         /// The role name.

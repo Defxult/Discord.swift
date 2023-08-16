@@ -143,7 +143,7 @@ public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
 
 extension Emoji {
     
-    /// Represents the values that should be edited in a ``Emoji``.
+    /// Represents the values that can be edited in a ``Emoji``.
     public enum Edit {
         
         /// The emoji name.

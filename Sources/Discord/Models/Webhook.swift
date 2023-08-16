@@ -155,7 +155,7 @@ public class Webhook : Object {
 
 extension Webhook {
     
-    /// Represents the values that should be edited in a ``Webhook``.
+    /// Represents the values that can be edited in a ``Webhook``.
     public enum Edit {
         
         /// The default name of the webhook.
