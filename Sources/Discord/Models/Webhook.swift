@@ -25,7 +25,7 @@ DEALINGS IN THE SOFTWARE.
 import Foundation
 
 /// Represents a Discord webhook.
-public class Webhook : Object {
+public struct Webhook : Object {
     
     /// The ID of the webhook.
     public let id: Snowflake
