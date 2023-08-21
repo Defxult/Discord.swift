@@ -563,7 +563,7 @@ public class Discord {
 public struct Version : CustomStringConvertible {
     public let major = 0
     public let minor = 0
-    public let patch = 12
+    public let patch = 13
     public let releaseLevel = ReleaseLevel.beta
 
     /// The string representation of the library version.
