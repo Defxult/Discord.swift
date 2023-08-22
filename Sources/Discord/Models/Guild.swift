@@ -921,8 +921,8 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getGuildBan(guildId: id, userId: userID)
     }
     
-     /// Requests all channels available in the guild. This is an API call. For general use purposes, use ``channels`` instead.
-     /// - Returns: All channels in the guild.
+    /// Requests all channels available in the guild. This is an API call. For general use purposes, use ``channels`` instead.
+    /// - Returns: All channels in the guild.
     public func requestChannels() async throws -> [GuildChannel] {
         return try await bot!.http.getGuildChannels(guildId: id)
     }
@@ -934,8 +934,8 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getGuildEmoji(guildId: self.id, emojiId: id)
     }
     
-     /// Request all emojis. This is an API call. For general use purposes, use ``emojis`` instead.
-     /// - Returns: All emojis in the guild.
+    /// Request all emojis. This is an API call. For general use purposes, use ``emojis`` instead.
+    /// - Returns: All emojis in the guild.
     public func requestEmojis() async throws -> [Emoji] {
         return try await bot!.http.getGuildEmojis(guildId: id)
     }

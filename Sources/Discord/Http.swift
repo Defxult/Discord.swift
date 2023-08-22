@@ -15,7 +15,7 @@ enum HTTPMethod : String {
     case put = "PUT"
 }
 
-class MultiPartForm {
+struct MultiPartForm {
     let boundary = UUID().uuidString.replacingOccurrences(of: "-", with: String.empty)
     var data = Data()
     
@@ -58,7 +58,7 @@ class MultiPartForm {
         data.append(mpfData("\r\n"))
     }
 
-    func encode() -> Data {
+    mutating func encode() -> Data {
         data.append(mpfData("--\(boundary)--"))
         return data
     }
