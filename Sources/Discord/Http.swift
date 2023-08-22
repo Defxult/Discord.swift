@@ -902,7 +902,16 @@ class HTTPClient {
             "user_limit": userLimit as Any,
             "position": position as Any,
             "permission_overwrites": overwrites?.map({ $0.convert() }) as Any,
-            "rtc_region": (region == .automatic ? nil : region.rawValue)!,
+            
+            // As far as I know, documentation is completely backwards when it comes to this.
+            // The rtc_region field is labeled as a string, but when you click the link to the
+            // documentation for regions (https://discord.com/developers/docs/resources/voice#voice-region-object)
+            // it says it's an object, which is not the case. The HTTP payload is either null or
+            // a string (which matches the channel object documentation). So the channel object says it's
+            // a string, the HTTP payload is a string, but the description for rtc_region links to
+            // an object......wtf...(8/22/2023)
+            "rtc_region": region == .automatic ? NIL : region.rawValue,
+            
             "video_quality_mode": quality.rawValue,
             "nsfw": nsfw
         ]
