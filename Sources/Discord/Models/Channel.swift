@@ -291,6 +291,16 @@ extension GuildChannel {
         return Markdown.suppressLinkEmbed(url: url)
     }
     
+    /// Whether the channel permissions are synced to it's category. Will be `false` if it's not under a category.
+    public var permissionsSynced: Bool {
+        if let category {
+            if let channel = bot!.getChannel(id) as? GuildChannel {
+                return channel.overwrites == category.overwrites
+            }
+        }
+        return false
+    }
+    
     /// Creates an invite for the channel.
     /// - Parameters:
     ///   - maxAge: Duration of invite in seconds before expiry, or ``Invite/infinite`` for never. Goes up to 7 days.
@@ -341,6 +351,12 @@ extension GuildChannel {
         overwrites.first(where: { $0.id == item.id })
     }
     
+    /// Retrieve the invites for the channel.
+    /// - Returns: All active invites for the channel.
+    public func invites() async throws -> [Invite] {
+        return try await bot!.http.getChannelInvites(channelId: id)
+    }
+    
     /// Update the channel overwrites.
     /// - Parameters:
     ///   - overwrites: The new overwrites.
@@ -349,12 +365,6 @@ extension GuildChannel {
     public func updateOverwrites(_ overwrites: PermissionOverwrites, reason: String? = nil) async throws {
         guard !(self is ThreadChannel) else { return }
         try await bot!.http.editChannelPermissions(channelId: id, overwrites: overwrites, reason: reason)
-    }
-    
-    /// Retrieve the invites for the channel.
-    /// - Returns: All active invites for the channel.
-    public func invites() async throws -> [Invite] {
-        return try await bot!.http.getChannelInvites(channelId: id)
     }
 }
 

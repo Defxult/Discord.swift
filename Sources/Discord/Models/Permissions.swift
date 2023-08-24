@@ -233,7 +233,7 @@ public class Permissions {
 }
 
 /// Represents the permission overwrites for a channel.
-public struct PermissionOverwrites {
+public struct PermissionOverwrites : Equatable {
     
     /// The overwrite type.
     public let type: OverwriteType
@@ -249,6 +249,16 @@ public struct PermissionOverwrites {
     
     private var allowedBitSet = 0
     private var deniedBitSet = 0
+    
+    public static func == (lhs: PermissionOverwrites, rhs: PermissionOverwrites) -> Bool {
+        let results = [
+            lhs.id == rhs.id,
+            lhs.type == rhs.type,
+            lhs.enabled == rhs.enabled,
+            lhs.disabled == rhs.disabled
+        ]
+        return results.allSatisfy({ $0 == true })
+    }
     
     init(overwriteData: JSON) {
         id = Conversions.snowflakeToUInt(overwriteData["id"])
