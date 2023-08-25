@@ -37,10 +37,10 @@ public class Role : Object, Hashable {
     /// Role color.
     public internal(set) var color: Color?
     
-    /// If this role is pinned in the user listing.
+    /// Whether the role should be displayed separately in the sidebar.
     public internal(set) var hoist: Bool
     
-    /// The role avatar.
+    /// The role icon.
     public internal(set) var icon: Asset?
     
     /// Position of this role.
@@ -52,7 +52,7 @@ public class Role : Object, Hashable {
     /// Whether this role is managed by an integration.
     public let managed: Bool
     
-    /// Whether this role is mentionable.
+    /// Whether the role should be mentionable.
     public internal(set) var mentionable: Bool
     
     /// The tags this role has.
@@ -109,6 +109,25 @@ public class Role : Object, Hashable {
         
         mention = (id == guildId ? "@everyone" : Markdown.mentionRole(id: id))
         self.guildId = guildId
+    }
+    
+    /// Clone the role.
+    /// - Parameters:
+    ///   - name: Name of the role. If `nil`, the name of the role being cloned will be used.
+    ///   - reason: The reason for cloning the role. This shows up in the guilds audit log.
+    /// - Returns: The cloned role.
+    @discardableResult
+    public func clone(name: String? = nil, reason: String? = nil) async throws -> Role {
+        try await guild.createRole(
+            name: name ?? self.name,
+            permissions: permissions,
+            color: color,
+            hoist: hoist,
+            icon: try await icon?.download(),
+            unicodeEmoji: unicodeEmoji,
+            mentionable: mentionable,
+            reason: reason
+        )
     }
     
     /// Delete the role.
@@ -183,22 +202,23 @@ extension Role {
     /// Represents the values that can be edited in a ``Role``.
     public enum Edit {
         
-        /// The role name.
+        /// Name of the role, max 100 characters.
         case name(String)
         
         /// The role permissions.
         case permissions(Permissions)
         
-        /// The color for the role. Can be set to `nil` to remove the color.
+        /// Color of the role. Can be set to `nil` to remove the color.
         case color(Color?)
         
-        /// If this role is pinned in the user listing.
+        /// Whether the role should be displayed separately in the sidebar.
         case hoist(Bool)
         
-        /// The role icon. Can be set to `nil` to remove the icon.
+        /// The role icon if the guild has the ``Guild/Feature/roleIcons`` feature. Can be set to `nil` to remove the icon.
         case icon(File?)
         
-        /// Whether this role is mentionable.
+        
+        /// Whether the role should be mentionable.
         case mentionable(Bool)
     }
 }
