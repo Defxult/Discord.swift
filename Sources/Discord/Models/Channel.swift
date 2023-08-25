@@ -80,6 +80,35 @@ extension Messageable {
         try await bot!.http.bulkDeleteMessages(channelId: id, messagesToDelete: toDelete, reason: reason)
     }
     
+    /// Delete messages matching the result of the given closure.
+    /// - Parameters:
+    ///   - matching: The closure to match messages against. If `true`, that message will be deleted.
+    ///   - limit: The amount of messages to search through, max 100. This is typically not used as the amount of messages that will be deleted but can be used as such.
+    ///   - bulk: Whether to delete all messages at once.
+    ///   - search: What to search by. Either before, after, or around a specified message. If `nil`, no filter is used.
+    ///   - reason: The reason for deleting the messages. This shows up in the guilds audit log.
+    public func deleteAllMessages(
+        matching: (Message) -> Bool,
+        limit: Int = 100,
+        bulk: Bool = true,
+        search: Message.History? = nil,
+        reason: String? = nil
+    ) async throws {
+        var toDelete = [Message]()
+        for msg in try await history(limit: limit, search: search) {
+            if matching(msg) {
+                toDelete.append(msg)
+            }
+        }
+        if bulk && toDelete.count >= 2 {
+            try await bulkDeleteMessages(toDelete, reason: reason)
+        } else {
+            for msg in toDelete {
+                try await msg.delete(reason: reason)
+            }
+        }
+    }
+    
     /// Receive the channels message history.
     /// - Parameters:
     ///   - limit: Max number of messages to return (1-100).
@@ -291,7 +320,7 @@ extension GuildChannel {
         return Markdown.suppressLinkEmbed(url: url)
     }
     
-    /// Whether the channel permissions are synced to it's category. Will be `false` if it's not under a category.
+    /// Whether the channel permissions are synced to its category. Will be `false` if not under a category.
     public var permissionsSynced: Bool {
         if let category {
             if let channel = bot!.getChannel(id) as? GuildChannel {
