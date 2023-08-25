@@ -563,14 +563,14 @@ public class Discord {
 public struct Version : CustomStringConvertible {
     public let major = 0
     public let minor = 0
-    public let patch = 13
+    public let patch = 14
     public let releaseLevel = ReleaseLevel.beta
 
     /// The string representation of the library version.
     public var description: String { "\(major).\(minor).\(patch)-\(releaseLevel)" }
     
     var gateway: (lib: String, os: String) {
-        ("Discord.swift v\(description)", "macOS \(ProcessInfo().operatingSystemVersionString)")
+        ("Discord.swift v\(description)", "macOS " + ProcessInfo().operatingSystemVersionString)
     }
 }
 
