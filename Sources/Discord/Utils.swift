@@ -116,8 +116,11 @@ public struct Markdown {
     /// - Parameters:
     ///   - text: The text to escape.
     ///   - ignoreUrls: Whether to prevent URLs from being escaped.
+    ///   - style: Various styles of escaping the text.
+    ///     - 1: The normal escape style.
+    ///     - 2: Wrap the entire text in a codeblock.
     /// - Returns: The escaped text.
-    public static func escape(_ text: String, ignoreUrls: Bool = true) -> String {
+    public static func escape(_ text: String, ignoreUrls: Bool = true, style: Int = 1) -> String {
         // - bullet points
         // # headers
         // * bold|italics|bullet points
@@ -134,22 +137,30 @@ public struct Markdown {
             return "@\(zeroWidthSpace)" + (txt.contains("everyone") ? "everyone" : "here")
         }
         
-        if ignoreUrls {
-            let ignoreRegex = #/(?:https?://\S+|w{3}\.\S+)|@(everyone|here)|[:*~>`|_\-#]/#
-            return text.replacing(ignoreRegex, with: { match -> String in
-                let v = match.output.0
-                if v.starts(with: "http") { return v.description }
-                else if v.contains("@") { return addZeroSpace(v.description) }
-                else { return "\\\(v)" }
-            })
-            
-        } else {
-            let regex = #/[:*~>`|_\-#]|@(everyone|here)/#
-            return text.replacing(regex, with: { match -> String in
-                let v = match.output.0
-                if v.contains("@") { return addZeroSpace(v.description) }
-                else { return "\\\(v)" }
-            })
+        if style == 1 {
+            if ignoreUrls {
+                let ignoreRegex = #/(?:https?://\S+|w{3}\.\S+)|@(everyone|here)|[:*~>`|_\-#]/#
+                return text.replacing(ignoreRegex, with: { match -> String in
+                    let v = match.output.0
+                    if v.starts(with: "http") { return v.description }
+                    else if v.contains("@") { return addZeroSpace(v.description) }
+                    else { return "\\\(v)" }
+                })
+                
+            } else {
+                let regex = #/[:*~>`|_\-#]|@(everyone|here)/#
+                return text.replacing(regex, with: { match -> String in
+                    let v = match.output.0
+                    if v.contains("@") { return addZeroSpace(v.description) }
+                    else { return "\\\(v)" }
+                })
+            }
+        }
+        else if style == 2 {
+            return codeBlock(text)
+        }
+        else {
+            return text
         }
     }
     
