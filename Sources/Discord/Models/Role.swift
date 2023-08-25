@@ -81,6 +81,12 @@ public class Role : Object, Hashable {
         }
         return withRole
     }
+    
+    /// Whether this role is the default role, aka the @everyone role.
+    public let isDefault: Bool
+    
+    /// Whether this role is the "Nitro Booster" role.
+    public let isPremiumSubscriber: Bool
 
     /// Mention the role.
     public let mention: String
@@ -111,7 +117,10 @@ public class Role : Object, Hashable {
             tags = Tag(tagData: tempTagsData)
         }
         
-        mention = (id == guildId ? "@everyone" : Markdown.mentionRole(id: id))
+        isDefault = (id == guildId)
+        isPremiumSubscriber = tags?.isPremiumSubscriber ?? false
+        mention = isDefault ? "@everyone" : Markdown.mentionRole(id: id)
+        
         self.guildId = guildId
     }
     
