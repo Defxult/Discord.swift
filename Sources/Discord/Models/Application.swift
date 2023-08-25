@@ -178,41 +178,6 @@ extension Application {
 
     /// Represents a Discord Team.
     public struct Team {
-        
-        /// Represents a member on the team.
-        public struct Member {
-
-            /// The user's membership state on the team.
-            public let membershipState: MembershipState
-            
-            /// The ID of the parent team of which they are a member.
-            public let teamId: Snowflake
-            
-            /// The user ID.
-            public let userId: Snowflake
-            
-            /// The user's username.
-            public let userName: String
-            
-            /// The user's 4-digit discord-tag.
-            public let discriminator: String
-            
-            /// The user's avatar.
-            public private(set) var avatar: Asset?
-
-            init(teamMemberData: JSON) {
-                membershipState = MembershipState(rawValue: teamMemberData["membership_state"] as! Int)!
-                teamId = Conversions.snowflakeToUInt(teamMemberData["team_id"])
-                
-                let userObj = teamMemberData["user"] as! JSON
-                userId = Conversions.snowflakeToUInt(userObj["id"])
-                userName = userObj["username"] as! String
-                discriminator = userObj["discriminator"] as! String
-                if let avatarHash = userObj["avatar"] as? String {
-                    avatar = Asset(hash: avatarHash, fullURL: "/avatars/\(userId)/\(Asset.imageType(hash: avatarHash))")
-                }
-            }
-        }
 
         /// The teams profile image.
         public private(set) var icon: Asset?
@@ -242,6 +207,64 @@ extension Application {
 
             name = teamData["name"] as! String
             ownerUserId = Conversions.snowflakeToUInt(teamData["owner_user_id"])
+        }
+        
+        /// Represents a member on the team.
+        public struct Member {
+            
+            /// Role of the team member.
+            public let role: MemberRole?
+
+            /// The user's membership state on the team.
+            public let membershipState: MembershipState?
+            
+            /// The ID of the parent team of which they are a member.
+            public let teamId: Snowflake
+            
+            /// The user ID.
+            public let userId: Snowflake
+            
+            /// The user's username.
+            public let userName: String
+            
+            /// The user's 4-digit discord-tag.
+            public let discriminator: String
+            
+            /// The user's avatar.
+            public private(set) var avatar: Asset?
+
+            init(teamMemberData: JSON) {
+                role = MemberRole(rawValue: teamMemberData["role"] as! String)
+                membershipState = MembershipState(rawValue: teamMemberData["membership_state"] as! Int)
+                teamId = Conversions.snowflakeToUInt(teamMemberData["team_id"])
+                
+                let userObj = teamMemberData["user"] as! JSON
+                userId = Conversions.snowflakeToUInt(userObj["id"])
+                userName = userObj["username"] as! String
+                discriminator = userObj["discriminator"] as! String
+                if let avatarHash = userObj["avatar"] as? String {
+                    avatar = Asset(hash: avatarHash, fullURL: "/avatars/\(userId)/\(Asset.imageType(hash: avatarHash))")
+                }
+            }
+        }
+        
+        /// Represents the role types that a team ``Application/Team-swift.struct/Member`` can be assigned.
+        public enum MemberRole : String {
+            
+            /// Owners are the most permissiable role, and can take destructive, irreversible actions like deleting team-owned apps or the team itself.
+            /// Teams are limited to 1 owner.
+            case owner = "owner"
+            
+            /// Admins have similar access as owners, except they cannot take destructive actions on the team or team-owned apps.
+            case admin = "admin"
+            
+            /// Developers can access information about team-owned apps, like the client secret or public key. They can also take limited actions on
+            /// team-owned apps, like configuring interaction endpoints or resetting the bot token. Members with the Developer role *cannot* manage the team
+            /// or its members, or take destructive actions on team-owned apps.
+            case developer = "developer"
+            
+            /// Read-only members can access information about a team and any team-owned apps. Some examples include getting the IDs of applications and exporting payout records.
+            case readOnly = "read_only"
         }
     }
     
