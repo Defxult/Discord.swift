@@ -1080,7 +1080,7 @@ class HTTPClient {
         color: Color?,
         hoist: Bool,
         icon: File?,
-        emoji: String?,
+        unicodeEmoji: String?,
         mentionable: Bool,
         reason: String?
     ) async throws -> Role {
@@ -1093,7 +1093,7 @@ class HTTPClient {
             "color": color?.value ?? 0,
             "hoist": hoist,
             "icon": nullable(icon?.asImageData),
-            "unicode_emoji": nullable(emoji),
+            "unicode_emoji": nullable(unicodeEmoji),
             "mentionable": mentionable
         ]
         let data = try await request(.post, route("/guilds/\(guildId)/roles"), json: payload, additionalHeaders: withReason(reason))

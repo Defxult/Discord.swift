@@ -641,7 +641,7 @@ public class Guild : Object, Hashable, Updateable  {
     ///   - color: Color of the role.
     ///   - hoist: Whether the role should be displayed separately in the sidebar.
     ///   - icon: The role icon.
-    ///   - emoji: The role's emoji. Only available if the guild has the ``Guild/Feature/roleIcons`` feature.
+    ///   - unicodeEmoji: The role unicode emoji. Only available if the guild has the ``Guild/Feature/roleIcons`` feature.
     ///   - mentionable: Whether the role should be mentionable.
     ///   - reason: The reason for creating the role. This shows up in the guilds audit log.
     /// - Returns: The newly created role.
@@ -651,11 +651,11 @@ public class Guild : Object, Hashable, Updateable  {
         color: Color? = nil,
         hoist: Bool = false,
         icon: File? = nil,
-        emoji: String? = nil,
+        unicodeEmoji: String? = nil,
         mentionable: Bool = false,
         reason: String? = nil
     ) async throws -> Role {
-        return try await bot!.http.createGuildRole(guildId: id, name: name, permissions: permissions, color: color , hoist: hoist, icon: icon, emoji: emoji, mentionable: mentionable, reason: reason)
+        return try await bot!.http.createGuildRole(guildId: id, name: name, permissions: permissions, color: color , hoist: hoist, icon: icon, unicodeEmoji: unicodeEmoji, mentionable: mentionable, reason: reason)
     }
     
     /// Creates a stage channel.

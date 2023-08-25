@@ -43,6 +43,9 @@ public class Role : Object, Hashable {
     /// The role icon.
     public internal(set) var icon: Asset?
     
+    /// The role unicode emoji.
+    public internal(set) var unicodeEmoji: String?
+    
     /// Position of this role.
     public internal(set) var position: Int
     
@@ -95,6 +98,7 @@ public class Role : Object, Hashable {
         let iconHash = roleData["icon"] as? String
         icon = iconHash != nil ? Asset(hash: iconHash!, fullURL: "/role-icons/\(id)/\(Asset.imageType(hash: iconHash!))") : nil
 
+        unicodeEmoji = roleData["unicode_emoji"] as? String
         position = roleData["position"] as! Int
         
         let permValue = Int(Conversions.snowflakeToUInt(roleData["permissions"]))
@@ -159,6 +163,8 @@ public class Role : Object, Hashable {
                 payload["hoist"] = hoist
             case .icon(let icon):
                 payload["icon"] = nullable(icon?.asImageData)
+            case .unicodeEmoji(let emoji):
+                payload["unicode_emoji"] = nullable(emoji)
             case .mentionable(let mentionable):
                 payload["mentionable"] = mentionable
             }
@@ -217,6 +223,8 @@ extension Role {
         /// The role icon if the guild has the ``Guild/Feature/roleIcons`` feature. Can be set to `nil` to remove the icon.
         case icon(File?)
         
+        /// The role unicode emoji if the guild has the ``Guild/Feature/roleIcons`` feature. Can be set to `nil` to remove the emoji.
+        case unicodeEmoji(String?)
         
         /// Whether the role should be mentionable.
         case mentionable(Bool)
