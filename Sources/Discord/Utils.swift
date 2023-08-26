@@ -194,8 +194,11 @@ public struct Markdown {
     /// - Parameters:
     ///   - title: Title of the masked link. This is what is displayed in Discord.
     ///   - url: The URL of the link.
+    ///   - suppressEmbed: Whether to suppress the link embed.
     /// - Returns: The masked link.
-    public static func maskedLink(title: String, url: String) -> String { "[\(title)](<\(url)>)" }
+    public static func maskedLink(title: String, url: String, suppressEmbed: Bool = true) -> String {
+        "[\(title)](\(suppressEmbed ? suppressLinkEmbed(url: url) : url))"
+    }
     
     /// Mentions the channel.
     /// - Parameter id: ID of the channel.
