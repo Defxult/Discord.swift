@@ -216,7 +216,7 @@ extension Application {
             public let role: MemberRole?
 
             /// The user's membership state on the team.
-            public let membershipState: MembershipState?
+            public let membershipState: MembershipState
             
             /// The ID of the parent team of which they are a member.
             public let teamId: Snowflake
@@ -235,7 +235,7 @@ extension Application {
 
             init(teamMemberData: JSON) {
                 role = MemberRole(rawValue: teamMemberData["role"] as! String)
-                membershipState = MembershipState(rawValue: teamMemberData["membership_state"] as! Int)
+                membershipState = MembershipState(rawValue: teamMemberData["membership_state"] as! Int)!
                 teamId = Conversions.snowflakeToUInt(teamMemberData["team_id"])
                 
                 let userObj = teamMemberData["user"] as! JSON
