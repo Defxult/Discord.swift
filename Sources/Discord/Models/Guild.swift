@@ -1916,6 +1916,12 @@ extension Guild {
         /// Hide member join sticker reply buttons.
         case suppressJoinNotificationReplies = 8
         
+        /// Suppress role subscription purchase and renewal notifications.
+        case suppressRoleSubscriptionPurchaseNotifications = 16
+        
+        /// Hide role subscription sticker reply buttons.
+        case suppressRoleSubscriptionPurchaseNotificationReplies = 32
+        
         static func get(_ value: Int) -> [SystemChannelFlag] {
             var flags = [SystemChannelFlag]()
             for flag in SystemChannelFlag.allCases {
