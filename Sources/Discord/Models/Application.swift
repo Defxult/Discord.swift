@@ -141,6 +141,8 @@ extension Application {
     /// Represents the bots flags.
     public enum Flag : Int, CaseIterable {
         
+        /// Indicates if an app uses the Auto Moderation API.
+        case applicationAutoModerationRuleCreateBadge = 64
         
         /// Intent required for bots in **100 or more guilds** to receive presence update events.
         case gatewayPresence = 4096
@@ -165,6 +167,9 @@ extension Application {
         
         /// Intent required for bots in under 100 guilds to receive [message content](https://support-dev.discord.com/hc/en-us/articles/4404772028055), found in Bot Settings.
         case gatewayMessageContentLimited = 524288
+        
+        /// Indicates if an app has registered global application commands.
+        case applicationCommandBadge = 8388608
 
         static func get(_ appFlagValue: Int) -> [Application.Flag] {
             var flags = [Application.Flag]()
