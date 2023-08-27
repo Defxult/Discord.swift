@@ -85,7 +85,7 @@ public class Guild : Object, Hashable, Updateable  {
     public internal(set) var systemChannelId: Snowflake?
     
     /// The values set for the guild system channel.
-    public internal(set) var systemChannelFlags = [SystemChannelFlags]()
+    public internal(set) var systemChannelFlags = [SystemChannelFlag]()
     
     /// The ID of the channel where Community guilds can display rules and/or guidelines.
     public internal(set) var rulesChannelId: Snowflake?
@@ -271,7 +271,7 @@ public class Guild : Object, Hashable, Updateable  {
         mfaLevel = MFALevel(rawValue: guildData["mfa_level"] as! Int)!
         applicationId = Conversions.snowflakeToOptionalUInt(guildData["application_id"])
         systemChannelId = Conversions.snowflakeToOptionalUInt(guildData["system_channel_id"])
-        systemChannelFlags = SystemChannelFlags.determineFlags(value: guildData["system_channel_flags"] as! Int)
+        systemChannelFlags = SystemChannelFlag.get(guildData["system_channel_flags"] as! Int)
         rulesChannelId = Conversions.snowflakeToOptionalUInt(guildData["rules_channel_id"])
         maxPresences = guildData["max_presences"] as? Int
         maxMembers = guildData["max_members"] as? Int
@@ -745,7 +745,7 @@ public class Guild : Object, Hashable, Updateable  {
             case .systemChannel(let systemChannelId):
                 payload["system_channel_id"] = nullable(systemChannelId)
             case .systemChannelFlags(let systemChannelFlags):
-                payload["system_channel_flags"] = SystemChannelFlags.getBitSetForFlags(systemChannelFlags)
+                payload["system_channel_flags"] = SystemChannelFlag.getBitSetForFlags(systemChannelFlags)
             case .rulesChannel(let rulesChannelId):
                 payload["rules_channel_id"] = nullable(rulesChannelId)
             case .publicUpdatesChannel(let publicUpdatesChannelId):
@@ -1083,7 +1083,7 @@ public class Guild : Object, Hashable, Updateable  {
             case "system_channel_id":
                 systemChannelId = Conversions.snowflakeToOptionalUInt(v)
             case "system_channel_flags":
-                systemChannelFlags = SystemChannelFlags.determineFlags(value: v as! Int)
+                systemChannelFlags = SystemChannelFlag.get(v as! Int)
             case "rules_channel_id":
                 rulesChannelId = Conversions.snowflakeToOptionalUInt(v)
             case "max_presences":
@@ -1624,7 +1624,7 @@ extension Guild {
         case systemChannel(Snowflake?)
         
         /// The new values for the guild system channel.
-        case systemChannelFlags([SystemChannelFlags])
+        case systemChannelFlags([SystemChannelFlag])
         
         /// The new channel where Community guilds display rules and/or guidelines. Can be set to `nil` to disable the rules channel.
         case rulesChannel(Snowflake?)
@@ -1902,7 +1902,7 @@ extension Guild {
     }
 
     /// Represents a guilds system channels flags
-    public enum SystemChannelFlags : Int, CaseIterable {
+    public enum SystemChannelFlag : Int, CaseIterable {
         
         /// Suppress member join notifications.
         case suppressJoinNotifications = 1
@@ -1916,9 +1916,9 @@ extension Guild {
         /// Hide member join sticker reply buttons.
         case suppressJoinNotificationReplies = 8
         
-        static func determineFlags(value: Int) -> [SystemChannelFlags] {
-            var flags = [SystemChannelFlags]()
-            for flag in SystemChannelFlags.allCases {
+        static func get(_ value: Int) -> [SystemChannelFlag] {
+            var flags = [SystemChannelFlag]()
+            for flag in SystemChannelFlag.allCases {
                 if (value & flag.rawValue) == flag.rawValue {
                     flags.append(flag)
                 }
@@ -1926,7 +1926,7 @@ extension Guild {
             return flags
         }
 
-        static func getBitSetForFlags(_ flags: [SystemChannelFlags]) -> Int {
+        static func getBitSetForFlags(_ flags: [SystemChannelFlag]) -> Int {
             var value = 0
             for flag in flags {
                 value |= flag.rawValue

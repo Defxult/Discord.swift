@@ -135,7 +135,7 @@ public class Message : Object, Hashable, Updateable {
     public internal(set) var reference: Reference?
 
     /// The flags this message contains.
-    public internal(set) var flags: [Message.Flags]
+    public internal(set) var flags: [Message.Flag]
 
     /// Message associated with the message reference. This relates to replying to messages.
     public internal(set) var referencedMessage: Message?
@@ -251,7 +251,7 @@ public class Message : Object, Hashable, Updateable {
             referencedMessage = Message(bot: bot, messageData: refMessage)
         }
 
-        flags = Message.Flags.get(messageData["flags"] as! Int)
+        flags = Message.Flag.get(messageData["flags"] as! Int)
 
         if let interactionObj = messageData["interaction"] as? JSON {
             interaction = Message.Interaction(bot: bot, guildId: guildId, msgInteractionData: interactionObj)
@@ -682,7 +682,7 @@ extension Message {
     }
 
     /// Represents the flags on a message.
-    public enum Flags : Int, CaseIterable {
+    public enum Flag : Int, CaseIterable {
 
         /// This message has been published to subscribed channels (via Channel Following).
         case crossposted = 1
@@ -718,9 +718,9 @@ extension Message {
         case isVoiceMessage = 8192
         
         /// Convert the flag value to an array of message flags.
-        static func get(_ messageFlagValue: Int) -> [Message.Flags] {
-            var flags = [Message.Flags]()
-            for flag in Message.Flags.allCases {
+        static func get(_ messageFlagValue: Int) -> [Message.Flag] {
+            var flags = [Message.Flag]()
+            for flag in Message.Flag.allCases {
                 if (messageFlagValue & flag.rawValue) == flag.rawValue {
                     flags.append(flag)
                 }

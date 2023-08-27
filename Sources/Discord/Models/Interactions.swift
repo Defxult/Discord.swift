@@ -870,7 +870,7 @@ public class Interaction {
     /// - Parameter ephemeral: Indicates if the followup message will be ephemeral.
     public func respondWithThinking(ephemeral: Bool = false) async throws {
         var payload: JSON = ["type": InteractionCallbackType.deferredChannelMessageWithSource.rawValue]
-        if ephemeral { payload["data"] = ["flags": Message.Flags.ephemeral.rawValue] }
+        if ephemeral { payload["data"] = ["flags": Message.Flag.ephemeral.rawValue] }
 
         try await bot!.http.createInteractionResponse(interactionId: id, interactionToken: token, json: payload, files: nil)
         isFinished = true
@@ -904,7 +904,7 @@ public class Interaction {
 
         if let content { callbackData["content"] = content }
         if let embeds { callbackData["embeds"] = Embed.convert(embeds) }
-        if ephemeral { callbackData["flags"] = Message.Flags.ephemeral.rawValue }
+        if ephemeral { callbackData["flags"] = Message.Flag.ephemeral.rawValue }
         if let ui { callbackData["components"] = try ui.convert() }
         payload["data"] = callbackData
 

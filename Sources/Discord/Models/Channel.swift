@@ -166,7 +166,7 @@ extension Messageable {
         if let reference { payload["message_reference"] = reference.convert() }
         if let ui { payload["components"] = try ui.convert() }
         if let stickers { payload["sticker_ids"] = stickers.map({ $0.id }) }
-        if silent { payload["flags"] = Message.Flags.suppressNotifications.rawValue }
+        if silent { payload["flags"] = Message.Flag.suppressNotifications.rawValue }
         
         // NOTE:
         // Suppressing embeds is intentionally excluded. I don't see the point of adding embeds just so they can
@@ -338,7 +338,7 @@ extension GuildChannel {
     ///   - unique: If the invite URL should be unique. If `false`, there's a chance a previously created on could be created.
     ///   - targetType: The type of target for this voice channel invite.
     ///   - targetUser: The user whose stream to display for this invite. Required if `targetType` is ``Invite/Target/stream``, the user must be streaming in the channel.
-    ///   - targetApplicationId: The ID of the embedded application to open for this invite. Required if `targetType` is ``Invite/Target/embeddedApplication``. The application must have the flag ``Application/ApplicationFlag/embedded``.
+    ///   - targetApplicationId: The ID of the embedded application to open for this invite. Required if `targetType` is ``Invite/Target/embeddedApplication``. The application must have the flag ``Application/Flag-swift.enum/embedded``.
     ///   - reason: The reason for creating the invite. This shows up in the guilds audit log.
     /// - Returns: The newly created invite.
     public func createInvite(
@@ -976,7 +976,7 @@ public class ForumChannel : GuildChannel, Hashable {
         if let embeds { messageObj["embeds"] = embeds.map({ $0.convert() }) }
         if let ui { messageObj["components"] = try ui.convert() }
         if let stickers { messageObj["sticker_ids"] = stickers.map({ $0.id }) }
-        if suppressEmbeds { messageObj["flags"] = Message.Flags.suppressEmbeds.rawValue }
+        if suppressEmbeds { messageObj["flags"] = Message.Flag.suppressEmbeds.rawValue }
         
         payload["message"] = messageObj
         

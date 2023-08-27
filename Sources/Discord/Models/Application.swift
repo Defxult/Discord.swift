@@ -74,7 +74,7 @@ public struct Application : Object {
     public private(set) var coverImage: Asset?
     
     /// The application's public flags.
-    public private(set) var flags: [ApplicationFlag]?
+    public private(set) var flags: [Flag]?
 
     /// Up to 5 tags describing the content and functionality of the application.
     public private(set) var tags: [String]?
@@ -119,7 +119,7 @@ public struct Application : Object {
         }
 
         if let flagsValue = appData["flags"] as? Int {
-            flags = ApplicationFlag.getApplicationFlags(appFlagValue: flagsValue)
+            flags = Application.Flag.get(flagsValue)
         }
 
         if let tagValues = appData["tags"] as? [String] {
@@ -139,7 +139,8 @@ public struct Application : Object {
 extension Application {
 
     /// Represents the bots flags.
-    public enum ApplicationFlag : Int, CaseIterable {
+    public enum Flag : Int, CaseIterable {
+        
         
         /// Intent required for bots in **100 or more guilds** to receive presence update events.
         case gatewayPresence = 4096
@@ -165,9 +166,9 @@ extension Application {
         /// Intent required for bots in under 100 guilds to receive [message content](https://support-dev.discord.com/hc/en-us/articles/4404772028055), found in Bot Settings.
         case gatewayMessageContentLimited = 524288
 
-        static func getApplicationFlags(appFlagValue: Int) -> [ApplicationFlag] {
-            var flags = [ApplicationFlag]()
-            for flag in ApplicationFlag.allCases {
+        static func get(_ appFlagValue: Int) -> [Application.Flag] {
+            var flags = [Application.Flag]()
+            for flag in Application.Flag.allCases {
                 if (appFlagValue & flag.rawValue) == flag.rawValue {
                     flags.append(flag)
                 }

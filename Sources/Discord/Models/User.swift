@@ -52,7 +52,7 @@ public class User : Object, Updateable, Hashable {
     public internal(set) var banner: Asset?
     
     /// The public flags on a user's account.
-    public internal(set) var publicUserFlags: [PublicUserFlags]?
+    public internal(set) var flags: [User.Flag]
     
     // Hashable
     public static func == (lhs: User, rhs: User) -> Bool { lhs.id == rhs.id }
@@ -84,9 +84,7 @@ public class User : Object, Updateable, Hashable {
         banner = bannerHash != nil ? Asset(hash: bannerHash!, fullURL: "/banners/\(id)/\(Asset.imageType(hash: bannerHash!))") : nil
         
         let flagValue = userData["public_flags"] as? Int
-        if let flagValue {
-            publicUserFlags = PublicUserFlags.getUserFlags(userFlagValue: flagValue)
-        }
+        flags = flagValue != nil ? User.Flag.get(flagValue!) : []
 
         mention = Markdown.mentionUser(id: id)
     }
@@ -115,7 +113,7 @@ public class User : Object, Updateable, Hashable {
                 }
             case "public_flags":
                 if let flagValue = v as? Int {
-                    publicUserFlags = PublicUserFlags.getUserFlags(userFlagValue: flagValue)
+                    flags = User.Flag.get(flagValue)
                 }
             default:
                 break
@@ -341,10 +339,7 @@ extension User {
     }
 
     /// Represents the public flags on a user's account.
-    public enum PublicUserFlags : Int, CaseIterable {
-        
-        /// User has no flags associated with their account.
-        case none = 0
+    public enum Flag : Int, CaseIterable {
         
         /// Discord Employee.
         case staff = 1
@@ -391,9 +386,9 @@ extension User {
         /// User is an active developer.
         case activeDeveloper = 4194304
 
-        static func getUserFlags(userFlagValue: Int) -> [PublicUserFlags] {
-            var flags = [PublicUserFlags]()
-            for flag in PublicUserFlags.allCases {
+        static func get(_ userFlagValue: Int) -> [User.Flag] {
+            var flags = [User.Flag]()
+            for flag in User.Flag.allCases {
                 if (userFlagValue & flag.rawValue) == flag.rawValue {
                     flags.append(flag)
                 }
