@@ -84,6 +84,10 @@ public struct Application : Object {
 
     /// The application's default custom authorization link, if enabled.
     public private(set) var customInstallUrl: String?
+    
+    /// The application's role connection verification entry point, which when configured will render
+    /// the app as a verification method in the guild role verification configuration.
+    public private(set) var roleConnectionsVerificationUrl: String?
 
     init(appData: JSON) {
         id = Conversions.snowflakeToUInt(appData["id"])
@@ -132,6 +136,10 @@ public struct Application : Object {
 
         if let installUrl = appData["custom_install_url"] as? String {
             customInstallUrl = installUrl
+        }
+        
+        if let rcvu = appData["role_connections_verification_url"] as? String {
+            roleConnectionsVerificationUrl = rcvu
         }
     }
 }
