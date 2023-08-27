@@ -999,7 +999,7 @@ public class Guild : Object, Hashable, Updateable  {
         return Guild.AsyncMembers(guild: self, limit: limit, after: after)
     }
     
-    /// Request a sticker in the guild.
+    /// Request a sticker in the guild. This is an API call. For general use purposes, use ``getSticker(_:)`` instead.
     /// - Parameter id: The ID of the sticker.
     /// - Returns: The requested sticker.
     /// - Note: The `user` property in the sticker will be `nil` if the bot doesn't have ``Permission/manageEmojisAndStickers`` enabled.
@@ -1647,6 +1647,8 @@ extension Guild {
         /// Can be set to `nil` to disable the safety channel.
         case safetyAlertsChannel(Snowflake?)
         
+        // ---------- Mutable Guild Features ----------
+        
         /// Enable/disable Community Features in the guild. Both parameters are required to be set in order for it to be enabled.
         /// To disable, set both parameters to `nil`.
         case community(rulesChannel: Snowflake?, publicUpdatesChannel: Snowflake?)
@@ -1659,6 +1661,8 @@ extension Guild {
         
         /// Enable/disable alerts for join raids.
         case raidAlertsDisabled(Bool)
+        
+        // ---------------------------------------------
     }
 
     /// Represents a guild widget.
@@ -1952,7 +1956,7 @@ extension Guild {
         /// Guild can enable welcome screen, Membership Screening, stage channels and discovery, and receives community updates.
         case community = "COMMUNITY"
         
-        /// Guild has enabled monetization
+        /// Guild has enabled monetization.
         case creatorMonetizableProvisional = "CREATOR_MONETIZABLE_PROVISIONAL"
         
         /// Guild has enabled the role subscription promo page.
@@ -1976,9 +1980,6 @@ extension Guild {
         /// Guild has enabled Membership Screening.
         case memberVerificationGateEnabled = "MEMBER_VERIFICATION_GATE_ENABLED"
         
-        /// Guild has enabled monetization.
-        case monetizationEnabled = "MONETIZATION_ENABLED"
-        
         /// Guild has increased custom sticker slots.
         case moreStickers = "MORE_STICKERS"
         
@@ -1994,9 +1995,6 @@ extension Guild {
         /// Guild has disabled alerts for join raids in the configured safety alerts channel.
         case raidAlertsDisabled = "RAID_ALERTS_DISABLED"
         
-        /// Guild has access to create private threads.
-        case privateThreads = "PRIVATE_THREADS"
-        
         /// Guild is able to set role icons.
         case roleIcons = "ROLE_ICONS"
         
@@ -2008,9 +2006,6 @@ extension Guild {
         
         /// Guild has enabled ticketed events.
         case ticketedEventsEnabled = "TICKETED_EVENTS_ENABLED"
-        
-        /// Guild has text in voice enabled.
-        case textInVoiceEnabled = "TEXT_IN_VOICE_ENABLED"
         
         /// Guild has access to set a vanity URL.
         case vanityUrl = "VANITY_URL"
