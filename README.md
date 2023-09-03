@@ -13,16 +13,16 @@ A Discord API library written in Swift, kept up-to-date with the latest features
 
 Enjoying the library? Don't forget to leave a ⭐️ 😄. 
 
-## 🛜 Links
+## 🌍Links
 - [Discord support server](https://discord.gg/TYDZeruQ7N)
 - [Changelog](https://discord-swift.gitbook.io/discord.swift/resources/changelog)
 - [Documentation](https://discord-swift.gitbook.io/discord.swift/resources/documentation)
 - [Setup guide](https://discord-swift.gitbook.io/discord.swift/overview/getting-started)
 
 ## 👀 Linux Support
-When it comes to hosting your bot, you'll notice that when it comes to macOS servers, they can be really expensive. Not only does this put a burden on you, but it makes the library less appealing to use. With this library being so young and releasing its very first version in May 2023, there's still a lot of work to do and this is one of those tasks. Discord.swift linux support is in development! With that said, so far its kind of a big change, so people who are already using the library should expect a handful of breaking changes. Not only is it required, but there were a few things I wanted to change anyway but was a little hesitant to just because I didn't want to push a breaking change. I'll say it now, expect breaking changes while the library is still in beta. Beta versions of...well anything is the time where you get things right, and I don't want to rush anything whatsoever. Linux support for Discord.swift will be released for version 0.1.0-beta. In the mean time, if anything pertinent occurs from the time of this readme update (Sep. 1, 2023), Discord.swift will continue to get updates on versions 0.0.X-beta. Thank you for all the support so far! Here's to the future release of 1.0.0 🍻.
+When it comes to hosting your bot, you'll notice that when it comes to macOS servers, they can be really expensive. Not only does this put a burden on you, but it makes the library less appealing to use. With this library being so young and releasing its very first version in May 2023, there's still a lot of work to do and this is one of those tasks. Discord.swift Linux support is in development! With that said, expect some breaking changes. Linux support for Discord.swift will be released for version 0.1.0-beta. In the mean time, if anything pertinent occurs from the time of this readme update (Sep. 3, 2023), Discord.swift will continue to get updates on versions 0.0.X-beta. Thank you for all the support so far! Here's to the future release of 1.0.0 🍻.
 
-**TL;DR** - Linux support for Discord.swift is in development and is scheduled to be released early October 2023 (hopefully sooner ❤️).
+**TL;DR** - Linux support for is in development and is scheduled to be released early October 2023 (hopefully sooner).
 
 ## 😎 Key Features
 - Asynchronous functionality using `async` and `await`.
