@@ -409,8 +409,12 @@ public class ClientUser : User {
     
     /// Whether the email on this account has been verified.
     public let verified: Bool
+    
+    /// Your bot instance.
+    public weak private(set) var bot: Bot?
 
-    init(clientUserData: JSON) {
+    init(bot: Bot, clientUserData: JSON) {
+        self.bot = bot
         mfaEnabled = clientUserData["mfa_enabled"] as! Bool
         
         let loc = clientUserData["locale"] as? String

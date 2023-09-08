@@ -62,7 +62,7 @@ public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
     public internal(set) var available: Bool
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
 
     // ------------------------------ API Separated -----------------------------------
     
@@ -92,7 +92,7 @@ public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
     public static func == (lhs: Emoji, rhs: Emoji) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
-    init(bot: Discord, guildId: Snowflake, emojiData: JSON) {
+    init(bot: Bot, guildId: Snowflake, emojiData: JSON) {
         self.bot = bot
         self.guildId = guildId
         id = Conversions.snowflakeToUInt(emojiData["id"])
@@ -121,7 +121,7 @@ public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
     public func edit(_ edits: Emoji.Edit..., reason: String? = nil) async throws -> Emoji {
         // Don't perform an HTTP request when nothing was changed
         guard !(edits.count == 0) else { return self }
-        
+
         var payload: JSON = [:]
         for edit in edits {
             switch edit {
@@ -261,9 +261,9 @@ public class Reaction {
     public let message: Message
     
     /// Your bot instance.
-    public private(set) weak var bot: Discord?
+    public private(set) weak var bot: Bot?
     
-    init(bot: Discord, reactionData: JSON, message: Message) {
+    init(bot: Bot, reactionData: JSON, message: Message) {
         self.bot = bot
         count = reactionData["count"] as! Int
         userReacted = reactionData["me"] as! Bool

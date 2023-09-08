@@ -317,7 +317,7 @@ public class Button : Component, InternalComponent {
         self.emoji = emoji
         
         if style == .link { self.customId = String.empty }
-        else { self.customId = customId ?? arc4random().description }
+        else { self.customId = customId ?? Int.random(in: 10_000...99_999).description }
         
         self.url = url
         self.disabled = disabled

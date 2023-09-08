@@ -94,9 +94,9 @@ public struct ApplicationCommand {
     // -----------------------------------
     
     /// Your bot instance.
-    public private(set) weak var bot: Discord?
+    public private(set) weak var bot: Bot?
     
-    init(bot: Discord, applicationCommandData: JSON) {
+    init(bot: Bot, applicationCommandData: JSON) {
         self.bot = bot
         id = Conversions.snowflakeToUInt(applicationCommandData["id"])
         type = ApplicationCommandType(rawValue: applicationCommandData["type"] as! Int)!
@@ -631,9 +631,9 @@ public class Interaction {
     // -------------------------------------------------------------
     
     /// Your bot instance.
-    public private(set) weak var bot: Discord?
+    public private(set) weak var bot: Bot?
     
-    init(bot: Discord, interactionData: JSON) {
+    init(bot: Bot, interactionData: JSON) {
         self.bot = bot
         id = Conversions.snowflakeToUInt(interactionData["id"])
         applicationId = Conversions.snowflakeToUInt(interactionData["application_id"])
@@ -680,7 +680,7 @@ public class Interaction {
         _ content: String? = nil,
         embeds: [Embed]? = nil,
         tts: Bool = false,
-        allowedMentions: AllowedMentions = Discord.allowedMentions,
+        allowedMentions: AllowedMentions = Bot.allowedMentions,
         ui: UI? = nil,
         files: [File]? = nil
     ) async throws -> Message {
@@ -726,7 +726,7 @@ public class Interaction {
     public func editFollowupMessage(
         _ content: String? = nil,
         embeds: [Embed]? = nil,
-        allowedMentions: AllowedMentions = Discord.allowedMentions,
+        allowedMentions: AllowedMentions = Bot.allowedMentions,
         ui: UI? = nil,
         files: [File]? = nil
     ) async throws -> Message? {
@@ -783,7 +783,7 @@ public class Interaction {
     public func editOriginalResponse(
         _ content: String? = nil,
         embeds: [Embed]? = nil,
-        allowedMentions: AllowedMentions = Discord.allowedMentions,
+        allowedMentions: AllowedMentions = Bot.allowedMentions,
         ui: UI? = nil,
         files: [File]? = nil
     ) async throws -> Message {
@@ -891,7 +891,7 @@ public class Interaction {
         _ content: String? = nil,
         embeds: [Embed]? = nil,
         tts: Bool = false,
-        allowedMentions: AllowedMentions = Discord.allowedMentions,
+        allowedMentions: AllowedMentions = Bot.allowedMentions,
         ephemeral: Bool = false,
         ui: UI? = nil,
         files: [File]? = nil
@@ -992,7 +992,7 @@ public struct ApplicationCommandData : InteractionData {
     /// The values resulting from the end user's choices.
     public let results: Resolved
     
-    init(bot: Discord, appCommandData: JSON) {
+    init(bot: Bot, appCommandData: JSON) {
         id = Conversions.snowflakeToUInt(appCommandData["id"])
         name = appCommandData["name"] as! String
         type = ApplicationCommandType(rawValue: appCommandData["type"] as! Int)!

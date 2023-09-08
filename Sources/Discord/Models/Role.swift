@@ -62,7 +62,7 @@ public class Role : Object, Hashable {
     public internal(set) var tags: Tag?
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
     // Needed for .delete() & .guild
     private let guildId: Snowflake
@@ -93,7 +93,7 @@ public class Role : Object, Hashable {
 
     // --------------------------------------------------------------------------------
 
-    init(bot: Discord, roleData: JSON, guildId: Snowflake) {
+    init(bot: Bot, roleData: JSON, guildId: Snowflake) {
         self.bot = bot
         id = Conversions.snowflakeToUInt(roleData["id"])
         name = roleData["name"] as! String

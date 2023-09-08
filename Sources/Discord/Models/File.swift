@@ -23,6 +23,7 @@ DEALINGS IN THE SOFTWARE.
 */
 
 import Foundation
+import Vapor
 
 /// Represents a file to upload to Discord.
 public struct File {
@@ -83,9 +84,16 @@ public struct File {
         
         return try await withThrowingTaskGroup(of: File.self, body: { group -> [File] in
             var files = [File]()
+            let app = Vapor.Application()
+            
+            // Vapor complains if the `Application` isn't
+            // shutdown before it's deinitialized
+            defer { app.shutdown() }
+            
             for (n, url) in urlsWithExt.enumerated() {
                 group.addTask {
-                    let data = try await URLSession.shared.data(for: URLRequest(url: url)).0
+                    let resp = try await app.client.get(URI(string: url.absoluteString))
+                    let data = Data(buffer: resp.body!)
                     return File(name: "file_\(n).\(url.pathExtension)", using: data)
                 }
             }

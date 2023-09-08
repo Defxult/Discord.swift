@@ -82,9 +82,9 @@ public struct GuildSticker : Object, Hashable {
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
     
     /// Your bot instance.
-    public internal(set) weak var bot: Discord?
+    public internal(set) weak var bot: Bot?
 
-    init(bot: Discord, guildStickerData: JSON) {
+    init(bot: Bot, guildStickerData: JSON) {
         self.bot = bot
         id = Conversions.snowflakeToUInt(guildStickerData["id"])
         name = guildStickerData["name"] as! String

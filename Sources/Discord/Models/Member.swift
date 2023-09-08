@@ -78,7 +78,7 @@ public class Member : Object, Hashable {
     public internal(set) var flags: [Flag]
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
     // ------------------------------ API Separated -----------------------------------
     
@@ -115,7 +115,7 @@ public class Member : Object, Hashable {
     var memberRoleArrayStr: [String]
     var guildAvatarHash: String?
     
-    init(bot: Discord, memberData: JSON, guildId: Snowflake) {
+    init(bot: Bot, memberData: JSON, guildId: Snowflake) {
         self.bot = bot
         self.guildId = guildId
         nick = memberData["nick"] as? String

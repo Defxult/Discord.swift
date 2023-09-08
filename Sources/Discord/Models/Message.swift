@@ -183,7 +183,7 @@ public class Message : Object, Hashable, Updateable {
     // --------------------------------------------------------------------------------
     
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
     static var cacheExpire: Date { Calendar.current.date(byAdding: .hour, value: 3, to: .now)! }
     var cacheExpireTimer: Timer? = nil
@@ -194,7 +194,7 @@ public class Message : Object, Hashable, Updateable {
     var expires: Date
     let temp: JSON
     
-    init(bot: Discord, messageData: JSON) {
+    init(bot: Bot, messageData: JSON) {
         temp = messageData
         self.bot = bot
         id = Conversions.snowflakeToUInt(messageData["id"])
@@ -405,6 +405,10 @@ public class Message : Object, Hashable, Updateable {
             case .ui(let ui):
                 self.ui = ui
                 payload["components"] = try ui.convert()
+                
+            case .flags(let flags):
+                let finalFlags = self.flags + Array(flags)
+                payload["flags"] = Conversions.bitfield(finalFlags.map({ $0.rawValue }))
             }
         }
         
@@ -498,7 +502,7 @@ public class Message : Object, Hashable, Updateable {
         _ content: String? = nil,
         tts: Bool = false,
         embeds: [Embed]? = nil,
-        allowedMentions: AllowedMentions = Discord.allowedMentions,
+        allowedMentions: AllowedMentions = Bot.allowedMentions,
         ui: UI? = nil,
         files: [File]? = nil
     ) async throws -> Message {
@@ -531,6 +535,9 @@ extension Message {
         
         /// The new UI for the message.
         case ui(UI)
+        
+        /// The new flags to set. When editing someone elses message, the only flag that can be set currently  is ``Message/Flag/suppressEmbeds``.
+        case flags(Set<Flag>)
     }
 
     /// Represents the message type.
@@ -653,7 +660,7 @@ extension Message {
         /// The ``User`` who invoked the interaction. Will be ``Member`` if invoked it was invoked from a guild.
         public let user: Object
         
-        init(bot: Discord, guildId: Snowflake?, msgInteractionData: JSON) {
+        init(bot: Bot, guildId: Snowflake?, msgInteractionData: JSON) {
             id = Conversions.snowflakeToUInt(msgInteractionData["id"])
             type = InteractionType(rawValue: msgInteractionData["type"] as! Int)!
             name = msgInteractionData["name"] as! String

@@ -1,16 +1,39 @@
+/**
+The MIT License (MIT)
+
+Copyright (c) 2023-present Defxult
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+*/
+
 import Foundation
-
-func dictToData(_ dict: [String: Any]) -> Data {
-    return try! JSONSerialization.data(withJSONObject: dict)
-}
-
-func dataToDict(_ data: Data) -> JSON {
-    return try! JSONSerialization.jsonObject(with: data) as! JSON
-}
+import WebSocketKit
 
 fileprivate struct ResumePayload {
+    
+    /// The bots session ID.
     fileprivate let sessionId: String
+    
+    /// The last `Opcode.dispatch` it received.
     fileprivate var sequence: Int
+    
+    /// URL needed for when the gateway connection is momentarily lost.
     fileprivate var resumeGatewayURL: String?
     
     fileprivate init(data: JSON) {
@@ -55,9 +78,11 @@ struct Opcode {
     static let invalidSession = 9
     static let hello = 10
     static let heartbeatAck = 11
+    
+    private init() {}
 }
 
-fileprivate class State {
+class State {
     let guildId: Snowflake
     let chunkCount: Int
     var chunkIndex: Int
@@ -72,257 +97,277 @@ fileprivate class State {
 }
 
 class InitialState {
-    fileprivate var expectedGuilds: Int
-    fileprivate var guildsCreated = 0
-    fileprivate var states: [State] = []
     var dispatched = false
+    var expectedGuilds: Int
+    var guildsCreated = 0
+    var states: [State] = []
     
-    fileprivate init(expectedGuilds: Int) {
+    init(expectedGuilds: Int) {
         self.expectedGuilds = expectedGuilds
     }
     
-    fileprivate func addState(_ state: State) {
+    func addState(_ state: State) {
         states.append(state)
     }
     
-    fileprivate func getState(guildId: Snowflake) -> State? {
+    func getState(guildId: Snowflake) -> State? {
         return states.first(where: { $0.guildId == guildId })
     }
     
-    fileprivate func updateState(guildId: Snowflake) {
+    func updateState(guildId: Snowflake) {
         let state = getState(guildId: guildId)!
         state.chunkIndex += 1
     }
     
-    fileprivate func allStatesCompleted() -> Bool { states.allSatisfy({ $0.isCompleted }) }
+    func allStatesCompleted() -> Bool { states.allSatisfy({ $0.isCompleted }) }
 }
 
-class WSGateway {
-    var initialHandshakeComplete = false
-    var ws: URLSessionWebSocketTask
-    var shards: Int
-    var isConnected = false
-    var initialState: InitialState? = nil
-    private var heartbeatInterval = 0
-    private let bot: Discord
-    private var wsResume: ResumePayload?
-    private let apiVersion = "/?v=10&encoding=json"
-    private let session: URLSession
-    fileprivate let gatewayURLObj: URL
-    fileprivate var gp: GatewayPayload?
+extension JSON {
+    var serialize: ByteBuffer {
+        let data = try! JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)
+        return ByteBuffer(data: data)
+    }
+}
+
+extension Array<JSON> {
+    var serialize: ByteBuffer {
+        let data = try! JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)
+        return ByteBuffer(data: data)
+    }
+}
+
+class Gateway {
     
-    init(bot: Discord, gatewayUrl: String, shards: Int) {
-        gatewayURLObj = URL(string: gatewayUrl + apiVersion)!
-        session = URLSession.shared
-        ws = session.webSocketTask(with: gatewayURLObj)
-        wsResume = nil
-        self.shards = shards
+    var ws: WebSocket!
+    var heartbeatTask: Task<(), Never>?
+    var initialState: InitialState? = nil
+    
+    private var bot: Bot
+    private var wsResume: ResumePayload?
+    private var gp: GatewayPayload?
+    private var shards: Int?
+    
+    private var heartbeatInterval = 0
+    private var receivedReconnectRequest = false
+    
+    // Anything less than a `maxFrameSize` of 1 << 19 errors with `messageTooLarge`. There
+    // will never be a payload sent of this size but, because I don't know an ideal number,
+    // I just set it to its maximum to potentially avoid any future problems.
+    private let config = WebSocketClient.Configuration(maxFrameSize: Int(UInt32.max))
+        
+    init(bot: Bot) {
         self.bot = bot
     }
     
-    func handshake(sharding: Bool) async throws {
-        if initialHandshakeComplete {
-            Log.message("Attempting another handshake - setting new WebSocket", withTimestamp: true)
-            ws = session.webSocketTask(with: gatewayURLObj)
-        }
-        ws.resume()
-        
-        // Waiting for Opcode HELLO
-        let info = try await ws.receive()
-        
-        switch info {
-        case .data(_):
-            Log.fatal("Websocket info found in DATA")
-        case .string(let str):
-            let opHello = HTTPClient.strJsonToDict(str)
-            gp = GatewayPayload(data: opHello)
-            let dObj = opHello["d"] as! JSON
-            heartbeatInterval = dObj["heartbeat_interval"] as! Int
-            
-            var d: JSON = [
-                "token": bot.http.token,
-                "intents": Intents.convert(bot.intents),
-                "properties": [
-                    "os": bot.version.gateway.os,
-                    "browser": bot.version.gateway.lib,
-                    "device": bot.version.gateway.lib
-                ]
-            ]
-            
-            if bot.sharding { d["shards"] = [0, shards] }
-            
-            // Now that we've reveived opHello, we need to ID ourself
-            let identity: JSON = [
-                "op": Opcode.identify,
-                "d": d
-            ]
-            try await ws.send(.data(dictToData(identity)))
-        @unknown default:
-            throw GatewayError.unknownError("An unknown error occured")
-        }
-    }
-    
-    func membersChunk(guildId: Snowflake) async {
-        let payload: JSON = [
-            "op": Opcode.requestGuildMembers,
-            "d": [
-                "guild_id": guildId,
-                "query": String.empty,
-                "limit": 0
-            ] as [String : Any]
-        ]
-        try! await ws.send(.data(dictToData(payload)))
-    }
-    
-    func heartbeat(requestedByGateway: Bool = false) async throws {
-        
-        func sendHeartBeat() async throws {
-            try await ws.send(.data(dictToData([
-                "op": Opcode.heartbeat,
-                "d": wsResume == nil ? NIL : wsResume!.sequence
-            ])))
-        }
-        
-        if requestedByGateway {
-            try await sendHeartBeat()
-        }
-        else {
-            while true {
-                await sleep(heartbeatInterval)
-                if isConnected { try await sendHeartBeat() }
-                else { break }
-            }
-        }
-    }
-    
-    func determineWsError(code: Int) -> (error: GatewayError, requiresReconnect: Bool) {
-        switch code {
-        case 4000:
-            return (GatewayError.unknownError("Something went wrong"), true)
-        case 4001:
-            return (GatewayError.unknownOpcode("An invalid op code was sent"), true)
-        case 4002:
-            return (GatewayError.decodeError("An invalid payload was sent"), true)
-        case 4003:
-            return (GatewayError.notAuthenticated("An attempt to send data was made before the bot could identify"), true)
-        case 4004:
-            return (GatewayError.authenticationFailed("Invalid bot token"), false)
-        case 4005:
-            return (GatewayError.alreadyAuthenticated("More the one identity payloads were sent"), true)
-        case 4007:
-            return (GatewayError.invalidSeq("The sequence when resuming the session was invalid"), true)
-        case 4008:
-            return (GatewayError.rateLimited("Too many payloads are being sent"), true)
-        case 4009:
-            return (GatewayError.sessionTimedOut("Session timed out"), true)
-        case 4010:
-            return (GatewayError.invalidShard("An invalid shard was sent when identifying"), false)
-        case 4011:
-            return (GatewayError.shardingRequired("Sharding the connection is required"), false)
-        case 4012:
-            return (GatewayError.invalidApiVersion("An invalid API version was sent for the gateway"), false)
-        case 4013:
-            return (GatewayError.invalidIntents("An invalid intent was sent for the gateway intent"), false)
-        case 4014:
-            return (GatewayError.disallowedIntents("A disallowed intent was sent for the gateway intent"), false)
-        default:
-            return (GatewayError.unknownError("Something went wrong"), true)
-        }
-    }
-    
+    /// Sends the RESUME payload for reconnects.
     private func reconnect() async {
-        Log.message("(Reconnect) Connecting to gateway. Waiting for op hello...", withTimestamp: true)
-        ws = session.webSocketTask(with: gatewayURLObj)
-        ws.resume()
-        
-        // Waiting for op hello
-        _ = try! await ws.receive()
-        Log.message("(Reconnect) OP hello received", withTimestamp: true)
-        
-        let reconnectPayload: JSON = [
+        let resumePayload: JSON = [
             "op": Opcode.resume,
             "d": [
                 "token": bot.http.token,
                 "session_id": wsResume!.sessionId,
                 "seq": wsResume!.sequence
-            ] as [String : Any]
+            ] as JSON
         ]
-        Log.message("(Reconnect) Sending reconnect payload...", withTimestamp: true)
-        try! await ws.send(.data(dictToData(reconnectPayload)))
-        Log.message("(Reconnect) Reconnect payload sent successfully", withTimestamp: true)
+        
+        // When reconnecting, a RESUME URL must be used
+        let url = wsResume!.resumeGatewayURL!
+        
+        try! await WebSocket.connect(to: url, configuration: config, on: bot.http.app.eventLoopGroup, onUpgrade: { socket in
+            self.websocketSetup(websocket: socket)
+            
+            Log.message("[Reconnect] connection successful - sending RESUME payload...")
+            self.sendFrame(resumePayload)
+        })
     }
     
-    func listen() async throws {
-        while isConnected {
-            
-            // Wait for an event to be dispatched
-            if let msg = try? await ws.receive() {
-                switch msg {
-                case .data(_):
-                    Log.fatal("Payload via listen() found in .data")
-                case .string(let string):
-                    let resumePayload = HTTPClient.strJsonToDict(string)
-                    let gatewayPayload = GatewayPayload(data: resumePayload)
-                    
-                    if gatewayPayload.op == Opcode.dispatch {
-                        let event = WSGateway.getEvent(name: gatewayPayload.t!)
-                        guard let event else { continue }
-                        
-                        if event == .ready {
-                            wsResume = ResumePayload(data: resumePayload)
-                            wsResume?.resumeGatewayURL = gatewayPayload.d?["resume_gateway_url"] as? String
-                            bot.user = ClientUser(clientUserData: gatewayPayload.d!["user"] as! JSON)
-                            
-                            let guildsCount = (gatewayPayload.d!["guilds"] as! [JSON]).count
-                            initialState = InitialState(expectedGuilds: guildsCount)
-                        }
-                        else { wsResume?.sequence = gatewayPayload.s! }
-                        await createAndUpdate(data: gatewayPayload.d!, event: event)
-                    }
-                    else if gatewayPayload.op == Opcode.heartbeat {
-                        Log.message("Gateway requested HEARTBEAT. Sending heartbeat...", withTimestamp: true)
-                        try await heartbeat(requestedByGateway: true)
-                    }
-                    else if gatewayPayload.op == Opcode.reconnect {
-                        Log.message("Gateway requested RECONNECT. Attempting reconnect...", withTimestamp: true)
-                        await reconnect()
-                    }
-                    else if gatewayPayload.op == Opcode.invalidSession {
-                        Log.message("Session invalidated. Attempting handshake...", withTimestamp: true)
-                        try await handshake(sharding: bot.sharding)
-                        await sleep(Int.random(in: 1...5) * 1000)
-                    }
-                    else if gatewayPayload.op == Opcode.heartbeatAck {
-                        Log.message("Heartbeat ACK", withTimestamp: true)
-                        continue
-                    }
-                    else {
-                        Log.fatal("Gateway payload not handled: \(gatewayPayload)")
-                    }
-                @unknown default:
-                    Log.fatal("Unknown error")
+    /// Binds all core functions of the websocket connection to the class.
+    private func websocketSetup(websocket: WebSocket) {
+        ws = websocket
+        receive()
+        ws.onClose.whenComplete { _ in try! self.websocketClosed() }
+    }
+    
+    /// The continuous heartbeat required by Discord.
+    private func indefHeartbeat() async {
+        Log.message("starting INDEFINITE HEARTBEAT...")
+        while true {
+            await sleep(heartbeatInterval)
+            sendHeartbeat()
+        }
+    }
+    
+    /// Send a heartbeat to the gateway. Sent during indefinite heartbeat or a requested one.
+    private func sendHeartbeat() {
+        let payload: JSON = [
+            "op": Opcode.heartbeat,
+            "d": wsResume == nil ? NIL : wsResume!.sequence
+        ]
+        sendFrame(payload)
+    }
+    
+    /// Shortcut for sending data (as `ByteBuffer`) through the websocket.
+    func sendFrame(_ data: JSON) {
+        ws.send(data.serialize)
+    }
+    
+    /// Reset core gateway values so a proper reconnect can occur.
+    func resetGatewayValues() {
+        receivedReconnectRequest = false
+        heartbeatTask?.cancel()
+    }
+    
+    /// Establish a new gateway connection. This is a handshake, not a resume.
+    func startNewSession() async throws {
+        resetGatewayValues()
+        let info = try await bot.http.getGatewayBot()
+        shards = info.shards
+        try await WebSocket.connect(to: info.url, configuration: config, on: bot.http.app.eventLoopGroup, onUpgrade: { socket in
+            self.websocketSetup(websocket: socket)
+            Log.message("gateway connection established - receiver & onClose set")
+        })
+    }
+    
+    /// Handles when the websocket is closed by Discord.
+    func websocketClosed() throws {
+        if let code = ws.closeCode {
+            let end = " - starting new session..."
+            switch code {
+            case .unknown(let cc):
+                switch cc {
+                case 4000:
+                    throw GatewayError.unknownError("Something went wrong")
+                case 4001:
+                    throw GatewayError.unknownOpcode("An invalid opcode was sent")
+                case 4002:
+                    throw GatewayError.decodeError("An invalid payload was sent")
+                case 4003:
+                    throw GatewayError.notAuthenticated("A payload was sent prior to identifying")
+                case 4004:
+                    throw GatewayError.authenticationFailed("The token sent with the identify payload was incorrect")
+                case 4005:
+                    throw GatewayError.alreadyAuthenticated("More than one identify payload was sent")
+                case 4007:
+                    // GatewayError.invalidSequence can reconnect with a new session
+                    Log.message("gateway error: Invalid sequence" + end)
+                    Task { try await self.startNewSession() }
+                case 4008:
+                    throw GatewayError.rateLimited("Too many payloads are being sent")
+                case 4009:
+                    // GatewayError.sessionTimedOut can reconnect with a new session
+                    Log.message("gateway error: Session timed out" + end)
+                    Task { try await self.startNewSession() }
+                case 4010:
+                    throw GatewayError.invalidShard("An invalid shard was sent when identifying")
+                case 4011:
+                    throw GatewayError.shardingRequired("Sharding your connection is required in order to connect")
+                case 4012:
+                    throw GatewayError.invalidApiVersion("An invalid version of the gateway was sent")
+                case 4013:
+                    throw GatewayError.invalidIntents("Invalid intents were sent")
+                case 4014:
+                    let message = """
+                        A disallowed intent was sent. An intent may have been specified that you have \
+                        not enabled or are not approved for. Verify your privileged intents are enabled in your developer portal.
+                        """
+                    throw GatewayError.disallowedIntents(message)
+                default:
+                    break
                 }
-                
-                // An error occured so handle accordingly
-            } else {
-                let closeEventCode = ws.closeCode.rawValue
-                Log.message("WS Closed - Error Code - \(closeEventCode) | \(ws.closeCode) - \(String(describing: ws.error?.localizedDescription))", withTimestamp: true)
-                
-                let wsError = determineWsError(code: closeEventCode)
-                if wsError.requiresReconnect {
-                    Log.message("WebSocket Requires RECONNECT - \(wsError)", withTimestamp: true)
-                    await reconnect()
+            default:
+                // The only "unknown" error that should happen is `.normalClosure` via `Bot.connect()`,
+                // everything else is unexpected.
+                if code != .normalClosure {
+                    throw GatewayError.unknownError("unrecognized gateway close code: \(code)")
                 }
             }
         }
     }
     
-    private static func getEvent(name: String) -> DiscordEvent? {
-        let event = DiscordEvent(rawValue: name)
-        if event == nil {
-            Log.message("Discord Event \"\(name)\" is undefined (most likely undocumented)")
+    /// Handle all incoming gateway events.
+    func receive() {
+        ws.onText { [unowned self] (_, message) in
+            defer { receive() }
+
+            let resumePayload = HTTPClient.strJsonToDict(message)
+            let gatewayPayload = GatewayPayload(data: resumePayload)
+
+            switch gatewayPayload.op {
+            case Opcode.dispatch:
+                if let event = GatewayEvent(rawValue: gatewayPayload.t!) {
+                    if event == .ready {
+                        Log.message("READY - initializing state")
+                        wsResume = ResumePayload(data: resumePayload)
+                        wsResume?.resumeGatewayURL = gatewayPayload.d?["resume_gateway_url"] as? String
+                        bot.user = ClientUser(bot: bot, clientUserData: gatewayPayload.d!["user"] as! JSON)
+                        
+                        let guildsCount = (gatewayPayload.d!["guilds"] as! [JSON]).count
+                        initialState = InitialState(expectedGuilds: guildsCount)
+                    }
+                    else { wsResume?.sequence = gatewayPayload.s! }
+                    Task {
+                        await dispatchAndUpdate(event: event, data: gatewayPayload.d!)
+                    }
+                }
+            
+            case Opcode.hello:
+                // Discord states there's no need to re-identify after a RECONNECT
+                guard !receivedReconnectRequest else {
+                    Log.message("received HELLO from RECONNECT - ignoring")
+                    return
+                }
+                
+                Log.message("received HELLO - identifying...")
+                let opHello = HTTPClient.strJsonToDict(message)
+                gp = GatewayPayload(data: opHello)
+
+                let dObj = opHello["d"] as! JSON
+                heartbeatInterval = dObj["heartbeat_interval"] as! Int
+
+                let i = bot.version.info
+                var d: JSON = [
+                    "token": bot.http.token,
+                    "intents": Intents.convert(bot.intents),
+                    "properties": [
+                        "os": i.os, // ;)
+                        "browser": i.lib,
+                        "device": i.lib
+                    ]
+                ]
+
+                if bot.sharding { d["shard"] = [0, shards!] }
+
+                let identity: JSON = [
+                    "op": Opcode.identify,
+                    "d": d
+                ]
+
+                sendFrame(identity)
+
+                heartbeatTask = Task(priority: .background, operation: {
+                    await indefHeartbeat()
+                })
+                
+            case Opcode.invalidSession:
+                Log.message("gateway SESSION INVALIDATED - starting new session...")
+                Task { try await startNewSession() }
+            
+            case Opcode.reconnect:
+                Log.message("gateway requested RECONNECT - reconnecting...")
+                receivedReconnectRequest = true
+                Task { await reconnect() }
+                
+            case Opcode.heartbeat:
+                Log.message("gateway requested HEARTBEAT - sending heartbeat...")
+                sendHeartbeat()
+                
+            case Opcode.heartbeatAck:
+                Log.message("heartbeat ACK")
+            
+            default:
+                break
+            }
         }
-        return event
     }
     
     /// Handles the process of calling the `onInteraction` closures set by the user for interactions
@@ -351,22 +396,23 @@ class WSGateway {
         }
     }
     
-    private func createAndUpdate(data: JSON, event: DiscordEvent) async {
+    /// Dispatch events the end user has "subscribed" to via ``EventListener`` and update the cache.
+    private func dispatchAndUpdate(event: GatewayEvent, data: JSON) async {
         
-        func getGuildIdFromJSON(_ data: JSON) -> Snowflake {
+        func getGuildId(_ data: JSON) -> Snowflake {
             if data.keys.contains(where: { $0 == "guild_id" }) {
                 return Conversions.snowflakeToUInt(data["guild_id"])
             } else {
-                fatalError("guild_id was not found in JSON response")
+                Log.fatal("guild_id was not found in JSON response")
             }
         }
-        
+                
         let dispatch = bot.listeners.forEachAsync
         
         switch event {
         case .ready:
             dispatch({ await $0.onConnect(user: self.bot.user!) })
-            
+                        
             // `onReady()` is based on the initial state. Meaning when it's finished caching everything,
             // aka guilds, channels, users, members, etc, the event will be dispatched. But the guild itself
             // is what houses *all* of that information. Without guilds, there isn't much to cache (with the exception of DMs).
@@ -375,15 +421,18 @@ class WSGateway {
             // disabled (missing the .guilds intent).
             if !bot.intents.contains(.guilds) {
                 initialState?.dispatched = true
-                dispatch({ await $0.onReady() })
+                dispatch({ await $0.onReady(user: self.bot.user!) })
             }
-            
         case .resumed:
-            Log.message("Gateway resumed", withTimestamp: true)
+            Log.message("gateway resumed")
             
-        case .reconnect, .invalidSession:
-            Log.message("Received event -> \(event) - reconnecting...", withTimestamp: true)
+        case .reconnect:
+            Log.message("received RECONNECT via DISPATCH - reconnecting...")
             await reconnect()
+            
+        case .invalidSession:
+            Log.message("received SESSION INVALIDATED via DISPATCH - starting new session...")
+            try! await startNewSession()
             
         case .applicationCommandPermissionsUpdate:
             let permissions = GuildApplicationCommandPermissions(guildAppCommandPermData: data)
@@ -406,78 +455,95 @@ class WSGateway {
             dispatch({ await $0.onAutoModerationRuleExecution(execution: actionExec) })
             
         case .channelCreate:
-            let channelType = data["type"] as! Int
-            let guild = bot.getGuild(getGuildIdFromJSON(data))!
-            let channel = determineGuildChannelType(type: channelType, data: data, bot: bot, guildId: guild.id)
-            guild.cacheChannel(channel)
-            dispatch({ await $0.onChannelCreate(channel: channel) })
+            if let channelType = ChannelType(rawValue: data["type"] as! Int) {
+                if channelType == .dm {
+                    if !bot.ignoreDms {
+                        // There's no `onChannelCreate()` here for *brand new* DMs. That event is reserved
+                        // for guild channels. If a user wants to know when they get a DM, they can listen
+                        // to `onMessageCreate()` and check `Message.isDmMessage`
+                        bot.dms.update(with: DMChannel(bot: bot, dmData: data))
+                    }
+                } else {
+                    let guild = bot.getGuild(getGuildId(data))!
+                    if let channel = determineGuildChannelType(type: channelType.rawValue, data: data, bot: bot, guildId: guild.id) {
+                        guild.cacheChannel(channel)
+                        dispatch({ await $0.onChannelCreate(channel: channel) })
+                    }
+                }
+            }
             
         case .channelUpdate:
             let channelId = Conversions.snowflakeToUInt(data["id"])
-            let beforeChannel = bot.getChannel(channelId)! as! GuildChannel
-            let afterChannel = determineGuildChannelType(type: beforeChannel.type.rawValue, data: data, bot: bot, guildId: beforeChannel.guildId)
-            afterChannel.guild.cacheChannel(afterChannel)
-            dispatch({ await $0.onChannelUpdate(before: beforeChannel, after: afterChannel) })
+            if let beforeChannel = bot.getChannel(channelId) as? GuildChannel {
+                if let afterChannel = determineGuildChannelType(type: beforeChannel.type.rawValue, data: data, bot: bot, guildId: beforeChannel.guildId) {
+                    afterChannel.guild.cacheChannel(afterChannel)
+                    dispatch({ await $0.onChannelUpdate(before: beforeChannel, after: afterChannel) })
+                }
+            }
             
         case .channelDelete:
             let channelId = Conversions.snowflakeToUInt(data["id"])
-            let deletedChannel = bot.getChannel(channelId)! as! GuildChannel
-            dispatch({ await $0.onChannelDelete(channel: deletedChannel) })
-            deletedChannel.guild.removeChannelFromCache(channelId)
+            if let deletedChannel = bot.getChannel(channelId) as? GuildChannel {
+                dispatch({ await $0.onChannelDelete(channel: deletedChannel) })
+                deletedChannel.guild.removeChannelFromCache(channelId)
+            }
             
         case .channelPinsUpdate:
             let channelId = Conversions.snowflakeToUInt(data["channel_id"])
-            let channel = bot.getChannel(channelId)! as! GuildChannel
-            
-            var pinnedAt: Date? = nil
-            if let pinnedDate = data["last_pin_timestamp"] as? String { pinnedAt = Conversions.stringDateToDate(iso8601: pinnedDate) }
-            dispatch({ await $0.onChannelPinsUpdate(channel: channel, pinnedAt: pinnedAt) })
-            
+            if let channel = bot.getChannel(channelId) as? GuildChannel {
+                var pinnedAt: Date? = nil
+                if let pinnedDate = data["last_pin_timestamp"] as? String { pinnedAt = Conversions.stringDateToDate(iso8601: pinnedDate) }
+                dispatch({ await $0.onChannelPinsUpdate(channel: channel, pinnedAt: pinnedAt) })
+            }
+        
+        // MARK: TODO ❌
         case .threadCreate:
-            let guild = bot.getGuild(getGuildIdFromJSON(data))!
+            let guild = bot.getGuild(getGuildId(data))!
             let thread = ThreadChannel(bot: bot, threadData: data, guildId: guild.id)
             
             // Update the parent channel `lastMessageId` (last created thread ID)
             if thread.channel.type == .guildForum {
                 (thread.channel as! ForumChannel).lastMessageId = thread.id
-            } else if thread.channel.type == .guildMedia {
-                (thread.channel as! MediaChannel).lastMessageId = thread.id
             }
             
             guild.cacheChannel(thread)
             dispatch({ await $0.onThreadCreate(thread: thread) })
             
+        // MARK: TODO ❌
         case .threadUpdate:
             let threadId = Conversions.snowflakeToUInt(data["id"])
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let memberCount = data["member_count"] as! Int
             dispatch({ await $0.onRawThreadUpdate(payload: (threadId, guildId, memberCount, data)) })
             
             let guild = bot.getGuild(guildId)!
-            let beforeThread = guild.channelsCache.removeValue(forKey: threadId) as! ThreadChannel
-            let afterThread = determineGuildChannelType(type: beforeThread.type.rawValue, data: data, bot: bot, guildId: beforeThread.guildId) as! ThreadChannel
-            guild.cacheChannel(afterThread)
-            dispatch({ await $0.onThreadUpdate(before: beforeThread, after: afterThread) })
-            
+            if let beforeThread = guild.removeChannelFromCache(threadId) as? ThreadChannel {
+                let afterThread = ThreadChannel(bot: bot, threadData: data, guildId: guildId)
+                guild.cacheChannel(afterThread)
+                dispatch({ await $0.onThreadUpdate(before: beforeThread, after: afterThread) })
+            }
+        
+        // MARK: TODO ❌
         case .threadDelete:
             let threadId = Conversions.snowflakeToUInt(data["id"])
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let parentId = Conversions.snowflakeToUInt(data["parent_id"])
             
             if let thread = bot.getChannel(threadId) as? ThreadChannel {
-                thread.guild.removeChannelFromCache(thread.id)
-                dispatch({ await $0.onThreadDelete(thread: thread) })
+                let removedThread = thread.guild.removeChannelFromCache(thread.id) as! ThreadChannel
+                dispatch({ await $0.onThreadDelete(thread: removedThread) })
             }
             
             dispatch({ await $0.onRawThreadDelete(payload: (threadId, guildId, parentId)) })
-            
+        
+        // MARK: TODO ⚠️
         case .threadListSync:
             // Discord says: "Sent when the current user *gains* access to a channel". When testing, basically if
             // a channel containing threads was not visible to the bot, and the permissions were changed so the
             // bot can now see said threads, this is dispatched. If a channel that the bot can now see doesn't have
             // any threads, this is not be dispatched by discord.
             
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let threadObjs = data["threads"] as! [JSON]
             
             var syncedThreads = [ThreadChannel]()
@@ -490,14 +556,14 @@ class WSGateway {
             }
             
             dispatch({ await $0.onThreadListSync(threads: syncedThreads) })
-        
+            
         case .threadMemberUpdate:
             // Unused
             break
             
         case .threadMembersUpdate:
             let threadId = Conversions.snowflakeToUInt(data["id"])
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let memberCount = data["member_count"] as! Int
             
             if let guild = bot.getGuild(guildId) {
@@ -527,12 +593,9 @@ class WSGateway {
             dispatch({ await $0.onGuildCreate(guild: guild) })
             dispatch({ await $0.onGuildAvailable(guild: guild) })
             
-            if bot.intents.contains(.guildPresences) {
-                Task { await membersChunk(guildId: guild.id) }
-            }
             if initialState!.expectedGuilds == initialState!.guildsCreated {
                 initialState!.dispatched = true
-                dispatch({ await $0.onReady() })
+                dispatch({ await $0.onReady(user: self.bot.user!) })
             }
             
         case .guildUpdate:
@@ -560,21 +623,21 @@ class WSGateway {
             dispatch({ await $0.onAuditLogCreate(log: auditLog) })
             
         case .guildBan:
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let guild = bot.getGuild(guildId)!
             let user = User(userData: data["user"] as! JSON)
             
             dispatch({ await $0.onGuildBan(guild: guild, user: user) })
             
         case .guildUnban:
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let guild = bot.getGuild(guildId)!
             let user = User(userData: data["user"] as! JSON)
             
             dispatch({ await $0.onGuildUnban(guild: guild, user: user) })
             
         case .guildEmojisUpdate:
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let guild = bot.getGuild(guildId)!
             
             let emojiObjs = data["emojis"] as! [JSON]
@@ -590,7 +653,7 @@ class WSGateway {
             dispatch({ await $0.onGuildEmojisUpdate(before: beforeCopy, after: emojisAfter) })
             
         case .guildStickersUpdate:
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let guild = bot.getGuild(guildId)!
             
             let stickerObjs = data["stickers"] as! [JSON]
@@ -598,7 +661,7 @@ class WSGateway {
             
             for stickerObj in stickerObjs {
                 
-                // GuildSticker init expects the guild_id, so manually insert it in this specific case
+                // GuildSticker.init() expects the guild_id, so manually insert it in this specific case
                 var injectedGuildIdStickerObj = stickerObj
                 injectedGuildIdStickerObj["guild_id"] = String(guildId)
                 
@@ -611,11 +674,11 @@ class WSGateway {
             dispatch({ await $0.onGuildStickersUpdate(before: beforeCopy, after: stickersAfter) })
             
         case .guildIntegrationsUpdate:
-            let guild = bot.getGuild(getGuildIdFromJSON(data))!
+            let guild = bot.getGuild(getGuildId(data))!
             dispatch({ await $0.onGuildIntegrationUpdate(guild: guild) })
             
         case .guildMemberJoin:
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let member = Member(bot: bot, memberData: data, guildId: guildId)
             member.guild.cacheMember(member)
             dispatch({ await $0.onGuildMemberJoin(member: member) })
@@ -623,7 +686,7 @@ class WSGateway {
         case .guildMemberRemove:
             let userObj = data["user"] as! JSON
             let userId = Conversions.snowflakeToUInt(userObj["id"])
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             
             if let member = bot.getMember(userId, in: guildId) {
                 dispatch({ await $0.onGuildMemberRemove(member: member) })
@@ -633,58 +696,39 @@ class WSGateway {
             dispatch({ await $0.onRawGuildMemberRemove(payload: (guildId, User(userData: userObj))) })
             
         case .guildMemberUpdate:
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let guild = bot.getGuild(guildId)!
             
             let userObj = data["user"] as! JSON
             let userId = Conversions.snowflakeToUInt(userObj["id"])
             
+            let afterMember = Member(bot: bot, memberData: data, guildId: guildId)
+            
             if let beforeMember = guild.getMember(userId) {
-                let afterMember = Member(bot: bot, memberData: data, guildId: guildId)
-                afterMember.guild.cacheMember(afterMember)
-                
                 dispatch({ await $0.onGuildMemberUpdate(before: beforeMember, after: afterMember) })
             }
             
-        case .guildMembersChunk:
-            let guildId = getGuildIdFromJSON(data)
-            let guild = bot.getGuild(guildId)!
+            afterMember.guild.cacheMember(afterMember)
+            dispatch({ await $0.onRawGuildMemberUpdate(after: afterMember) })
             
-            if bot.intents.contains(.guildPresences) {
-                if let _ = initialState!.getState(guildId: guildId) {
-                    initialState!.updateState(guildId: guildId)
-                } else {
-                    initialState!.addState(.init(guildId: guildId, chunkCount: data["chunk_count"] as! Int, chunkIndex: (data["chunk_index"] as! Int) + 1))
-                }
-                
-                for cm in data["members"] as! [JSON] {
-                    let user = cm["user"] as! JSON
-                    let chunkedMemberId = Conversions.snowflakeToUInt(user["id"])
-                    if guild.getMember(chunkedMemberId) == nil {
-                        let chunkedMember = Member(bot: bot, memberData: cm, guildId: guildId)
-                        bot.cacheUser(chunkedMember.user!)
-                        guild.cacheMember(chunkedMember)
-                    }
-                }
-                
-                if (initialState!.expectedGuilds == initialState!.states.count && initialState!.allStatesCompleted()) {
-                    initialState?.states.removeAll()
-                    if !initialState!.dispatched {
-                        initialState!.dispatched = true
-                        dispatch({ await $0.onReady() })
-                    }
-                }
+        case .guildMembersChunk:
+            let guildId = getGuildId(data)
+            let guild = bot.getGuild(guildId)!
+            for cm in data["members"] as! [JSON] {
+                let chunkedMember = Member(bot: bot, memberData: cm, guildId: guildId)
+                bot.cacheUser(chunkedMember.user!)
+                guild.cacheMember(chunkedMember)
             }
             
         case .guildRoleCreate:
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let role = Role(bot: bot, roleData: data["role"] as! JSON, guildId: guildId)
             let guild = bot.getGuild(guildId)!
             guild.roles.append(role)
             dispatch({ await $0.onGuildRoleCreate(role: role) })
             
         case .guildRoleUpdate:
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let updatedRole = Role(bot: bot, roleData: data["role"] as! JSON, guildId: guildId)
             let guild = bot.getGuild(guildId)!
             let oldRole = guild.getRole(updatedRole.id)!
@@ -694,7 +738,7 @@ class WSGateway {
             dispatch({ await $0.onGuildRoleUpdate(before: oldRole, after: updatedRole) })
             
         case .guildRoleDelete:
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let roleId = Conversions.snowflakeToUInt(data["role_id"])
             let guild = bot.getGuild(guildId)!
             let role = guild.getRole(roleId)!
@@ -722,31 +766,33 @@ class WSGateway {
             
         case .guildScheduledEventUserAdd:
             let eventId = Conversions.snowflakeToUInt(data["guild_scheduled_event_id"])
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let userId = Conversions.snowflakeToUInt(data["user_id"])
             let event = bot.getGuild(guildId)!.getScheduledEvent(eventId)!
-            let user = bot.getUser(userId)!
-            dispatch({ await $0.onGuildScheduledEventUserAdd(event: event, user: user) })
+            if let user = bot.getUser(userId) {
+                dispatch({ await $0.onGuildScheduledEventUserAdd(event: event, user: user) })
+            }
             
         case .guildScheduledEventUserRemove:
             let eventId = Conversions.snowflakeToUInt(data["guild_scheduled_event_id"])
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let userId = Conversions.snowflakeToUInt(data["user_id"])
             let event = bot.getGuild(guildId)!.getScheduledEvent(eventId)!
-            let user = bot.getUser(userId)!
-            dispatch({ await $0.onGuildScheduledEventUserRemove(event: event, user: user) })
+            if let user = bot.getUser(userId) {
+                dispatch({ await $0.onGuildScheduledEventUserRemove(event: event, user: user) })
+            }
             
         case .integrationCreate:
-            let integration = Guild.Integration(bot: bot, integrationData: data, guildId: getGuildIdFromJSON(data))
+            let integration = Guild.Integration(bot: bot, integrationData: data, guildId: getGuildId(data))
             dispatch({ await $0.onIntegrationCreate(integration: integration) })
             
         case .integrationUpdate:
-            let integration = Guild.Integration(bot: bot, integrationData: data, guildId: getGuildIdFromJSON(data))
+            let integration = Guild.Integration(bot: bot, integrationData: data, guildId: getGuildId(data))
             dispatch({ await $0.onIntegrationUpdate(integration: integration) })
             
         case .integrationDelete:
             let id = Conversions.snowflakeToUInt(data["id"])
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let applicationId = Conversions.snowflakeToUInt(data["application_id"])
             dispatch({ await $0.onIntegrationDelete(payload: (id, guildId, applicationId)) })
             
@@ -768,8 +814,15 @@ class WSGateway {
         case .messageCreate:
             let message = Message(bot: bot, messageData: data)
             if message.isDmMessage && !message.isEphemeral {
-                guard !bot.ignoreDms else { break }
-                bot.dms.update(with: message.channel as! DMChannel)
+                if !bot.ignoreDms {
+                    bot.dms.update(with: message.channel as! DMChannel)
+                } else {
+                    // Break here. When ignoring DMs:
+                    // - The message is not cached (deinit at this point)
+                    // - The user is not cached (break avoids caching)
+                    // - `onMessageCreate()` related to this DM is not dispatched (break avoids dispatch)
+                    break
+                }
             }
             
             bot.cacheMessage(message)
@@ -799,7 +852,7 @@ class WSGateway {
                     c.lastMessageId = message.id
                 
                 // Not directly messageable
-                case .guildCategory, .guildForum, .guildMedia:
+                case .guildCategory, .guildForum:
                     break
                 }
             }
@@ -847,7 +900,7 @@ class WSGateway {
             
             dispatch({ await $0.onRawMessageDeleteBulk(payload: (messagesIds, channelId, guildId)) })
             
-            // Remove all the messages from the internal cache (if any)
+            // Remove all deleted messages from the internal cache (if any)
             for m in messagesFoundInCache { bot.removeCachedMessage(m.id) }
             
         case .messageReactionAdd:
@@ -953,14 +1006,14 @@ class WSGateway {
             }
             
         case .stageInstanceCreate:
-            let guild = bot.getGuild(getGuildIdFromJSON(data))!
+            let guild = bot.getGuild(getGuildId(data))!
             let stageInstance = StageInstance(bot: bot, stageInstanceData: data)
             
             guild.stageInstances.append(stageInstance)
             dispatch({ await $0.onStageInstanceCreate(stageInstance: stageInstance) })
             
         case .stageInstanceDelete:
-            let guild = bot.getGuild(getGuildIdFromJSON(data))!
+            let guild = bot.getGuild(getGuildId(data))!
             let stageInstanceId = Conversions.snowflakeToUInt(data["id"])
             
             if let toDelStageInstIdx = guild.stageInstances.firstIndex(where: { $0.id == stageInstanceId }) {
@@ -969,7 +1022,7 @@ class WSGateway {
             }
             
         case .stageInstanceUpdate:
-            let guild = bot.getGuild(getGuildIdFromJSON(data))!
+            let guild = bot.getGuild(getGuildId(data))!
             let stageInstanceId = Conversions.snowflakeToUInt(data["id"])
             if let before = guild.stageInstances.first(where: { $0.id == stageInstanceId }) {
                 let idx = guild.stageInstances.firstIndex(where: { $0.id == before.id })!
@@ -1008,7 +1061,7 @@ class WSGateway {
             
         case .voiceStateUpdate:
             // Docs say guild_id is optional. When tested, it's missing when received over the gateway, but seems to always be present here
-            let guild = bot.getGuild(getGuildIdFromJSON(data))!
+            let guild = bot.getGuild(getGuildId(data))!
             
             let sessionId = data["session_id"] as! String
             if let vcState = guild.voiceStates.first(where: { $0.sessionId == sessionId }) {
@@ -1027,32 +1080,33 @@ class WSGateway {
             
         case .voiceServerUpdate:
             let token = data["token"] as! String
-            let guildId = getGuildIdFromJSON(data)
+            let guildId = getGuildId(data)
             let endpoint = data["endpoint"] as? String
             dispatch({ await $0.onVoiceServerUpdate(token: token, guildId: guildId, endpoint: endpoint) })
             
         case .webhooksUpdate:
-            let guild = bot.getGuild(getGuildIdFromJSON(data))!
+            let guild = bot.getGuild(getGuildId(data))!
             let channelId = Conversions.snowflakeToUInt(data["channel_id"])
-            let channel = guild.getChannel(channelId)!
-            dispatch({ await $0.onWebhooksUpdate(channel: channel) })
+            if let channel = guild.getChannel(channelId) {
+                dispatch({ await $0.onWebhooksUpdate(channel: channel) })
+            }
         }
     }
 }
 
 /// Represents the events that are dispatched by Discord.
-public enum DiscordEvent : String, CaseIterable {
+public enum GatewayEvent : String, CaseIterable {
     
     /// Dispatched when a client has completed the initial handshake with the gateway.
     case ready = "READY"
 
-    /// Dispatched when the client has resumed a session.
+    /// Dispatched when the client has resumed a session. This event is used internally and can't be utilized via ``EventListener``.
     case resumed = "RESUMED"
     
-    /// Bot should reconnect to the gateway and resume.
+    /// Bot should reconnect to the gateway and resume. This event is used internally and can't be utilized via ``EventListener``.
     case reconnect = "RECONNECT"
     
-    /// Failure to identify, resume, or invalid active session.
+    /// Failure to identify, resume, or invalid active session. This event is used internally and can't be utilized via ``EventListener``.
     case invalidSession = "INVALID_SESSION"
 
     /// An application command permission was updated.
@@ -1233,7 +1287,16 @@ public enum DiscordEvent : String, CaseIterable {
     case webhooksUpdate = "WEBHOOKS_UPDATE"
 }
 
-/// Represents a group of events you can register to the bot.
+extension Sequence<EventListener> {
+    func forEachAsync(_ operation: @escaping (Element) async -> Void) {
+        for element in self {
+            guard element.isEnabled else { continue }
+            Task { await operation(element) }
+        }
+    }
+}
+
+/// Represents a group of events your bot can listen for.
 open class EventListener {
 
     /// Name of the event listener.
@@ -1254,7 +1317,8 @@ open class EventListener {
     // MARK: Ready
     
     /// Dispatched when the bot has connected to Discord and the internal cache has finished its initial preperation.
-    open func onReady() async {}
+    /// - Parameter user: The bot user who's ready.
+    open func onReady(user: ClientUser) async {}
     
     /// Dispatched when the bot has connected to Discord. This is different from ``onReady()`` because this will dispatch as
     /// soon as the connection is successful. Meaning depending on how many guilds the bot is in, the internal cache may or may not be ready.
@@ -1325,7 +1389,7 @@ open class EventListener {
     /// Dispatched when a message is pinned or unpinned in a text channel. This is not dispatched when a pinned message is deleted.
     /// - Parameters:
     ///   - channel: The channel the pin/unpin took place.
-    ///   - pinnedAt: Time at which the most recent pinned message was pinned
+    ///   - pinnedAt: Time at which the most recent pinned message was pinned.
     open func onChannelPinsUpdate(channel: GuildChannel, pinnedAt: Date?) async {}
     
     
@@ -1476,6 +1540,11 @@ open class EventListener {
     ///   - after: The member after the update.
     /// - Requires: Intent ``Intents/guildMembers``.
     open func onGuildMemberUpdate(before: Member, after: Member) async {}
+    
+    /// Dispatched when a guild member is updated. Unlike ``onGuildMemberUpdate(before:after:)``, this is dispatched regardless of if the member was found in the bots internal cache.
+    /// - Parameter after: The member after the update.
+    /// - Requires: Intent ``Intents/guildMembers``.
+    open func onRawGuildMemberUpdate(after: Member) async {}
     
     
     

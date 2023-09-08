@@ -186,12 +186,6 @@ public class Guild : Object, Hashable, Updateable  {
         return forums as! [ForumChannel]
     }
     
-    /// All media channels.
-    public var mediaChannels: [MediaChannel] {
-        let media = channels.filter({ $0.type == .guildMedia })
-        return media as! [MediaChannel]
-    }
-    
     /// All active threads in the guild that current user has permission to view.
     public var threads: [ThreadChannel] {
         let threads = channels.filter { $0.type == .publicThread || $0.type == .privateThread || $0.type == .announcementThread }
@@ -221,6 +215,9 @@ public class Guild : Object, Hashable, Updateable  {
     
     /// Mention the "Channels & Roles" channel with the *Browse Channels* tab pre-selected.
     public let mentionBrowseChannels = "<id:browse>"
+    
+    /// Whether this guild has been chunked via ``chunkMembers()``.
+    public private(set) var chunked = false
 
     // --------------------------------------------------------------------------------
     
@@ -229,9 +226,9 @@ public class Guild : Object, Hashable, Updateable  {
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
     
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
-    init(bot: Discord, guildData: JSON, fromGateway: Bool = false) {
+    init(bot: Bot, guildData: JSON, fromGateway: Bool = false) {
         self.bot = bot
         id = Conversions.snowflakeToUInt(guildData["id"])
         name = guildData["name"] as! String
@@ -304,7 +301,9 @@ public class Guild : Object, Hashable, Updateable  {
         if fromGateway {
             for ch in guildData["channels"] as! [JSON] {
                 let chType = ch["type"] as! Int
-                cacheChannel(determineGuildChannelType(type: chType, data: ch, bot: bot, guildId: id))
+                if let channel = determineGuildChannelType(type: chType, data: ch, bot: bot, guildId: id) {
+                    cacheChannel(channel)
+                }
             }
             for mem in guildData["members"] as! [JSON] {
                 let member = Member(bot: bot, memberData: mem, guildId: id)
@@ -328,11 +327,27 @@ public class Guild : Object, Hashable, Updateable  {
         // ---------------------------------------------------------
     }
     
-    func cacheChannel(_ channel: GuildChannel) { channelsCache[channel.id] = channel }
-    func removeChannelFromCache(_ channelId: Snowflake) { channelsCache[channelId] = nil }
+    func cacheChannel(_ channel: GuildChannel) {
+        if bot!.cacheManager.channels {
+            channelsCache.updateValue(channel, forKey: channel.id)
+        }
+    }
     
-    func cacheMember(_ member: Member) { membersCache[member.id] = member }
-    func removeMemberFromCache(_ memberId: Snowflake) { membersCache[memberId] = nil }
+    @discardableResult
+    func removeChannelFromCache(_ channelId: Snowflake) -> GuildChannel? {
+        return channelsCache.removeValue(forKey: channelId)
+    }
+    
+    func cacheMember(_ member: Member) {
+        if bot!.cacheManager.members || member.id == bot!.user!.id {
+            membersCache.updateValue(member, forKey: member.id)
+        }
+    }
+    
+    @discardableResult
+    func removeMemberFromCache(_ memberId: Snowflake) -> Member? {
+        return membersCache.removeValue(forKey: memberId)
+    }
     
     /// Retrieve the audit log for the guild.
     /// - Parameters:
@@ -421,6 +436,29 @@ public class Guild : Object, Hashable, Updateable  {
     public func bans(limit: Int? = 1000, before: Date? = nil, after: Date? = nil) -> Guild.AsyncBans {
         let limit = limit != nil ? max(1, limit!) : nil
         return Guild.AsyncBans(guild: self, limit: limit, before: before, after: after)
+    }
+    
+    /// Lazy load **all** members in this guild. Unlike ``requestMembers(limit:after:)``, this does not return the members requested. Instead, all members
+    /// in this guild will be cached over time. Ideally should only be called once. This is done over the websocket and can be slow. The larger the guild, the longer it will take.
+    /// - Requires: Intent ``Intents/guildMembers``.
+    public func chunkMembers() throws {
+        if !bot!.intents.contains(.guildMembers) {
+            throw DiscordError.generic("cannot chunk members: missing \(Intents.guildMembers) intent")
+        } else if !bot!.cacheManager.members {
+            throw DiscordError.generic("cannot chunk members: cacheManager disabled caching of members")
+        } else {
+            let payload: JSON = [
+                "op": Opcode.requestGuildMembers,
+                "d": [
+                    "guild_id": id,
+                    "query": String.empty,
+                    "limit": 0
+                ] as JSON
+            ]
+            
+            bot!.gw!.sendFrame(payload)
+            chunked = true
+        }
     }
     
     /// Creates an auto-moderation rule.
@@ -1456,9 +1494,9 @@ extension Guild {
         public private(set) var scopes: Set<OAuth2Scopes>?
         
         /// Your bot instance.
-        public private(set) weak var bot: Discord?
+        public private(set) weak var bot: Bot?
         
-        init(bot: Discord?, integrationData: JSON, guildId: Snowflake) {
+        init(bot: Bot?, integrationData: JSON, guildId: Snowflake) {
             self.bot = bot
             self.guildId = guildId
             id = Conversions.snowflakeToUInt(integrationData["id"])
@@ -1703,9 +1741,9 @@ extension Guild {
         public let presenceCount: Int
         
         /// Your bot instance.
-        public private(set) weak var bot: Discord?
+        public private(set) weak var bot: Bot?
         
-        init(bot: Discord, widgetData: JSON) {
+        init(bot: Bot, widgetData: JSON) {
             self.bot = bot
             id = Conversions.snowflakeToUInt(widgetData["id"])
             name = widgetData["name"] as! String
@@ -1791,7 +1829,7 @@ extension Guild {
         /// Custom guild stickers.
         public internal(set) var stickers = [Sticker]()
 
-        init(bot: Discord, previewData: JSON) {
+        init(bot: Bot, previewData: JSON) {
             id = Conversions.snowflakeToUInt(previewData["id"])
             name = previewData["name"] as! String
             
@@ -2083,9 +2121,9 @@ extension Guild {
         public let image: Asset?
         
         /// Your bot instance.
-        public weak private(set) var bot: Discord?
+        public weak private(set) var bot: Bot?
 
-        init(bot: Discord, eventData: JSON) {
+        init(bot: Bot, eventData: JSON) {
             self.bot = bot
             id = Conversions.snowflakeToUInt(eventData["id"])
             guildId = Conversions.snowflakeToUInt(eventData["guild_id"])
@@ -2276,9 +2314,9 @@ extension Guild {
         // -------------------------------------------
         
         /// Your bot instance.
-        public weak private(set) var bot: Discord?
+        public weak private(set) var bot: Bot?
 
-        init(bot: Discord, templateData: JSON) {
+        init(bot: Bot, templateData: JSON) {
             self.bot = bot
             code = templateData["code"] as! String
             name = templateData["name"] as! String

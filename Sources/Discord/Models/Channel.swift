@@ -24,35 +24,36 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 
-func determineGuildChannelType(type: Int, data: JSON, bot: Discord, guildId: Snowflake) -> GuildChannel {
-    let type = ChannelType(rawValue: type)!
-    var temp: GuildChannel!
-    switch type {
-    case .guildText, .guildAnnouncement:
-        temp = TextChannel(bot: bot, channelData: data, guildId: guildId)
-        
-    case .guildVoice:
-        temp = VoiceChannel(bot: bot, vcData: data, guildId: guildId)
-        
-    case .guildCategory:
-        temp = CategoryChannel(bot: bot, categoryData: data, guildId: guildId)
-        
-    case .announcementThread, .publicThread, .privateThread:
-        temp = ThreadChannel(bot: bot, threadData: data, guildId: guildId)
-        
-    case .guildStageVoice:
-        temp = StageChannel(bot: bot, scData: data, guildId: guildId)
-        
-    case .guildForum:
-        temp = ForumChannel(bot: bot, fcData: data, guildId: guildId)
-        
-    case .guildMedia:
-        temp = MediaChannel(bot: bot, mcData: data, guildId: guildId)
-        
-    case .dm:
-        break
+/// Find the type of channel. If `nil`, it was not detected becaise it was most likely a new channel type that was recently added to the API
+/// and has not been added to the lib yet.
+func determineGuildChannelType(type: Int, data: JSON, bot: Bot, guildId: Snowflake) -> GuildChannel? {
+    if let type = ChannelType(rawValue: type) {
+        var temp: GuildChannel!
+        switch type {
+        case .guildText, .guildAnnouncement:
+            temp = TextChannel(bot: bot, channelData: data, guildId: guildId)
+            
+        case .guildVoice:
+            temp = VoiceChannel(bot: bot, vcData: data, guildId: guildId)
+            
+        case .guildCategory:
+            temp = CategoryChannel(bot: bot, categoryData: data, guildId: guildId)
+            
+        case .announcementThread, .publicThread, .privateThread:
+            temp = ThreadChannel(bot: bot, threadData: data, guildId: guildId)
+            
+        case .guildStageVoice:
+            temp = StageChannel(bot: bot, scData: data, guildId: guildId)
+            
+        case .guildForum:
+            temp = ForumChannel(bot: bot, fcData: data, guildId: guildId)
+            
+        case .dm:
+            break
+        }
+        return temp
     }
-    return temp
+    return nil
 }
 
 fileprivate func buildChannelOverwrites(_ overwrites: [JSON]) -> [PermissionOverwrites] {
@@ -67,7 +68,7 @@ fileprivate func buildChannelOverwrites(_ overwrites: [JSON]) -> [PermissionOver
 public protocol Messageable : Object {
     
     /// Your bot instance.
-    var bot: Discord? { get }
+    var bot: Bot? { get }
 }
 
 extension Messageable {
@@ -152,7 +153,7 @@ extension Messageable {
         _ content: String? = nil,
         tts: Bool = false,
         embeds: [Embed]? = nil,
-        allowedMentions: AllowedMentions = Discord.allowedMentions,
+        allowedMentions: AllowedMentions = Bot.allowedMentions,
         ui: UI? = nil,
         files: [File]? = nil,
         stickers: [GuildSticker]? = nil,
@@ -221,7 +222,7 @@ extension Messageable {
 public protocol Channel : Object {
     
     /// Your bot instance.
-    var bot: Discord? { get }
+    var bot: Bot? { get }
     
     /// Channel ID.
     var id: Snowflake { get }
@@ -279,9 +280,6 @@ public enum ChannelType : Int, CaseIterable {
     
     /// Represents a ``ForumChannel`` type.
     case guildForum = 15
-    
-    /// Represents a ``MediaChannel`` type.
-    case guildMedia
 }
 
 /// Represents a channel that's in a guild.
@@ -437,7 +435,7 @@ public class CategoryChannel : GuildChannel, Hashable {
     public let lastMessageId: Snowflake? = nil
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
     /// Permission overwrites for the channel. Intent ``Intents/guilds`` and ``Intents/guildMembers`` are required. If disabled, this will be empty.
     public var overwrites: [PermissionOverwrites] { buildChannelOverwrites(overwriteData) }
@@ -460,7 +458,7 @@ public class CategoryChannel : GuildChannel, Hashable {
     public static func == (lhs: CategoryChannel, rhs: CategoryChannel) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
-    init(bot: Discord, categoryData: JSON, guildId: Snowflake) {
+    init(bot: Bot, categoryData: JSON, guildId: Snowflake) {
         self.bot = bot
         self.guildId = guildId
         id = Conversions.snowflakeToUInt(categoryData["id"])
@@ -527,13 +525,13 @@ public class DMChannel : Channel, Messageable, Hashable {
     public internal(set) var recipientId: Snowflake?
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
     // Hashable
     public static func == (lhs: DMChannel, rhs: DMChannel) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
-    init(bot: Discord, dmData: JSON) {
+    init(bot: Bot, dmData: JSON) {
         self.bot = bot
         id = Conversions.snowflakeToUInt(dmData["id"])
         lastMessageId = Conversions.snowflakeToOptionalUInt(dmData["last_message_id"])
@@ -592,7 +590,7 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     var overwriteData: [JSON]
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
 
     // ------------------------------ API Separated -----------------------------------
 
@@ -608,7 +606,7 @@ public class TextChannel : GuildChannelMessageable, Hashable {
     public static func == (lhs: TextChannel, rhs: TextChannel) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
-    init(bot: Discord, channelData: JSON, guildId: Snowflake) {
+    init(bot: Bot, channelData: JSON, guildId: Snowflake) {
         self.bot = bot
         self.guildId = guildId
         id = Conversions.snowflakeToUInt(channelData["id"])
@@ -865,7 +863,7 @@ public class ForumChannel : GuildChannel, Hashable {
     var overwriteData: [JSON]
     
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
     // ---------- API Separated ----------
     
@@ -878,7 +876,7 @@ public class ForumChannel : GuildChannel, Hashable {
     public static func == (lhs: ForumChannel, rhs: ForumChannel) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
     
-    init(bot: Discord, fcData: JSON, guildId: Snowflake) {
+    init(bot: Bot, fcData: JSON, guildId: Snowflake) {
         self.bot = bot
         self.guildId = guildId
         id = Conversions.snowflakeToUInt(fcData["id"])
@@ -956,7 +954,7 @@ public class ForumChannel : GuildChannel, Hashable {
         // Forum Thread Message params
         content: String? = nil,
         embeds: [Embed]? = nil,
-        allowedMentions: AllowedMentions = Discord.allowedMentions,
+        allowedMentions: AllowedMentions = Bot.allowedMentions,
         ui: UI? = nil,
         stickers: [GuildSticker]? = nil,
         files: [File]? = nil,
@@ -1178,13 +1176,6 @@ extension ForumChannel {
     }
 }
 
-/// Represents a media channel.
-public class MediaChannel : ForumChannel {
-    init(bot: Discord, mcData: JSON, guildId: Snowflake) {
-        super.init(bot: bot, fcData: mcData, guildId: guildId)
-    }
-}
-
 /// Represents a voice channel.
 public class VoiceChannel : GuildChannelMessageable, Hashable {
     
@@ -1220,7 +1211,7 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
     var overwriteData: [JSON]
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
     // Hashable
     public static func == (lhs: VoiceChannel, rhs: VoiceChannel) -> Bool { lhs.id == rhs.id }
@@ -1245,7 +1236,7 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
     
     // -----------------------------------------------
 
-    init(bot: Discord, vcData: JSON, guildId: Snowflake) {
+    init(bot: Bot, vcData: JSON, guildId: Snowflake) {
         self.bot = bot
         self.guildId = guildId
         id = Conversions.snowflakeToUInt(vcData["id"])
@@ -1404,9 +1395,9 @@ extension VoiceChannel {
         /// The time at which the user requested to speak.
         public internal(set) var requestedToSpeakAt: Date?
         
-        private weak var bot: Discord?
+        private weak var bot: Bot?
 
-        init(bot: Discord, voiceStateData: JSON, guildId: Snowflake) {
+        init(bot: Bot, voiceStateData: JSON, guildId: Snowflake) {
             self.bot = bot
             self.guildId = guildId
             let channelId = Conversions.snowflakeToOptionalUInt(voiceStateData["channel_id"])
@@ -1549,11 +1540,11 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
     let parentChannelId: Snowflake
 
-    init(bot: Discord, threadData: JSON, guildId: Snowflake) {
+    init(bot: Bot, threadData: JSON, guildId: Snowflake) {
         self.bot = bot
         self.guildId = guildId
         id = Conversions.snowflakeToUInt(threadData["id"])
@@ -1729,7 +1720,7 @@ extension ThreadChannel {
 /// Represents a stage channel.
 public class StageChannel : VoiceChannel {
     
-    init(bot: Discord, scData: JSON, guildId: Snowflake) {
+    init(bot: Bot, scData: JSON, guildId: Snowflake) {
         super.init(bot: bot, vcData: scData, guildId: guildId)
     }
     
@@ -1829,7 +1820,7 @@ public struct StageInstance : Hashable {
     public let guildScheduledEventId: Snowflake?
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
 
     // ------------- API Separated -------------
     
@@ -1842,7 +1833,7 @@ public struct StageInstance : Hashable {
     public static func == (lhs: StageInstance, rhs: StageInstance) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
-    init(bot: Discord, stageInstanceData: JSON) {
+    init(bot: Bot, stageInstanceData: JSON) {
         self.bot = bot
         id = Conversions.snowflakeToUInt(stageInstanceData["id"])
         

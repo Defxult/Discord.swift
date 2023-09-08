@@ -204,7 +204,7 @@ public class Invite : PartialInvite {
     public private(set) var guildScheduledEvent: Guild.ScheduledEvent?
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
 
     // ------------------------------ API Separated -----------------------------------
     
@@ -222,7 +222,7 @@ public class Invite : PartialInvite {
 
     // --------------------------------------------------------------------------------
 
-    init(bot: Discord, inviteData: JSON) {
+    init(bot: Bot, inviteData: JSON) {
         self.bot = bot
         
         // Invite metadata
