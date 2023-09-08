@@ -4,7 +4,7 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.0.14-beta&color=ff992b">
+    <img src="https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.1.0-beta&color=ff992b">
     <a href="https://discord-swift.gitbook.io/discord.swift/"><img src="https://img.shields.io/static/v1?label=guide&style=for-the-badge&message=gitbook&color=5865f2"></a>
 </p>
 
@@ -13,19 +13,15 @@ A Discord API library written in Swift, kept up-to-date with the latest features
 
 Enjoying the library? Don't forget to leave a ⭐️ 😄. 
 
-## 🌍Links
+## 🌍 Links
 - [Discord support server](https://discord.gg/TYDZeruQ7N)
 - [Changelog](https://discord-swift.gitbook.io/discord.swift/resources/changelog)
 - [Documentation](https://discord-swift.gitbook.io/discord.swift/resources/documentation)
 - [Setup guide](https://discord-swift.gitbook.io/discord.swift/overview/getting-started)
 
-## 👀 Linux Support
-When it comes to hosting your bot, you'll notice that when it comes to macOS servers, they can be really expensive. Not only does this put a burden on you, but it makes the library less appealing to use. With this library being so young and releasing its very first version in May 2023, there's still a lot of work to do and this is one of those tasks. Discord.swift Linux support is in development! With that said, expect some breaking changes. Linux support for Discord.swift will be released for version 0.1.0-beta. In the mean time, if anything pertinent occurs from the time of this readme update (Sep. 3, 2023), Discord.swift will continue to get updates on versions 0.0.X-beta. Thank you for all the support so far! Here's to the future release of 1.0.0 🍻.
-
-**TL;DR** - Linux support for is in development and is scheduled to be released early October 2023 (hopefully sooner).
-
 ## 😎 Key Features
-- Asynchronous functionality using `async` and `await`.
+- Linux support
+- Asynchronous functionality using `async` and `await`
 - Full application command support
     - [x] Slash commands
     - [x] Message commands
@@ -39,7 +35,7 @@ When it comes to hosting your bot, you'll notice that when it comes to macOS ser
 ```swift
 import Discord
 
-let bot = Discord(token: "...", intents: Intents.default)
+let bot = Bot(token: "...", intents: Intents.default)
 
 bot.addSlashCommand(
     name: "example",
@@ -66,7 +62,7 @@ try! await bot.connect()
 ```swift
 import Discord
 
-let bot = Discord(token: "...", intents: Intents.default)
+let bot = Bot(token: "...", intents: Intents.default)
 
 class MyListener : EventListener {
     override func onMessageCreate(message: Message) async {
@@ -87,7 +83,7 @@ try! await bot.connect()
 ## Swift Package Manager
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Defxult/Discord.swift", .exact("<version here>"))
+    .package(url: "https://github.com/Defxult/Discord.swift.git", .branch("linux-support"))
 ]
 // ...
 dependencies: [
