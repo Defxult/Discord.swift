@@ -130,6 +130,7 @@ class HTTPClient {
         ]
     }
     
+    /// Adds the *reason* header to requests that accept audit log reasons.
     private func withReason(_ reason: String?) -> HTTPHeaders {
         var headers = HTTPHeaders()
         if let reason {
@@ -138,6 +139,7 @@ class HTTPClient {
         return headers
     }
     
+    /// Adds the percent enocding for a reaction.
     private func handleReaction(_ emoji: String) -> String {
         let customEmojiRegex = "<a?:[a-zA-Z]+:[0-9]{17,20}>"
         

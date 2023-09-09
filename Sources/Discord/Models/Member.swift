@@ -91,11 +91,9 @@ public class Member : Object, Hashable {
     /// The user's voice state. Contains information such as ``VoiceChannel/State/selfMuted`` and more.
     public var voice: VoiceChannel.State? { guild.voiceStates.first(where: { $0.user.id == id }) }
     
-    /// All guilds the bot and the member shares.
-    ///
-    /// This is reliant on whether Privileged Intents have been enabled in your developer portal. As well as
-    /// intents ``Intents/guildMembers`` and ``Intents/guildPresences`` being enabled
-    /// so that ``Guild/members`` can be fully loaded.
+    /// All guilds the bot and member shares. This is reliant on whether the guild has been chunked. If the guilds
+    /// the bot and member shares have not been ``Guild/chunked`` and or the ``Intents/guildPresences``
+    /// intent is disabled, this can be inaccurate.
     public var mutualGuilds: [Guild] {
         var mutuals = [Guild]()
         bot!.guilds.forEach({ g in
