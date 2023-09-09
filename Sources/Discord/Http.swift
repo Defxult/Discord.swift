@@ -26,7 +26,7 @@ import Foundation
 import Vapor
 
 /// Represents an HTTP `null`.
-let NIL = NSNull().description
+let NIL = NSNull()
 
 /// Some HTTP requests expects the JSON *value* to be `null`. This simply returns `NIL` to represent the value of `nil` or
 /// if it's not `nil`, unwraps the underlying value.
