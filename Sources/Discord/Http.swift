@@ -1792,9 +1792,11 @@ class HTTPClient {
                         cr.body = jsonArray.serialize
                     }
                 }
-            default:
+            case .GET, .DELETE:
                 // .GET .DELETE don't require a body
                 break
+            default:
+                Log.fatal("unrecognized HTTPMethod")
             }
         })
         

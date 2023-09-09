@@ -141,11 +141,11 @@ public class Guild : Object, Hashable, Updateable  {
     // ------------- The below properties are set via the extra fields in the GUILD_CREATE gateway event ------------------
     
     /// All channels available in the Guild.
-    public var channels: [GuildChannel] { channelsCache.values.map({ $0 }) }
+    public var channels: [GuildChannel] { [GuildChannel](channelsCache.values) }
     var channelsCache = [Snowflake: GuildChannel]()
 
     /// All members in the guild.
-    public var members: [Member] { membersCache.values.map({ $0 }) }
+    public var members: [Member] { [Member](membersCache.values) }
     private var membersCache = [Snowflake: Member]()
 
     /// All active stage instances.
