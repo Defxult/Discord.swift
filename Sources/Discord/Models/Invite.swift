@@ -48,10 +48,10 @@ public class PartialInvite {
     /// The expiration date of the invite.
     public private(set) var expiresAt: Date?
 
-    /// Approximate count of online members. This will always be `nil` unless called via ``Discord/Discord/requestInvite(code:)``.
+    /// Approximate count of online members. This will always be `nil` unless called via ``Bot/requestInvite(code:)``.
     public let approximatePresenceCount: Int?
 
-    /// Approximate count of total members. This will always be `nil` unless called via ``Discord/Discord/requestInvite(code:)``.
+    /// Approximate count of total members. This will always be `nil` unless called via ``Bot/requestInvite(code:)``.
     public let approximateMemberCount: Int?
     
     // ------------------------------ API Separated -----------------------------------

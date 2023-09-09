@@ -529,7 +529,7 @@ public class Bot {
         return try await http.getWebhookWithToken(webhookId: webhookId, webhookToken: webhookToken)
     }
     
-    /// Block further execution until the ``EventListener/onReady()`` event has been dispatched.
+    /// Block further execution until the ``EventListener/onReady(user:)`` event has been dispatched.
     public func waitUntilReady() async {
         while gw?.initialState?.dispatched != true {
             await sleep(150)

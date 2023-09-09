@@ -747,7 +747,7 @@ public class Guild : Object, Hashable, Updateable  {
     ///   - edits: The enum containing all values to be updated or removed for the guild.
     ///   - reason: The reason for editing the guild. This shows up in the guilds audit log.
     /// - Returns: The updated guild.
-    /// - Note: The returned guild has the same limitations as ``Discord/Discord/requestGuild(_:withCounts:)``.
+    /// - Note: The returned guild has the same limitations as ``Bot/requestGuild(_:withCounts:)``
     @discardableResult
     public func edit(_ edits: Guild.Edit..., reason: String? = nil) async throws -> Guild {
         // Don't perform an HTTP request when nothing was changed

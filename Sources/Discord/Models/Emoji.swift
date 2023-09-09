@@ -160,12 +160,12 @@ public struct PartialEmoji {
     /// Guild emoji ID. If created via ``PartialEmoji/init(_:)``, this will be `nil`.
     public let id: Snowflake?
     
-    /// Emoji name. If created via ``DiscordEvent/messageReactionAdd`` or ``DiscordEvent/messageReactionRemove``, this
+    /// Emoji name. If created via ``GatewayEvent/messageReactionAdd`` or ``GatewayEvent/messageReactionRemove``, this
     /// property may be `nil` when custom emoji data is not available (for example, if it was deleted from the guild).
     public let name: String?
     
     /// Whether this emoji is animated. If created via ``PartialEmoji/init(_:)``, this will be `nil`. This is typically available
-    /// when this was created via ``DiscordEvent/messageReactionAdd``.
+    /// when this was created via ``GatewayEvent/messageReactionAdd``.
     public private(set) var animated: Bool?
     
     /// Returns the raw representation of the partial emoji.

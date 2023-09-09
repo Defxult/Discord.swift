@@ -336,7 +336,7 @@ extension GuildChannel {
     ///   - unique: If the invite URL should be unique. If `false`, there's a chance a previously created on could be created.
     ///   - targetType: The type of target for this voice channel invite.
     ///   - targetUser: The user whose stream to display for this invite. Required if `targetType` is ``Invite/Target/stream``, the user must be streaming in the channel.
-    ///   - targetApplicationId: The ID of the embedded application to open for this invite. Required if `targetType` is ``Invite/Target/embeddedApplication``. The application must have the flag ``Application/Flag-swift.enum/embedded``.
+    ///   - targetApplicationId: The ID of the embedded application to open for this invite. Required if `targetType` is ``Invite/Target/embeddedApplication``. The application must have the flag ``Application/Flag/embedded``.
     ///   - reason: The reason for creating the invite. This shows up in the guilds audit log.
     /// - Returns: The newly created invite.
     public func createInvite(

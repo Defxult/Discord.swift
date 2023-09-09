@@ -290,7 +290,7 @@ extension User {
         case competing = 5
     }
     
-    /// Represents the information used to update the bots presence via ``Discord/Discord/updatePresence(status:activity:)``.
+    /// Represents the information used to update the bots presence via ``Bot/updatePresence(status:activity:)``.
     public struct PresenceActivity {
         
         /// The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``,  a `url` must be set.
@@ -302,7 +302,7 @@ extension User {
         /// The associated URL when using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``.
         public var url: String?
         
-        /// Initializes a presence activity for use in ``Discord/Discord/updatePresence(status:activity:)``.
+        /// Initializes a presence activity for use in ``Bot/updatePresence(status:activity:)``.
         /// - Parameters:
         ///   - type: The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``,  a `url` must be set.
         ///   - name: The name of the activity.

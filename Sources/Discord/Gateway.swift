@@ -1320,7 +1320,7 @@ open class EventListener {
     /// - Parameter user: The bot user who's ready.
     open func onReady(user: ClientUser) async {}
     
-    /// Dispatched when the bot has connected to Discord. This is different from ``onReady()`` because this will dispatch as
+    /// Dispatched when the bot has connected to Discord. This is different from ``onReady(user:)`` because this will dispatch as
     /// soon as the connection is successful. Meaning depending on how many guilds the bot is in, the internal cache may or may not be ready.
     /// - Parameter user: The bot user who connected.
     open func onConnect(user: ClientUser) async {}
