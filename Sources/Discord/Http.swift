@@ -1031,7 +1031,6 @@ class HTTPClient {
         return members
     }
     
-    /// ⚠️ Needs more testing.
     /// Modifies a guild member
     /// https://discord.com/developers/docs/resources/guild#modify-guild-member
     func modifyGuildMember(guildId: Snowflake, userId: Snowflake, data: JSON, reason: String?) async throws -> Member {

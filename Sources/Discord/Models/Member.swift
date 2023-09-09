@@ -260,7 +260,7 @@ extension Member {
         case deafen(Bool)
         
         /// Voice channel to move the member to if they are connected to voice. Set to `nil` to disconnect the member from the voice channel.
-        case move(GuildChannel?)
+        case move(VoiceChannel?)
         
         /// When the members timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future), set to `nil` to remove the timeout.
         case timeout(Date?)
