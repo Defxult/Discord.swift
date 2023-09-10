@@ -113,6 +113,10 @@ public class Message : Object, Hashable, Updateable {
     /// Reactions to the message.
     public internal(set) var reactions = [Reaction]()
     
+    /// A random number used for validating if a message was sent.
+    /// - Note: This is only present on the initial success of message delivery and will be `nil` if requested.
+    public let nonce: String?
+    
     /// Whether this message is pinned.
     public private(set) var isPinned: Bool
     
@@ -226,6 +230,7 @@ public class Message : Object, Hashable, Updateable {
             embeds.append(.init(embedData: e))
         }
 
+        nonce = messageData["nonce"] as? String
         isPinned = messageData["pinned"] as! Bool
         webhookId = Conversions.snowflakeToOptionalUInt(messageData["webhook_id"])
         type = Message.MessageType(rawValue: messageData["type"] as! Int)!
