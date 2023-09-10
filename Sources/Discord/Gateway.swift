@@ -681,12 +681,15 @@ class Gateway {
             let guildId = getGuildId(data)
             let member = Member(bot: bot, memberData: data, guildId: guildId)
             member.guild.cacheMember(member)
+            member.guild.memberCount += 1
             dispatch({ await $0.onGuildMemberJoin(member: member) })
             
         case .guildMemberRemove:
             let userObj = data["user"] as! JSON
             let userId = Conversions.snowflakeToUInt(userObj["id"])
             let guildId = getGuildId(data)
+            let guild = bot.getGuild(guildId)!
+            guild.memberCount -= 1
             
             if let member = bot.getMember(userId, in: guildId) {
                 dispatch({ await $0.onGuildMemberRemove(member: member) })

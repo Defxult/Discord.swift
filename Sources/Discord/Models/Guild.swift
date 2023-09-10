@@ -147,6 +147,9 @@ public class Guild : Object, Hashable, Updateable  {
     /// All members in the guild.
     public var members: [Member] { [Member](membersCache.values) }
     private var membersCache = [Snowflake: Member]()
+    
+    /// Total number of members in the guild.
+    public internal(set) var memberCount = 0
 
     /// All active stage instances.
     public internal(set) var stageInstances = [StageInstance]()
@@ -299,6 +302,8 @@ public class Guild : Object, Hashable, Updateable  {
         // ------------------------ Gateway ------------------------
         
         if fromGateway {
+            memberCount = guildData["member_count"] as! Int
+            
             for ch in guildData["channels"] as! [JSON] {
                 let chType = ch["type"] as! Int
                 if let channel = determineGuildChannelType(type: chType, data: ch, bot: bot, guildId: id) {
