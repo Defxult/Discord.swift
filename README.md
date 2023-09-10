@@ -20,10 +20,12 @@ Enjoying the library? Don't forget to leave a ⭐️ 😄.
 - [Setup guide](https://discord-swift.gitbook.io/discord.swift/overview/getting-started)
 
 ## 👀 Linux Support
-As of Sept. 8, 2023, Linux support is available for testing on the [linux-support branch](https://github.com/Defxult/Discord.swift/tree/linux-support).
+As of Sept. 8, 2023 Linux support is available for testing on the [linux-support branch](https://github.com/Defxult/Discord.swift/tree/linux-support).
+
+**Note:** All users should start migrating to the *linux-support* version of the library. The plan is to eventually merge that branch into *main* so there's only one version of the library that works on multiple platforms. All future updates will be applied to the *linux-support* branch until release.
 
 ## 😎 Key Features
-- Asynchronous functionality using `async` and `await`.
+- Asynchronous functionality using `async` and `await`
 - Full application command support
     - [x] Slash commands
     - [x] Message commands
