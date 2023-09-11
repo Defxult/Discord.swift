@@ -457,12 +457,10 @@ class Gateway {
         case .channelCreate:
             if let channelType = ChannelType(rawValue: data["type"] as! Int) {
                 if channelType == .dm {
-                    if !bot.ignoreDms {
-                        // There's no `onChannelCreate()` here for *brand new* DMs. That event is reserved
-                        // for guild channels. If a user wants to know when they get a DM, they can listen
-                        // to `onMessageCreate()` and check `Message.isDmMessage`
-                        bot.dms.update(with: DMChannel(bot: bot, dmData: data))
-                    }
+                    // There's no `onChannelCreate()` here for *brand new* DMs. That event is reserved
+                    // for guild channels. If a user wants to know when they get a DM, they can listen
+                    // to `onMessageCreate()` and check `Message.isDmMessage`
+                    bot.dms.update(with: DMChannel(bot: bot, dmData: data))
                 } else {
                     let guild = bot.getGuild(getGuildId(data))!
                     if let channel = determineGuildChannelType(type: channelType.rawValue, data: data, bot: bot, guildId: guild.id) {
@@ -817,15 +815,7 @@ class Gateway {
         case .messageCreate:
             let message = Message(bot: bot, messageData: data)
             if message.isDmMessage && !message.isEphemeral {
-                if !bot.ignoreDms {
-                    bot.dms.update(with: message.channel as! DMChannel)
-                } else {
-                    // Break here. When ignoring DMs:
-                    // - The message is not cached (deinit at this point)
-                    // - The user is not cached (break avoids caching)
-                    // - `onMessageCreate()` related to this DM is not dispatched (break avoids dispatch)
-                    break
-                }
+                bot.dms.update(with: message.channel as! DMChannel)
             }
             
             bot.cacheMessage(message)
