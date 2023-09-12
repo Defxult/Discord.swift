@@ -330,7 +330,7 @@ public func oauth2Url(
 /// Suspend execution for the provided amount of time.
 /// - Parameter milliseconds: The amount of milliseconds to suspend execution.
 public func sleep(_ milliseconds: Int) async {
-    try? await Task.sleep(nanoseconds: UInt64(milliseconds * 1_000_000))
+    try? await Task.sleep(for: .milliseconds(milliseconds))
 }
 
 /// Convert the snowflake to the date it represents.
