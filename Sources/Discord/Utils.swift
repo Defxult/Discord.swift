@@ -282,10 +282,63 @@ extension Markdown {
     }
 }
 
+/// Get the OAuth2 URL for inviting the bot.
+/// - Parameters:
+///   - botId: The bot ID.
+///   - permissions: Permissions you're requesting the bot to have.
+///   - guildId: The guild to select on the authorization form.
+///   - disableGuildSelect: Whether the user can change the guild shown in the dropdown.
+///   - scopes: A set of scopes.
+///   - redirectUri: The redirect URI.
+///   - state: The unique state.
+/// - Returns: The OAuth2 URL.
+public func oauth2Url(
+    botId: Snowflake,
+    permissions: Permissions = .none,
+    guildId: Snowflake? = nil,
+    disableGuildSelect: Bool = false,
+    scopes: Set<OAuth2Scopes> = [.bot, .applicationsCommands],
+    redirectUri: String? = nil,
+    state: String? = nil) -> String {
+        var url = URLComponents(string: "https://discord.com/oauth2/authorize")!
+        
+        var qi = [URLQueryItem]()
+        qi.append(contentsOf: [
+            .init(name: "client_id", value: botId.description),
+            .init(name: "disable_guild_select", value: disableGuildSelect.description),
+            .init(name: "permissions", value: permissions.value.description),
+            .init(name: "scope", value: scopes.map({ $0.rawValue }).joined(separator: "+"))
+        ])
+        
+        if let guildId {
+            qi.append(.init(name: "guild_id", value: guildId.description))
+        }
+        if let redirectUri {
+            qi.append(contentsOf: [
+                .init(name: "response_type", value: "code"),
+                .init(name: "redirect_uri", value: redirectUri.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
+            ])
+        }
+        if let state {
+            qi.append(.init(name: "state", value: state))
+        }
+        
+        url.queryItems = qi
+        return url.description
+}
+
 /// Suspend execution for the provided amount of time.
 /// - Parameter milliseconds: The amount of milliseconds to suspend execution.
 public func sleep(_ milliseconds: Int) async {
     try? await Task.sleep(nanoseconds: UInt64(milliseconds * 1_000_000))
+}
+
+/// Convert the snowflake to the date it represents.
+/// - Parameter snowflake: The snowflake to convert.
+/// - Returns: The snowflake converted into a `Date`.
+public func snowflakeDate(_ snowflake: Snowflake) -> Date {
+    let timestamp = ((snowflake >> 22) + discordEpoch) / 1000
+    return Date(timeIntervalSince1970: Double(timestamp))
 }
 
 // MARK: Public global extensions
