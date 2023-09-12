@@ -174,6 +174,9 @@ public class Message : Object, Hashable, Updateable {
     
     /// Whether the message was ephemeral.
     public var isEphemeral: Bool { flags.contains(.ephemeral) }
+    
+    /// Whether the bot is mentioned in the message.
+    public var isMentioned: Bool { mentionedUsers.contains(bot!.user!) }
 
     /// The direct URL for the message.
     public var jumpUrl: String {
