@@ -33,6 +33,9 @@ public class User : Object, Updateable, Hashable {
     /// The user's username.
     public internal(set) var name: String
     
+    /// The user's display name, if it is set. For bots, this is the application name.
+    public internal(set) var displayName: String?
+    
     /// The user's 4-digit discord-tag.
     public internal(set) var discriminator: String
     
@@ -71,6 +74,7 @@ public class User : Object, Updateable, Hashable {
     init(userData: JSON) {
         id = Conversions.snowflakeToUInt(userData["id"])
         name = userData["username"] as! String
+        displayName = userData["global_name"] as? String
         discriminator = userData["discriminator"] as! String
         defaultAvatarUrl = HTTPClient.buildEndpoint(.cdn, endpoint: "/embed/avatars/\(Conversions.defaultUserAvatar(discriminator: discriminator, userId: id))")
         
@@ -115,6 +119,8 @@ public class User : Object, Updateable, Hashable {
                 if let flagValue = v as? Int {
                     flags = User.Flag.get(flagValue)
                 }
+            case "global_name":
+                displayName = v as? String
             default:
                 break
             }
