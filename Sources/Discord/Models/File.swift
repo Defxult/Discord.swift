@@ -110,3 +110,20 @@ public struct File {
         spoiler ? "SPOILER_\(name)" : name
     }
 }
+
+/// Represents an object that has a URL where its contents can be converted into a ``File``.
+public protocol Downloadable {
+    
+    /// The URL of the object.
+    var url: String { get }
+}
+
+extension Downloadable {
+    
+    /// Converts the contents of the objects URL into a ``File``. For successful conversion, the URL of the downloadable
+    /// must match the specifications of parameter `urls` in ``File/download(urls:)``.
+    /// - Returns: The file representation of the URL, or `nil` if the conversion failed.
+    public func download() async throws -> File? {
+        try await File.download(urls: [URL(string: url)!]).first
+    }
+}
