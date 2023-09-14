@@ -146,10 +146,10 @@ public class Permissions {
     public let value: Int
     
     /// The permissions that are enabled.
-    public internal(set) var enabled = [Permission]()
+    public private(set) var enabled = [Permission]()
     
     /// The permissions that are disabled.
-    public internal(set) var disabled = [Permission]()
+    public private(set) var disabled = [Permission]()
     
     /// Returns a permissions object with default permissions.
     ///

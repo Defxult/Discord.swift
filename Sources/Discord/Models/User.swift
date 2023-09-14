@@ -31,19 +31,19 @@ public class User : Object, Updateable, Hashable {
     public let id: Snowflake
     
     /// The user's username.
-    public internal(set) var name: String
+    public private(set) var name: String
     
     /// The user's display name, if it is set. For bots, this is the application name.
-    public internal(set) var displayName: String?
+    public private(set) var displayName: String?
     
     /// The user's 4-digit discord-tag.
-    public internal(set) var discriminator: String
+    public private(set) var discriminator: String
     
     /// The URL for the user's default avatar.
-    public internal(set) var defaultAvatarUrl: String
+    public private(set) var defaultAvatarUrl: String
     
     /// The user's avatar.
-    public internal(set) var avatar: Asset?
+    public private(set) var avatar: Asset?
     
     /// Whether the user is a bot.
     public let isBot: Bool
@@ -52,10 +52,10 @@ public class User : Object, Updateable, Hashable {
     public let isSystem: Bool
     
     /// The user's banner.
-    public internal(set) var banner: Asset?
+    public private(set) var banner: Asset?
     
     /// The public flags on a user's account.
-    public internal(set) var flags: [User.Flag]
+    public private(set) var flags: [User.Flag]
     
     // Hashable
     public static func == (lhs: User, rhs: User) -> Bool { lhs.id == rhs.id }

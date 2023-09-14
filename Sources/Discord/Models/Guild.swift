@@ -31,40 +31,40 @@ public class Guild : Object, Hashable, Updateable  {
     public let id: Snowflake
     
     /// Guild name.
-    public internal(set) var name: String
+    public private(set) var name: String
     
     /// Guild avatar.
-    public internal(set) var icon: Asset?
+    public private(set) var icon: Asset?
     
     /// The guild owners ID.
-    public internal(set) var ownerId: Snowflake
+    public private(set) var ownerId: Snowflake
     
     /// Guild splash.
-    public internal(set) var splash: Asset?
+    public private(set) var splash: Asset?
     
     /// Guild discovery splash.
-    public internal(set) var discoverySplash: Asset?
+    public private(set) var discoverySplash: Asset?
     
     /// ID of AFK channel.
-    public internal(set) var afkChannelId: Snowflake?
+    public private(set) var afkChannelId: Snowflake?
     
     /// AFK timeout in seconds.
-    public internal(set) var afkChannelTimeout: Int
+    public private(set) var afkChannelTimeout: Int
     
     /// If the guild widget is enabled.
-    public internal(set) var widgetEnabled: Bool
+    public private(set) var widgetEnabled: Bool
     
     /// The channel ID that the widget will generate an invite to, or `nil` if set to no invite.
-    public internal(set) var widgetChannelId: Snowflake?
+    public private(set) var widgetChannelId: Snowflake?
     
     /// Verification level required for the guild.
-    public internal(set) var verificationLevel: VerificationLevel
+    public private(set) var verificationLevel: VerificationLevel
     
     /// Default message notifications level.
-    public internal(set) var defaultMessageNotifications: MessageNotificationLevel
+    public private(set) var defaultMessageNotifications: MessageNotificationLevel
     
     /// Explicit content filter level.
-    public internal(set) var explicitContentFilter: ExplicitContentFilterLevel
+    public private(set) var explicitContentFilter: ExplicitContentFilterLevel
     
     /// Roles in the guild.
     public internal(set) var roles = [Role]()
@@ -73,70 +73,70 @@ public class Guild : Object, Hashable, Updateable  {
     public internal(set) var emojis = Set<Emoji>()
     
     /// Enabled guild features.
-    public internal(set) var features = [Feature]()
+    public private(set) var features = [Feature]()
     
     /// Required MFA level for the guild.
-    public internal(set) var mfaLevel: MFALevel
+    public private(set) var mfaLevel: MFALevel
     
     /// Application ID of the guild creator if it is bot-created.
-    public internal(set) var applicationId: Snowflake?
+    public private(set) var applicationId: Snowflake?
     
     /// The ID of the channel where guild notices such as welcome messages and boost events are posted.
-    public internal(set) var systemChannelId: Snowflake?
+    public private(set) var systemChannelId: Snowflake?
     
     /// The values set for the guild system channel.
-    public internal(set) var systemChannelFlags = [SystemChannelFlag]()
+    public private(set) var systemChannelFlags = [SystemChannelFlag]()
     
     /// The ID of the channel where Community guilds can display rules and/or guidelines.
-    public internal(set) var rulesChannelId: Snowflake?
+    public private(set) var rulesChannelId: Snowflake?
     
     /// The maximum number of presences for the guild.
-    public internal(set) var maxPresences: Int?
+    public private(set) var maxPresences: Int?
     
     /// The maximum number of members for the guild.
-    public internal(set) var maxMembers: Int?
+    public private(set) var maxMembers: Int?
     
     /// The vanity URL code for the guild.
-    public internal(set) var vanityUrlCode: String?
+    public private(set) var vanityUrlCode: String?
     
     /// The description of a guild.
-    public internal(set) var description: String?
+    public private(set) var description: String?
     
     /// The guild banner.
-    public internal(set) var banner: Asset?
+    public private(set) var banner: Asset?
     
     /// The server boost level of the guild.
-    public internal(set) var premiumTier: PremiumTier
+    public private(set) var premiumTier: PremiumTier
     
     /// The number of boosts this guild currently has.
-    public internal(set) var premiumSubscriptionCount: Int?
+    public private(set) var premiumSubscriptionCount: Int?
     
     /// The preferred locale of a Community guild.
-    public internal(set) var preferredLocale: Locale
+    public private(set) var preferredLocale: Locale
     
     /// The ID of the channel where admins and moderators of Community guilds receive notices from Discord.
-    public internal(set) var publicUpdatesChannelId: Snowflake?
+    public private(set) var publicUpdatesChannelId: Snowflake?
     
     /// The maximum amount of users in a video channel.
-    public internal(set) var maxVideoChannelUsers: Int?
+    public private(set) var maxVideoChannelUsers: Int?
     
     /// Approximate number of members in this guild.
-    public internal(set) var approximateMemberCount: Int?
+    public private(set) var approximateMemberCount: Int?
     
     /// Approximate number of non-offline members in this guild.
-    public internal(set) var approximatePresenceCount: Int?
+    public private(set) var approximatePresenceCount: Int?
     
     /// Guild NSFW level.
-    public internal(set) var nsfwLevel: NSFWLevel
+    public private(set) var nsfwLevel: NSFWLevel
     
     /// Custom guild stickers.
     public internal(set) var stickers = [GuildSticker]()
     
     /// Whether the guild has the boost progress bar enabled.
-    public internal(set) var premiumProgressBarEnabled: Bool
+    public private(set) var premiumProgressBarEnabled: Bool
     
     /// The ID of the channel where admins and moderators of Community guilds receive safety alerts from Discord.
-    public internal(set) var safetyAlertsChannelId: Snowflake?
+    public private(set) var safetyAlertsChannelId: Snowflake?
 
     // ------------- The below properties are set via the extra fields in the GUILD_CREATE gateway event ------------------
     

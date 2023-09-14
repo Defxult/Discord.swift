@@ -130,31 +130,31 @@ public class Message : Object, Hashable, Updateable {
     public private(set) var activity: Activity?
     
     /// The application associated with the message. Sent with rich presence-related chat embeds.
-    public internal(set) var application: Application?
+    public private(set) var application: Application?
 
     /// If the message is an Interaction or application-owned webhook, this is the ID of the application.
-    public internal(set) var applicationId: Snowflake?
+    public private(set) var applicationId: Snowflake?
     
     /// Data showing the source of a crosspost, channel follow add, pin, or reply message.
-    public internal(set) var reference: Reference?
+    public private(set) var reference: Reference?
 
     /// The flags this message contains.
-    public internal(set) var flags: [Message.Flag]
+    public private(set) var flags: [Message.Flag]
 
     /// Message associated with the message reference. This relates to replying to messages.
-    public internal(set) var referencedMessage: Message?
+    public private(set) var referencedMessage: Message?
 
     /// Sent if the message is a response to an ``Interaction``.
-    public internal(set) var interaction: Message.Interaction?
+    public private(set) var interaction: Message.Interaction?
 
     /// The thread that was started from this message.
-    public internal(set) var thread: ThreadChannel?
+    public private(set) var thread: ThreadChannel?
 
     /// The UI elements on the message such as a ``Button`` or ``SelectMenu``.
     public internal(set) var ui: UI?
     
     /// Stickers sent with the message.
-    public internal(set) var stickers = [Sticker.Item]()
+    public private(set) var stickers = [Sticker.Item]()
 
     /// The referenced representation of the message.
     public var asReference: Reference { Reference(messageId: id, channelId: channel.id, guildId: guild?.id) }

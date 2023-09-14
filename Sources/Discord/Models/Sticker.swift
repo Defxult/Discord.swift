@@ -56,19 +56,19 @@ public struct GuildSticker : Object, Hashable {
     public let id: Snowflake
     
     /// Name of the guild sticker.
-    public internal(set) var name: String
+    public let name: String
     
     /// Description of the guild sticker.
-    public internal(set) var description: String?
+    public let description: String?
     
     /// The **name** of the unicode emoji.
-    public internal(set) var emoji: String
+    public let emoji: String
     
     /// Type of sticker format.
     public let format: Sticker.Format
     
     /// Whether this guild sticker can be used, may be false due to loss of server boosts.
-    public internal(set) var available: Bool
+    public let available: Bool
     
     /// The guild this sticker belongs to.
     public var guild: Guild { bot!.getGuild(guildId)! }
@@ -82,7 +82,7 @@ public struct GuildSticker : Object, Hashable {
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
     
     /// Your bot instance.
-    public internal(set) weak var bot: Bot?
+    public private(set) weak var bot: Bot?
 
     init(bot: Bot, guildStickerData: JSON) {
         self.bot = bot
@@ -194,7 +194,7 @@ extension Sticker {
         public let id: Snowflake
         
         /// The stickers in the pack.
-        public internal(set) var stickers = [Sticker]()
+        public let stickers: [Sticker]
         
         /// Name of the sticker pack
         public let name: String
@@ -213,11 +213,7 @@ extension Sticker {
 
         init(packData: JSON) {
             id = Conversions.snowflakeToUInt(packData["id"])
-            
-            for stickerData in packData["stickers"] as! [JSON] {
-                stickers.append(.init(stickerData: stickerData))
-            }
-
+            stickers = (packData["stickers"] as! [JSON]).map({ .init(stickerData: $0) })
             name = packData["name"] as! String
             skuId = Conversions.snowflakeToUInt(packData["sku_id"])
             coverStickerId = Conversions.snowflakeToOptionalUInt(packData["cover_sticker_id"])

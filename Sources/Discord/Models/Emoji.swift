@@ -34,7 +34,7 @@ public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
     public var guild: Guild { bot!.getGuild(guildId)! }
     
     /// Emoji name.
-    public internal(set) var name: String
+    public let name: String
     
     /// Roles allowed to use this emoji.  If this is empty, everyone is allowed to use it.
     public var roles: [Role] {
@@ -59,7 +59,7 @@ public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
     public let animated: Bool
     
     /// Whether this emoji can be used. May be false due to a loss of Server Boosts.
-    public internal(set) var available: Bool
+    public let available: Bool
 
     /// Your bot instance.
     public weak private(set) var bot: Bot?

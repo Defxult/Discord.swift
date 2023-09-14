@@ -50,7 +50,7 @@ protocol InternalComponent : Component {
 public class UI {
     
     /// The components that make up the UI.
-    public internal(set) var items = [Component]()
+    public private(set) var items = [Component]()
     
     /// The closure that is called when the UI receives an interaction.
     public internal(set) var onInteraction: ((Interaction) async -> Void) = { _ in }
@@ -67,7 +67,7 @@ public class UI {
     public let timeout: TimeInterval
     
     /// The message the UI is attached to.
-    public internal(set) var attachedMessage: Message? = nil
+    public private(set) var attachedMessage: Message? = nil
     
     var timer: Timer? = nil
     
@@ -317,7 +317,7 @@ public class Button : Component, InternalComponent {
         self.emoji = emoji
         
         if style == .link { self.customId = String.empty }
-        else { self.customId = customId ?? Int.random(in: 10_000...99_999).description }
+        else { self.customId = customId ?? Int.random(in: 1_000...99_999).description }
         
         self.url = url
         self.disabled = disabled
