@@ -119,6 +119,11 @@ public class Member : Object, Hashable {
         nick = memberData["nick"] as? String
         memberRoleArrayStr = memberData["roles"] as! [String]
         joinedAt = Conversions.stringDateToDate(iso8601: memberData["joined_at"] as! String)!
+        
+        if let premiumSinceISO8601 = memberData["premium_since"] as? String {
+            premiumSince = Conversions.stringDateToDate(iso8601: premiumSinceISO8601)
+        }
+        
         isPending = Conversions.optionalBooltoBool(memberData["pending"] as? Bool)
         guildAvatarHash = memberData["avatar"] as? String
         
