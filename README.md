@@ -4,7 +4,7 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.0.14-beta&color=ff992b">
+    <img src="https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.1.0-beta&color=ff992b">
     <a href="https://discord-swift.gitbook.io/discord.swift/"><img src="https://img.shields.io/static/v1?label=guide&style=for-the-badge&message=gitbook&color=5865f2"></a>
 </p>
 
@@ -19,14 +19,8 @@ Enjoying the library? Don't forget to leave a ⭐️ 😄.
 - [Documentation](https://discord-swift.gitbook.io/discord.swift/resources/documentation)
 - [Setup guide](https://discord-swift.gitbook.io/discord.swift/overview/getting-started)
 
-## 👀 Linux Support
-As of Sept. 8, 2023 Linux support is available for testing on the [linux-support branch](https://github.com/Defxult/Discord.swift/tree/linux-support).
-
-> [!NOTE]
-> All users should start migrating to the *linux-support* version of the library. The plan is to eventually merge that branch into *main* so there's only one version of the library that
-> works on multiple platforms. All future updates will be applied to the *linux-support* branch until release.
-
 ## 😎 Key Features
+- Linux support
 - Asynchronous functionality using `async` and `await`
 - Full application command support
     - [x] Slash commands
@@ -41,13 +35,13 @@ As of Sept. 8, 2023 Linux support is available for testing on the [linux-support
 ```swift
 import Discord
 
-let bot = Discord(token: "...", intents: Intents.default)
+let bot = Bot(token: "...", intents: Intents.default)
 
 bot.addSlashCommand(
     name: "example",
     description: "Example command",
     guildId: nil,
-    onInteraction: { interaction async in
+    onInteraction: { interaction in
         try! await interaction.respondWithMessage("This is an example", ephemeral: true)
     }
 )
@@ -55,7 +49,7 @@ bot.addSlashCommand(
 bot.addUserCommand(
     name: "Who is",
     guildId: 1234567890123456789,
-    onInteraction: { interaction async in
+    onInteraction: { interaction in
         try! await interaction.respondWithMessage("...")
     }
 )
@@ -68,7 +62,7 @@ try! await bot.connect()
 ```swift
 import Discord
 
-let bot = Discord(token: "...", intents: Intents.default)
+let bot = Bot(token: "...", intents: Intents.default)
 
 class MyListener : EventListener {
     override func onMessageCreate(message: Message) async {
