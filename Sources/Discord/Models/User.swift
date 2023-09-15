@@ -31,16 +31,19 @@ public class User : Object, Updateable, Hashable {
     public let id: Snowflake
     
     /// The user's username.
-    public internal(set) var name: String
+    public private(set) var name: String
+    
+    /// The user's display name, if it is set. For bots, this is the application name.
+    public private(set) var displayName: String?
     
     /// The user's 4-digit discord-tag.
-    public internal(set) var discriminator: String
+    public private(set) var discriminator: String
     
     /// The URL for the user's default avatar.
-    public internal(set) var defaultAvatarUrl: String
+    public private(set) var defaultAvatarUrl: String
     
     /// The user's avatar.
-    public internal(set) var avatar: Asset?
+    public private(set) var avatar: Asset?
     
     /// Whether the user is a bot.
     public let isBot: Bool
@@ -49,10 +52,10 @@ public class User : Object, Updateable, Hashable {
     public let isSystem: Bool
     
     /// The user's banner.
-    public internal(set) var banner: Asset?
+    public private(set) var banner: Asset?
     
     /// The public flags on a user's account.
-    public internal(set) var flags: [User.Flag]
+    public private(set) var flags: [User.Flag]
     
     // Hashable
     public static func == (lhs: User, rhs: User) -> Bool { lhs.id == rhs.id }
@@ -71,6 +74,7 @@ public class User : Object, Updateable, Hashable {
     init(userData: JSON) {
         id = Conversions.snowflakeToUInt(userData["id"])
         name = userData["username"] as! String
+        displayName = userData["global_name"] as? String
         discriminator = userData["discriminator"] as! String
         defaultAvatarUrl = HTTPClient.buildEndpoint(.cdn, endpoint: "/embed/avatars/\(Conversions.defaultUserAvatar(discriminator: discriminator, userId: id))")
         
@@ -115,6 +119,8 @@ public class User : Object, Updateable, Hashable {
                 if let flagValue = v as? Int {
                     flags = User.Flag.get(flagValue)
                 }
+            case "global_name":
+                displayName = v as? String
             default:
                 break
             }
@@ -290,7 +296,7 @@ extension User {
         case competing = 5
     }
     
-    /// Represents the information used to update the bots presence via ``Discord/Discord/updatePresence(status:activity:)``.
+    /// Represents the information used to update the bots presence via ``Bot/updatePresence(status:activity:)``.
     public struct PresenceActivity {
         
         /// The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``,  a `url` must be set.
@@ -302,7 +308,7 @@ extension User {
         /// The associated URL when using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``.
         public var url: String?
         
-        /// Initializes a presence activity for use in ``Discord/Discord/updatePresence(status:activity:)``.
+        /// Initializes a presence activity for use in ``Bot/updatePresence(status:activity:)``.
         /// - Parameters:
         ///   - type: The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``,  a `url` must be set.
         ///   - name: The name of the activity.
@@ -409,8 +415,12 @@ public class ClientUser : User {
     
     /// Whether the email on this account has been verified.
     public let verified: Bool
+    
+    /// Your bot instance.
+    public weak private(set) var bot: Bot?
 
-    init(clientUserData: JSON) {
+    init(bot: Bot, clientUserData: JSON) {
+        self.bot = bot
         mfaEnabled = clientUserData["mfa_enabled"] as! Bool
         
         let loc = clientUserData["locale"] as? String

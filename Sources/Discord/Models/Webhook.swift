@@ -58,9 +58,9 @@ public struct Webhook : Object {
     public let url: String?
     
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
-    init(bot: Discord, webhookData: JSON) {
+    init(bot: Bot, webhookData: JSON) {
         self.bot = bot
         id = Conversions.snowflakeToUInt(webhookData["id"])
         type = WebhookType(rawValue: webhookData["type"] as! Int)!
@@ -127,7 +127,7 @@ public struct Webhook : Object {
         _ content: String? = nil,
         embeds: [Embed]? = nil,
         tts: Bool = false,
-        allowedMentions: AllowedMentions = Discord.allowedMentions,
+        allowedMentions: AllowedMentions = Bot.allowedMentions,
         ui: UI? = nil,
         files: [File]? = nil,
         threadId: Snowflake? = nil,

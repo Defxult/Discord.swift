@@ -113,6 +113,10 @@ public class Message : Object, Hashable, Updateable {
     /// Reactions to the message.
     public internal(set) var reactions = [Reaction]()
     
+    /// A random number used for validating if a message was sent.
+    /// - Note: This is only present on the initial success of message delivery and will be `nil` if requested.
+    public let nonce: String?
+    
     /// Whether this message is pinned.
     public private(set) var isPinned: Bool
     
@@ -126,31 +130,31 @@ public class Message : Object, Hashable, Updateable {
     public private(set) var activity: Activity?
     
     /// The application associated with the message. Sent with rich presence-related chat embeds.
-    public internal(set) var application: Application?
+    public private(set) var application: Application?
 
     /// If the message is an Interaction or application-owned webhook, this is the ID of the application.
-    public internal(set) var applicationId: Snowflake?
+    public private(set) var applicationId: Snowflake?
     
     /// Data showing the source of a crosspost, channel follow add, pin, or reply message.
-    public internal(set) var reference: Reference?
+    public private(set) var reference: Reference?
 
     /// The flags this message contains.
-    public internal(set) var flags: [Message.Flag]
+    public private(set) var flags: [Message.Flag]
 
     /// Message associated with the message reference. This relates to replying to messages.
-    public internal(set) var referencedMessage: Message?
+    public private(set) var referencedMessage: Message?
 
     /// Sent if the message is a response to an ``Interaction``.
-    public internal(set) var interaction: Message.Interaction?
+    public private(set) var interaction: Message.Interaction?
 
     /// The thread that was started from this message.
-    public internal(set) var thread: ThreadChannel?
+    public private(set) var thread: ThreadChannel?
 
     /// The UI elements on the message such as a ``Button`` or ``SelectMenu``.
     public internal(set) var ui: UI?
     
     /// Stickers sent with the message.
-    public internal(set) var stickers = [Sticker.Item]()
+    public private(set) var stickers = [Sticker.Item]()
 
     /// The referenced representation of the message.
     public var asReference: Reference { Reference(messageId: id, channelId: channel.id, guildId: guild?.id) }
@@ -162,7 +166,7 @@ public class Message : Object, Hashable, Updateable {
     // ------------------------------ API Separated -----------------------------------
     
     /// The ``author`` of this message but optionally returns their ``Member`` object instead. This depends on whether the member has been cached in the guild.
-    /// If the member is not cached, the proper ``Discord/intents`` were not set. You can also get the member object via ``Guild/requestMember(_:)``.
+    /// If the member is not cached, the proper ``Bot/intents`` were not set. You can also get the member object via ``Guild/requestMember(_:)``.
     public var member: Member? { guild?.getMember(author.id) }
 
     /// Whether the message was sent in a DM.
@@ -170,6 +174,9 @@ public class Message : Object, Hashable, Updateable {
     
     /// Whether the message was ephemeral.
     public var isEphemeral: Bool { flags.contains(.ephemeral) }
+    
+    /// Whether the bot is mentioned in the message.
+    public var isMentioned: Bool { mentionedUsers.contains(bot!.user!) }
 
     /// The direct URL for the message.
     public var jumpUrl: String {
@@ -183,7 +190,7 @@ public class Message : Object, Hashable, Updateable {
     // --------------------------------------------------------------------------------
     
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
     static var cacheExpire: Date { Calendar.current.date(byAdding: .hour, value: 3, to: .now)! }
     var cacheExpireTimer: Timer? = nil
@@ -194,7 +201,7 @@ public class Message : Object, Hashable, Updateable {
     var expires: Date
     let temp: JSON
     
-    init(bot: Discord, messageData: JSON) {
+    init(bot: Bot, messageData: JSON) {
         temp = messageData
         self.bot = bot
         id = Conversions.snowflakeToUInt(messageData["id"])
@@ -226,6 +233,7 @@ public class Message : Object, Hashable, Updateable {
             embeds.append(.init(embedData: e))
         }
 
+        nonce = messageData["nonce"] as? String
         isPinned = messageData["pinned"] as! Bool
         webhookId = Conversions.snowflakeToOptionalUInt(messageData["webhook_id"])
         type = Message.MessageType(rawValue: messageData["type"] as! Int)!
@@ -405,6 +413,10 @@ public class Message : Object, Hashable, Updateable {
             case .ui(let ui):
                 self.ui = ui
                 payload["components"] = try ui.convert()
+                
+            case .flags(let flags):
+                let finalFlags = self.flags + Array(flags)
+                payload["flags"] = Conversions.bitfield(finalFlags.map({ $0.rawValue }))
             }
         }
         
@@ -498,7 +510,7 @@ public class Message : Object, Hashable, Updateable {
         _ content: String? = nil,
         tts: Bool = false,
         embeds: [Embed]? = nil,
-        allowedMentions: AllowedMentions = Discord.allowedMentions,
+        allowedMentions: AllowedMentions = Bot.allowedMentions,
         ui: UI? = nil,
         files: [File]? = nil
     ) async throws -> Message {
@@ -531,6 +543,9 @@ extension Message {
         
         /// The new UI for the message.
         case ui(UI)
+        
+        /// The new flags to set. When editing someone elses message, the only flag that can be set currently  is ``Message/Flag/suppressEmbeds``.
+        case flags(Set<Flag>)
     }
 
     /// Represents the message type.
@@ -653,7 +668,7 @@ extension Message {
         /// The ``User`` who invoked the interaction. Will be ``Member`` if invoked it was invoked from a guild.
         public let user: Object
         
-        init(bot: Discord, guildId: Snowflake?, msgInteractionData: JSON) {
+        init(bot: Bot, guildId: Snowflake?, msgInteractionData: JSON) {
             id = Conversions.snowflakeToUInt(msgInteractionData["id"])
             type = InteractionType(rawValue: msgInteractionData["type"] as! Int)!
             name = msgInteractionData["name"] as! String

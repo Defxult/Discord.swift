@@ -23,6 +23,7 @@ DEALINGS IN THE SOFTWARE.
 */
 
 import Foundation
+import Vapor
 
 /// Represents a file to upload to Discord.
 public struct File {
@@ -83,9 +84,16 @@ public struct File {
         
         return try await withThrowingTaskGroup(of: File.self, body: { group -> [File] in
             var files = [File]()
+            let app = Vapor.Application()
+            
+            // Vapor complains if the `Application` isn't
+            // shutdown before it's deinitialized
+            defer { app.shutdown() }
+            
             for (n, url) in urlsWithExt.enumerated() {
                 group.addTask {
-                    let data = try await URLSession.shared.data(for: URLRequest(url: url)).0
+                    let resp = try await app.client.get(URI(string: url.absoluteString))
+                    let data = Data(buffer: resp.body!)
                     return File(name: "file_\(n).\(url.pathExtension)", using: data)
                 }
             }
@@ -100,5 +108,22 @@ public struct File {
     
     private static func setSpoiler(name: String, spoiler: Bool) -> String {
         spoiler ? "SPOILER_\(name)" : name
+    }
+}
+
+/// Represents an object that has a URL where its contents can be converted into a ``File``.
+public protocol Downloadable {
+    
+    /// The URL of the object.
+    var url: String { get }
+}
+
+extension Downloadable {
+    
+    /// Converts the contents of the objects URL into a ``File``. For successful conversion, the URL of the downloadable
+    /// must match the specifications of parameter `urls` in ``File/download(urls:)``.
+    /// - Returns: The file representation of the URL, or `nil` if the conversion failed.
+    public func download() async throws -> File? {
+        try await File.download(urls: [URL(string: url)!]).first
     }
 }

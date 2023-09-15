@@ -37,12 +37,6 @@ public protocol Object {
     var id: Snowflake { get }
 }
 
-extension Object {
-    
-    /// The creation date converted from the objects snowflake.
-    public var created: Date { snowflakeDate(id) }
-}
-
 /// Constructs a channel link.
 /// - Parameters:
 ///   - guildId: Guild ID of the channel.
@@ -56,7 +50,7 @@ public func channelLink(guildId: Snowflake, channelId: Snowflake) -> String {
  Get the value for a variable in your environment. This is typically used to retrieve your Discord bot token, but can be used for anything.
  
  ```swift
- let bot = Discord(token: getVariable("TOKEN")!, intents: Intents.default)
+ let bot = Bot(token: getVariable("TOKEN")!, intents: Intents.default)
  ```
  - Parameter variable: The environment variable.
  - Returns: The value associated with the variable, or `nil` if not found.
@@ -306,33 +300,37 @@ public func oauth2Url(
     scopes: Set<OAuth2Scopes> = [.bot, .applicationsCommands],
     redirectUri: String? = nil,
     state: String? = nil) -> String {
-        var url = URL(string: "https://discord.com/oauth2/authorize?client_id=\(botId)")!
-        url.append(queryItems: [
+        var url = URLComponents(string: "https://discord.com/oauth2/authorize")!
+        
+        var qi = [URLQueryItem]()
+        qi.append(contentsOf: [
+            .init(name: "client_id", value: botId.description),
             .init(name: "disable_guild_select", value: disableGuildSelect.description),
             .init(name: "permissions", value: permissions.value.description),
             .init(name: "scope", value: scopes.map({ $0.rawValue }).joined(separator: "+"))
         ])
         
         if let guildId {
-            url.append(queryItems: [.init(name: "guild_id", value: guildId.description)])
+            qi.append(.init(name: "guild_id", value: guildId.description))
         }
         if let redirectUri {
-            url.append(queryItems: [
+            qi.append(contentsOf: [
                 .init(name: "response_type", value: "code"),
                 .init(name: "redirect_uri", value: redirectUri.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
             ])
         }
         if let state {
-            url.append(queryItems: [.init(name: "state", value: state)])
+            qi.append(.init(name: "state", value: state))
         }
         
-        return url.absoluteString
+        url.queryItems = qi
+        return url.description
 }
 
 /// Suspend execution for the provided amount of time.
 /// - Parameter milliseconds: The amount of milliseconds to suspend execution.
 public func sleep(_ milliseconds: Int) async {
-    try? await Task.sleep(nanoseconds: UInt64(milliseconds * 1_000_000))
+    try? await Task.sleep(for: .milliseconds(milliseconds))
 }
 
 /// Convert the snowflake to the date it represents.
@@ -370,12 +368,6 @@ extension Array {
 
 // MARK: Private global extensions
 
-extension String {
-    
-    /// An empty string.
-    static let empty = ""
-}
-
 extension Date {
     
     var asISO8601: String { ISO8601DateFormatter().string(from: self) }
@@ -384,15 +376,6 @@ extension Date {
     public var asSnowflake: Snowflake {
         let timestamp = Snowflake(Snowflake(self.timeIntervalSince1970) * 1000 - discordEpoch)
         return (timestamp << 22) + Snowflake(pow(2.0, 22.0))
-    }
-}
-
-extension Sequence<EventListener> {
-    func forEachAsync(_ operation: @escaping (Element) async -> Void) {
-        for element in self {
-            guard element.isEnabled else { continue }
-            Task { await operation(element) }
-        }
     }
 }
 
@@ -418,9 +401,12 @@ struct Conversions {
         return optionalAny == nil ? false : optionalAny as! Bool
     }
 
-    static func snowflakeToUInt(_ optionalAny: Any?) -> UInt {
-        let str = optionalAny as! String
-        return UInt(str)!
+    static func snowflakeToUInt(_ value: Any?) -> UInt {
+        if let n = value as? String {
+            return UInt(n)!
+        } else {
+            return value as! UInt
+        }
     }
 
     static func snowflakeToOptionalUInt(_ optionalAny: Any?) -> UInt? {
@@ -466,18 +452,14 @@ struct Conversions {
 }
 
 // MARK: Log
-
 struct Log {
-    static private var enabled: Bool { ProcessInfo.processInfo.environment["D.SWIFT_INTERNAL_LOG"] != nil ? true : false }
+    static private var enabled: Bool { ProcessInfo.processInfo.environment["d.swift-internal-logging"] != nil ? true : false }
     
-    static func message(_ message: Any, withTimestamp: Bool = false) {
+    static func message(_ message: Any, withTimestamp: Bool = true) {
         if enabled {
-            print("[LOG]" + (withTimestamp == true ? " <\(Date.now.formatted(date: .abbreviated, time: .standard))> " : " ") + String(describing: message))
+            let now = Date().description.replacingOccurrences(of: " +0000", with: String.empty)
+            print("[LOG]" + (withTimestamp ? " [\(now)] " : " ") + String(describing: message))
         }
-    }
-    
-    static func notification(_ message: String, level: AlertLevel) {
-        print("[Discord.swift Notification] - \(level.rawValue) \(message)")
     }
     
     static func fatal(_ message: String) -> Never {
@@ -485,15 +467,11 @@ struct Log {
     }
 }
 
-extension Log {
-    enum AlertLevel : String {
-        case normal = ""
-        case attention = "🟡"
-        case warning = "🔴"
-    }
-}
-
 // MARK: Other
+
+extension String {
+    static let empty = ""
+}
 
 typealias JSON = [String: Any]
 

@@ -31,40 +31,40 @@ public class Guild : Object, Hashable, Updateable  {
     public let id: Snowflake
     
     /// Guild name.
-    public internal(set) var name: String
+    public private(set) var name: String
     
     /// Guild avatar.
-    public internal(set) var icon: Asset?
+    public private(set) var icon: Asset?
     
     /// The guild owners ID.
-    public internal(set) var ownerId: Snowflake
+    public private(set) var ownerId: Snowflake
     
     /// Guild splash.
-    public internal(set) var splash: Asset?
+    public private(set) var splash: Asset?
     
     /// Guild discovery splash.
-    public internal(set) var discoverySplash: Asset?
+    public private(set) var discoverySplash: Asset?
     
     /// ID of AFK channel.
-    public internal(set) var afkChannelId: Snowflake?
+    public private(set) var afkChannelId: Snowflake?
     
     /// AFK timeout in seconds.
-    public internal(set) var afkChannelTimeout: Int
+    public private(set) var afkChannelTimeout: Int
     
     /// If the guild widget is enabled.
-    public internal(set) var widgetEnabled: Bool
+    public private(set) var widgetEnabled: Bool
     
     /// The channel ID that the widget will generate an invite to, or `nil` if set to no invite.
-    public internal(set) var widgetChannelId: Snowflake?
+    public private(set) var widgetChannelId: Snowflake?
     
     /// Verification level required for the guild.
-    public internal(set) var verificationLevel: VerificationLevel
+    public private(set) var verificationLevel: VerificationLevel
     
     /// Default message notifications level.
-    public internal(set) var defaultMessageNotifications: MessageNotificationLevel
+    public private(set) var defaultMessageNotifications: MessageNotificationLevel
     
     /// Explicit content filter level.
-    public internal(set) var explicitContentFilter: ExplicitContentFilterLevel
+    public private(set) var explicitContentFilter: ExplicitContentFilterLevel
     
     /// Roles in the guild.
     public internal(set) var roles = [Role]()
@@ -73,80 +73,83 @@ public class Guild : Object, Hashable, Updateable  {
     public internal(set) var emojis = Set<Emoji>()
     
     /// Enabled guild features.
-    public internal(set) var features = [Feature]()
+    public private(set) var features = [Feature]()
     
     /// Required MFA level for the guild.
-    public internal(set) var mfaLevel: MFALevel
+    public private(set) var mfaLevel: MFALevel
     
     /// Application ID of the guild creator if it is bot-created.
-    public internal(set) var applicationId: Snowflake?
+    public private(set) var applicationId: Snowflake?
     
     /// The ID of the channel where guild notices such as welcome messages and boost events are posted.
-    public internal(set) var systemChannelId: Snowflake?
+    public private(set) var systemChannelId: Snowflake?
     
     /// The values set for the guild system channel.
-    public internal(set) var systemChannelFlags = [SystemChannelFlag]()
+    public private(set) var systemChannelFlags = [SystemChannelFlag]()
     
     /// The ID of the channel where Community guilds can display rules and/or guidelines.
-    public internal(set) var rulesChannelId: Snowflake?
+    public private(set) var rulesChannelId: Snowflake?
     
     /// The maximum number of presences for the guild.
-    public internal(set) var maxPresences: Int?
+    public private(set) var maxPresences: Int?
     
     /// The maximum number of members for the guild.
-    public internal(set) var maxMembers: Int?
+    public private(set) var maxMembers: Int?
     
     /// The vanity URL code for the guild.
-    public internal(set) var vanityUrlCode: String?
+    public private(set) var vanityUrlCode: String?
     
     /// The description of a guild.
-    public internal(set) var description: String?
+    public private(set) var description: String?
     
     /// The guild banner.
-    public internal(set) var banner: Asset?
+    public private(set) var banner: Asset?
     
     /// The server boost level of the guild.
-    public internal(set) var premiumTier: PremiumTier
+    public private(set) var premiumTier: PremiumTier
     
     /// The number of boosts this guild currently has.
-    public internal(set) var premiumSubscriptionCount: Int?
+    public private(set) var premiumSubscriptionCount: Int?
     
     /// The preferred locale of a Community guild.
-    public internal(set) var preferredLocale: Locale
+    public private(set) var preferredLocale: Locale
     
     /// The ID of the channel where admins and moderators of Community guilds receive notices from Discord.
-    public internal(set) var publicUpdatesChannelId: Snowflake?
+    public private(set) var publicUpdatesChannelId: Snowflake?
     
     /// The maximum amount of users in a video channel.
-    public internal(set) var maxVideoChannelUsers: Int?
+    public private(set) var maxVideoChannelUsers: Int?
     
     /// Approximate number of members in this guild.
-    public internal(set) var approximateMemberCount: Int?
+    public private(set) var approximateMemberCount: Int?
     
     /// Approximate number of non-offline members in this guild.
-    public internal(set) var approximatePresenceCount: Int?
+    public private(set) var approximatePresenceCount: Int?
     
     /// Guild NSFW level.
-    public internal(set) var nsfwLevel: NSFWLevel
+    public private(set) var nsfwLevel: NSFWLevel
     
     /// Custom guild stickers.
     public internal(set) var stickers = [GuildSticker]()
     
     /// Whether the guild has the boost progress bar enabled.
-    public internal(set) var premiumProgressBarEnabled: Bool
+    public private(set) var premiumProgressBarEnabled: Bool
     
     /// The ID of the channel where admins and moderators of Community guilds receive safety alerts from Discord.
-    public internal(set) var safetyAlertsChannelId: Snowflake?
+    public private(set) var safetyAlertsChannelId: Snowflake?
 
     // ------------- The below properties are set via the extra fields in the GUILD_CREATE gateway event ------------------
     
     /// All channels available in the Guild.
-    public var channels: [GuildChannel] { channelsCache.values.map({ $0 }) }
+    public var channels: [GuildChannel] { [GuildChannel](channelsCache.values) }
     var channelsCache = [Snowflake: GuildChannel]()
 
     /// All members in the guild.
-    public var members: [Member] { membersCache.values.map({ $0 }) }
+    public var members: [Member] { [Member](membersCache.values) }
     private var membersCache = [Snowflake: Member]()
+    
+    /// Total number of members in the guild.
+    public internal(set) var memberCount = 0
 
     /// All active stage instances.
     public internal(set) var stageInstances = [StageInstance]()
@@ -186,12 +189,6 @@ public class Guild : Object, Hashable, Updateable  {
         return forums as! [ForumChannel]
     }
     
-    /// All media channels.
-    public var mediaChannels: [MediaChannel] {
-        let media = channels.filter({ $0.type == .guildMedia })
-        return media as! [MediaChannel]
-    }
-    
     /// All active threads in the guild that current user has permission to view.
     public var threads: [ThreadChannel] {
         let threads = channels.filter { $0.type == .publicThread || $0.type == .privateThread || $0.type == .announcementThread }
@@ -221,6 +218,9 @@ public class Guild : Object, Hashable, Updateable  {
     
     /// Mention the "Channels & Roles" channel with the *Browse Channels* tab pre-selected.
     public let mentionBrowseChannels = "<id:browse>"
+    
+    /// Whether this guild has been chunked via ``chunkMembers()``.
+    public private(set) var chunked = false
 
     // --------------------------------------------------------------------------------
     
@@ -229,9 +229,9 @@ public class Guild : Object, Hashable, Updateable  {
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
     
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
-    init(bot: Discord, guildData: JSON, fromGateway: Bool = false) {
+    init(bot: Bot, guildData: JSON, fromGateway: Bool = false) {
         self.bot = bot
         id = Conversions.snowflakeToUInt(guildData["id"])
         name = guildData["name"] as! String
@@ -302,9 +302,13 @@ public class Guild : Object, Hashable, Updateable  {
         // ------------------------ Gateway ------------------------
         
         if fromGateway {
+            memberCount = guildData["member_count"] as! Int
+            
             for ch in guildData["channels"] as! [JSON] {
                 let chType = ch["type"] as! Int
-                cacheChannel(determineGuildChannelType(type: chType, data: ch, bot: bot, guildId: id))
+                if let channel = determineGuildChannelType(type: chType, data: ch, bot: bot, guildId: id) {
+                    cacheChannel(channel)
+                }
             }
             for mem in guildData["members"] as! [JSON] {
                 let member = Member(bot: bot, memberData: mem, guildId: id)
@@ -328,11 +332,27 @@ public class Guild : Object, Hashable, Updateable  {
         // ---------------------------------------------------------
     }
     
-    func cacheChannel(_ channel: GuildChannel) { channelsCache[channel.id] = channel }
-    func removeChannelFromCache(_ channelId: Snowflake) { channelsCache[channelId] = nil }
+    func cacheChannel(_ channel: GuildChannel) {
+        if bot!.cacheManager.channels {
+            channelsCache.updateValue(channel, forKey: channel.id)
+        }
+    }
     
-    func cacheMember(_ member: Member) { membersCache[member.id] = member }
-    func removeMemberFromCache(_ memberId: Snowflake) { membersCache[memberId] = nil }
+    @discardableResult
+    func removeChannelFromCache(_ channelId: Snowflake) -> GuildChannel? {
+        return channelsCache.removeValue(forKey: channelId)
+    }
+    
+    func cacheMember(_ member: Member) {
+        if bot!.cacheManager.members || member.id == bot!.user!.id {
+            membersCache.updateValue(member, forKey: member.id)
+        }
+    }
+    
+    @discardableResult
+    func removeMemberFromCache(_ memberId: Snowflake) -> Member? {
+        return membersCache.removeValue(forKey: memberId)
+    }
     
     /// Retrieve the audit log for the guild.
     /// - Parameters:
@@ -421,6 +441,29 @@ public class Guild : Object, Hashable, Updateable  {
     public func bans(limit: Int? = 1000, before: Date? = nil, after: Date? = nil) -> Guild.AsyncBans {
         let limit = limit != nil ? max(1, limit!) : nil
         return Guild.AsyncBans(guild: self, limit: limit, before: before, after: after)
+    }
+    
+    /// Lazy load **all** members in this guild. Unlike ``requestMembers(limit:after:)``, this does not return the members requested. Instead, all members
+    /// in this guild will be cached over time. Ideally should only be called once. This is done over the websocket and can be slow. The larger the guild, the longer it will take.
+    /// - Requires: Intent ``Intents/guildMembers``.
+    public func chunkMembers() throws {
+        if !bot!.intents.contains(.guildMembers) {
+            throw DiscordError.generic("cannot chunk members: missing \(Intents.guildMembers) intent")
+        } else if !bot!.cacheManager.members {
+            throw DiscordError.generic("cannot chunk members: cacheManager disabled caching of members")
+        } else {
+            let payload: JSON = [
+                "op": Opcode.requestGuildMembers,
+                "d": [
+                    "guild_id": id,
+                    "query": String.empty,
+                    "limit": 0
+                ] as JSON
+            ]
+            
+            bot!.gw!.sendFrame(payload)
+            chunked = true
+        }
     }
     
     /// Creates an auto-moderation rule.
@@ -709,7 +752,7 @@ public class Guild : Object, Hashable, Updateable  {
     ///   - edits: The enum containing all values to be updated or removed for the guild.
     ///   - reason: The reason for editing the guild. This shows up in the guilds audit log.
     /// - Returns: The updated guild.
-    /// - Note: The returned guild has the same limitations as ``Discord/Discord/requestGuild(_:withCounts:)``.
+    /// - Note: The returned guild has the same limitations as ``Bot/requestGuild(_:withCounts:)``
     @discardableResult
     public func edit(_ edits: Guild.Edit..., reason: String? = nil) async throws -> Guild {
         // Don't perform an HTTP request when nothing was changed
@@ -1456,9 +1499,9 @@ extension Guild {
         public private(set) var scopes: Set<OAuth2Scopes>?
         
         /// Your bot instance.
-        public private(set) weak var bot: Discord?
+        public private(set) weak var bot: Bot?
         
-        init(bot: Discord?, integrationData: JSON, guildId: Snowflake) {
+        init(bot: Bot?, integrationData: JSON, guildId: Snowflake) {
             self.bot = bot
             self.guildId = guildId
             id = Conversions.snowflakeToUInt(integrationData["id"])
@@ -1703,9 +1746,9 @@ extension Guild {
         public let presenceCount: Int
         
         /// Your bot instance.
-        public private(set) weak var bot: Discord?
+        public private(set) weak var bot: Bot?
         
-        init(bot: Discord, widgetData: JSON) {
+        init(bot: Bot, widgetData: JSON) {
             self.bot = bot
             id = Conversions.snowflakeToUInt(widgetData["id"])
             name = widgetData["name"] as! String
@@ -1791,7 +1834,7 @@ extension Guild {
         /// Custom guild stickers.
         public internal(set) var stickers = [Sticker]()
 
-        init(bot: Discord, previewData: JSON) {
+        init(bot: Bot, previewData: JSON) {
             id = Conversions.snowflakeToUInt(previewData["id"])
             name = previewData["name"] as! String
             
@@ -2083,9 +2126,9 @@ extension Guild {
         public let image: Asset?
         
         /// Your bot instance.
-        public weak private(set) var bot: Discord?
+        public weak private(set) var bot: Bot?
 
-        init(bot: Discord, eventData: JSON) {
+        init(bot: Bot, eventData: JSON) {
             self.bot = bot
             id = Conversions.snowflakeToUInt(eventData["id"])
             guildId = Conversions.snowflakeToUInt(eventData["guild_id"])
@@ -2276,9 +2319,9 @@ extension Guild {
         // -------------------------------------------
         
         /// Your bot instance.
-        public weak private(set) var bot: Discord?
+        public weak private(set) var bot: Bot?
 
-        init(bot: Discord, templateData: JSON) {
+        init(bot: Bot, templateData: JSON) {
             self.bot = bot
             code = templateData["code"] as! String
             name = templateData["name"] as! String

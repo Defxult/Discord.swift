@@ -59,9 +59,9 @@ public struct AutoModerationRule : Object {
     public private(set) var exemptChannels = [GuildChannel]()
     
     /// Your bot instance.
-    public private(set) weak var bot: Discord?
+    public private(set) weak var bot: Bot?
 
-    init(bot: Discord, autoModData: JSON) {
+    init(bot: Bot, autoModData: JSON) {
         self.bot = bot
         id = Conversions.snowflakeToUInt(autoModData["id"])
         
@@ -460,7 +460,7 @@ extension AutoModerationRule {
         /// Substring in content that triggered the rule.
         public let matchedContent: String?
         
-        init(bot: Discord, actionExecutionData: JSON) {
+        init(bot: Bot, actionExecutionData: JSON) {
             guild = bot.getGuild(Conversions.snowflakeToUInt(actionExecutionData["guild_id"]))!
             action = .init(actionData: actionExecutionData["action"] as! JSON)
             ruleId = Conversions.snowflakeToUInt(actionExecutionData["rule_id"])

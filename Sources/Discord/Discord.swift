@@ -1,18 +1,18 @@
 /**
 The MIT License (MIT)
-
+ 
 Copyright (c) 2023-present Defxult
-
+ 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),
 to deal in the Software without restriction, including without limitation
 the rights to use, copy, modify, merge, publish, distribute, sublicense,
 and/or sell copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following conditions:
-
+ 
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
-
+ 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,7 +25,7 @@ DEALINGS IN THE SOFTWARE.
 import Foundation
 
 /// Represents a Discord bot.
-public class Discord {
+public class Bot {
     
     /// Version of the library.
     public let version = Version()
@@ -43,10 +43,10 @@ public class Discord {
     public internal(set) var dms = Set<DMChannel>()
     
     /// All guilds the bot is a member of.
-    public var guilds: [Guild] { guildsCache.values.map({ $0 }) }
+    public var guilds: [Guild] { [Guild](guildsCache.values) }
     
     /// All users the bot can see.
-    public var users: [User] { usersCache.values.map({ $0 }) }
+    public var users: [User] { [User](usersCache.values) }
     
     /// Messages the bot has cached.
     public internal(set) var cachedMessages = Set<Message>()
@@ -54,12 +54,11 @@ public class Discord {
     /// Whether automatic sharding is enabled. If your bot is in 2500 or more guilds, this *must* be enabled.
     public internal(set) var sharding: Bool
     
-    /// The authentification token for the bot.
-    /// - Warning: The token should be kept private. Unauthorized access to your token could have devastating consequences.
-    public let token: String
-    
     /// The global allowed mentions.
     public static var allowedMentions = AllowedMentions.default
+    
+    /// Controls what will/won't be cached.
+    public let cacheManager: CacheManager
     
     /// All emojis the bot has accesss to.
     public var emojis: Set<Emoji> {
@@ -83,54 +82,45 @@ public class Discord {
         return voiceStates
     }
     
-    /// Whether to ignore direct messages.
-    ///
-    /// If set to `true`, the following will be changed:
-    /// - ``EventListener/onMessageCreate(message:)`` events will not be dispatched for direct messages.
-    /// - The ``Message``, ``User``, and ``DMChannel`` associated with the direct message will not be cached.
-    public var ignoreDms: Bool
-    
     var pendingApplicationCommands = [PendingAppCommand]()
     var pendingModals = [String: (Interaction) async -> Void]()
-    let messagesCacheMaxSize: Int
     var usersCache = [Snowflake: User]()
     var guildsCache = [Snowflake: Guild]()
-    var wsg: WSGateway? = nil
-    var http: HTTPClient!
     var msgCacheLock = NSLock()
+    var isConnected = false
+    
+    var http: HTTPClient!
+    var gw: Gateway?
     
     /// Initializes the Discord bot.
     /// - Parameters:
     ///   - token: The authentification token for the bot.
     ///   - intents: Gateway events the bot is subscribed to. Additional intents may need to be turned on via the Discord [developer portal](https://discord.com/developers/applications). *Applications > Bot > Privileged Gateway Intents*
-    ///   - maxMessagesCache: The maximum amount of messages that should be cached.
+    ///   - cacheManager: Controls what will/won't be cached.
     ///   - sharding: Whether automatic sharding is enabled. If your bot is in 2500 or more guilds, this **must** be enabled.
-    ///   - ignoreDms: Whether to ignore direct messages. If set to `true`, the following will be changed:
-    ///     - ``EventListener/onMessageCreate(message:)`` events will not be dispatched for direct messages.
-    ///     - The ``Message``, ``User``, and ``DMChannel`` associated with the direct message will not be cached.
     /// - Important: When setting intents, it is highly recommended to at least have the ``Intents/guilds`` intent enabled in order for your bot to function properly.
-    public init(token: String, intents: Set<Intents>, maxMessagesCache: Int = 1500, sharding: Bool = false, ignoreDms: Bool = false) {
-        self.token = token
+    public init(token: String, intents: Set<Intents>, cacheManager: CacheManager = .default, sharding: Bool = false) {
         self.intents = intents
         self.sharding = sharding
-        self.ignoreDms = ignoreDms
-        messagesCacheMaxSize = max(0, maxMessagesCache)
+        self.cacheManager = cacheManager
         http = .init(bot: self, token: token, version: version)
     }
     
     func cacheGuild(_ guild: Guild) {
-        guildsCache[guild.id] = guild
+        guildsCache.updateValue(guild, forKey: guild.id)
     }
     
     func cacheUser(_ user: User) {
-        usersCache[user.id] = user
+        if cacheManager.users || user.id == self.user!.id {
+            usersCache.updateValue(user, forKey: user.id)
+        }
     }
     
     func cacheMessage(_ message: Message) {
-        guard !(messagesCacheMaxSize == 0) else { return }
+        guard !(cacheManager.messages == 0) else { return }
         msgCacheLock.lock()
         
-        if cachedMessages.count == messagesCacheMaxSize {
+        if cachedMessages.count == cacheManager.messages {
             let oldestMessage = cachedMessages.sorted(by: { $0.expires < $1.expires }).first!
             cachedMessages.remove(oldestMessage)
         }
@@ -150,8 +140,8 @@ public class Discord {
     ///   - status: The current status.
     ///   - activity: The activity. Can be set to things such as "Listening to {value}", "Watching {value}", etc. Can be `nil` for no activity.
     /// - Note: Certain combinations are ignored by Discord. Some examples are setting the bots `status` to offline or setting a custom status.
-    public func updatePresence(status: User.Status, activity: User.PresenceActivity?) async throws {
-        if let wsg {
+    public func updatePresence(status: User.Status, activity: User.PresenceActivity?) throws {
+        if let gw {
             var d: JSON = ["status": status.rawValue, "afk": false]
             
             // Requires unix time in milliseconds
@@ -159,7 +149,7 @@ public class Discord {
             d["activities"] = activity == nil ? [] : try activity!.convert()
             
             let payload: JSON = ["op": Opcode.presenceUpdate, "d": d]
-            try await wsg.ws.send(.data(dictToData(payload)))
+            gw.sendFrame(payload)
         }
     }
     
@@ -199,7 +189,7 @@ public class Discord {
                 descriptionLocalizations: nil,
                 nsfw: nsfw
             )
-    }
+        }
     
     /// Adds a message command.  The command will not be available unless synced via ``syncApplicationCommands()``.
     /// - Parameters:
@@ -269,7 +259,7 @@ public class Discord {
                 descriptionLocalizations: descriptionLocalizations,
                 nsfw: nsfw
             )
-    }
+        }
     
     private func addApplicationCommand(
         type: ApplicationCommandType,
@@ -296,7 +286,7 @@ public class Discord {
                 description: description,
                 options: options)
             )
-    }
+        }
     
     /// Sync all application commands. This must be called in order for application commands to be visible.
     /// - Returns: All succesfully synced application commands.
@@ -350,29 +340,6 @@ public class Discord {
     /// - Returns: The bots application information.
     public func applicationInfo() async throws -> Application {
         return try await http.getCurrentBotApplicationInformation()
-    }
-    
-    /// Connect to Discord.
-    /// - Attention: This method is blocking to maintain the connection to Discord.
-    public func connect() async throws {
-        // Gateway
-        let gateway = try await http.getGateway()
-        wsg = WSGateway(bot: self, gatewayUrl: gateway.url, shards: gateway.shards)
-        
-        try await wsg!.handshake(sharding: sharding)
-        wsg!.initialHandshakeComplete = true
-        wsg!.isConnected = true
-        
-        Task { try await wsg!.heartbeat() }
-        try await wsg!.listen()
-    }
-    
-    /// Immediately disconnects the bot from Discord.
-    public func disconnect() {
-        if let wsg {
-            wsg.ws.cancel(with: .goingAway, reason: nil)
-            wsg.isConnected = false
-        }
     }
     
     /// Create a guild. Your bot must be in less than 10 guilds to use this.
@@ -551,26 +518,121 @@ public class Discord {
         return try await http.getWebhookWithToken(webhookId: webhookId, webhookToken: webhookToken)
     }
     
-    /// Block further execution until the ``EventListener/onReady()`` event has been dispatched.
+    /// Block further execution until the ``EventListener/onReady(user:)`` event has been dispatched.
     public func waitUntilReady() async {
-        while wsg?.initialState?.dispatched != true {
+        while gw?.initialState?.dispatched != true {
             await sleep(150)
         }
+    }
+    
+    /// Connect to Discord.
+    /// - Attention: This method is blocking to maintain the connection to Discord.
+    public func connect() async throws {
+        if gw == nil {
+            gw = Gateway(bot: self)
+            try await gw!.startNewSession()
+            isConnected = true
+            while isConnected {
+                await sleep(150)
+            }
+        }
+    }
+    
+    /// Disconnects the bot from Discord and releases the block from ``connect()``.
+    public func disconnect() {
+        if let gw {
+            _ = gw.ws.close(code: .normalClosure)
+            gw.resetGatewayValues()
+            self.gw = nil
+            isConnected = false
+        }
+    }
+    
+    /// The authentification token for the bot. It is truncated by default, see parameter `truncated`.
+    /// - Parameter truncated: Whether to truncate the token.
+    /// - Warning: Your token should be kept private. Unauthorized access to your token could have devastating consequences.
+    /// - Returns: The token.
+    public func token(truncated: Bool = true) -> String {
+        if truncated {
+            if let index = http.token.firstIndex(of: ".") {
+                return http.token.prefix(upTo: index).description + "..."
+            }
+            return .empty
+        }
+        return http.token
+    }
+}
+
+/// Represents what the bot is permitted to cache.
+public struct CacheManager {
+    
+    /// Has all caching capabilities enabled and a max message cache size of 10,000.
+    public static let scaled = CacheManager(messages: 10000, users: true, members: true, channels: true)
+    
+    /// Has all caching capabilities enabled and a max message cache size of 1,500.
+    public static let `default` = CacheManager(messages: 1500, users: true, members: true, channels: true)
+    
+    /// Has `members` and `channels` caching capabilities enabled and a max message cache size of 500.
+    public static let limited = CacheManager(messages: 500, users: false, members: true, channels: true)
+    
+    /// Has all caching capabilities disabled and a max message cache size of 100.
+    public static let restricted = CacheManager(messages: 100, users: false, members: false, channels: false)
+    
+    /// Has all caching capabilities disabled and a max message cache size of 0.
+    public static let none = CacheManager(messages: 0, users: false, members: false, channels: false)
+    
+    /// The amount of messages that are allowed to be cached.
+    public let messages: Int
+    
+    /// Whether ``User``s are cached.
+    public let users: Bool
+    
+    /// Whether ``Member``s are cached.
+    public let members: Bool
+    
+    /// Whether ``GuildChannel``s are cached.
+    public let channels: Bool
+    
+    /// Initializes the cache manager. Controls what will/won't be cached.
+    /// - Parameters:
+    ///   - messages: The amount of messages that are allowed to be cached.
+    ///   - users: Whether ``User``s are cached.
+    ///   - members: Whether ``Member``s are cached.
+    /// - Note: Depending on what you enable/disable, it can have adverse effects. For example, if you have `members` caching disabled, events
+    ///         such as ``EventListener/onGuildMemberUpdate(before:after:)`` will not be dispatched. It should also be mentioned
+    ///         that your bot `User` and `Member` objects are always cached regardless of the setting.
+    public init(messages: Int, users: Bool, members: Bool, channels: Bool) {
+        self.messages = max(0, messages)
+        self.users = users
+        self.members = members
+        self.channels = channels
     }
 }
 
 /// The version of the library.
 public struct Version : CustomStringConvertible {
     public let major = 0
-    public let minor = 0
-    public let patch = 14
+    public let minor = 1
+    public let patch = 0
     public let releaseLevel = ReleaseLevel.beta
 
     /// The string representation of the library version.
     public var description: String { "\(major).\(minor).\(patch)-\(releaseLevel)" }
     
-    var gateway: (lib: String, os: String) {
-        ("Discord.swift v\(description)", "macOS " + ProcessInfo().operatingSystemVersionString)
+    var info: (lib: String, os: String, sys: String) {
+        var system: String
+        
+        #if os(macOS)
+        system = "macOS"
+        #elseif os(Linux)
+        system = "Linux"
+        #elseif os(Windows)
+        system = "Windows"
+        #else
+        system = "OS"
+        #endif
+        
+        return ("Discord.swift Version \(description)", "\(system) \(ProcessInfo.processInfo.operatingSystemVersionString)", system)
     }
 }
 
@@ -581,3 +643,4 @@ public enum ReleaseLevel {
     case rc
     case final
 }
+

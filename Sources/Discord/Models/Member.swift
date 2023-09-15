@@ -31,7 +31,7 @@ public class Member : Object, Hashable {
     public var id: Snowflake { user!.id }
     
     /// The user's guild nickname.
-    public internal(set) var nick: String?
+    public let nick: String?
 
     /// The guild the user belongs to.
     public var guild: Guild { bot!.getGuild(guildId)! }
@@ -60,25 +60,25 @@ public class Member : Object, Hashable {
     }
     
     /// When the user joined the guild.
-    public internal(set) var joinedAt: Date
+    public let joinedAt: Date
     
     /// When the user started boosting the guild.
-    public internal(set) var premiumSince: Date?
+    public private(set) var premiumSince: Date?
     
     /// Whether the user has not yet passed the guild's Membership Screening requirements.
-    public internal(set) var isPending: Bool
+    public let isPending: Bool
 
     /// When the user's timeout will expire and the user will be able to communicate in the guild again.
-    public internal(set) var timedOutUntil: Date?
+    public private(set) var timedOutUntil: Date?
     
     /// User object for the member. Contains information such as their ID, username, avatar, etc.
-    public internal(set) var user: User?
+    public private(set) var user: User?
     
     /// The members flags. Contains information such as ``Flag/didRejoin`` and more.
-    public internal(set) var flags: [Flag]
+    public private(set) var flags: [Member.Flag]
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
     // ------------------------------ API Separated -----------------------------------
     
@@ -91,11 +91,9 @@ public class Member : Object, Hashable {
     /// The user's voice state. Contains information such as ``VoiceChannel/State/selfMuted`` and more.
     public var voice: VoiceChannel.State? { guild.voiceStates.first(where: { $0.user.id == id }) }
     
-    /// All guilds the bot and the member shares.
-    ///
-    /// This is reliant on whether Privileged Intents have been enabled in your developer portal. As well as
-    /// intents ``Intents/guildMembers`` and ``Intents/guildPresences`` being enabled
-    /// so that ``Guild/members`` can be fully loaded.
+    /// All guilds the bot and member shares. This is reliant on whether the guild has been chunked. If the guilds
+    /// the bot and member shares have not been ``Guild/chunked`` and or the ``Intents/guildPresences``
+    /// intent is disabled, this can be inaccurate.
     public var mutualGuilds: [Guild] {
         var mutuals = [Guild]()
         bot!.guilds.forEach({ g in
@@ -115,21 +113,29 @@ public class Member : Object, Hashable {
     var memberRoleArrayStr: [String]
     var guildAvatarHash: String?
     
-    init(bot: Discord, memberData: JSON, guildId: Snowflake) {
+    init(bot: Bot, memberData: JSON, guildId: Snowflake) {
         self.bot = bot
         self.guildId = guildId
         nick = memberData["nick"] as? String
         memberRoleArrayStr = memberData["roles"] as! [String]
         joinedAt = Conversions.stringDateToDate(iso8601: memberData["joined_at"] as! String)!
+        
+        if let premiumSinceISO8601 = memberData["premium_since"] as? String {
+            premiumSince = Conversions.stringDateToDate(iso8601: premiumSinceISO8601)
+        }
+        
         isPending = Conversions.optionalBooltoBool(memberData["pending"] as? Bool)
         guildAvatarHash = memberData["avatar"] as? String
         
-        let timedOutDate = memberData["communication_disabled_until"] as? String
-        if let timedOutDate { timedOutUntil = Conversions.stringDateToDate(iso8601: timedOutDate) }
+        if let timedOutDate = memberData["communication_disabled_until"] as? String {
+            timedOutUntil = Conversions.stringDateToDate(iso8601: timedOutDate)
+        }
 
-        if let userObj = memberData["user"] as? JSON { user = User(userData: userObj) }
+        if let userObj = memberData["user"] as? JSON {
+            user = User(userData: userObj)
+        }
         
-        flags = Flag.determineFlags(value: memberData["flags"] as! Int)
+        flags = Flag.get(value: memberData["flags"] as! Int)
     }
     
     /// Bans the member from the guild.
@@ -232,7 +238,7 @@ extension Member {
         /// Member has started onboarding.
         case startedOnboarding = 8
         
-        static func determineFlags(value: Int) -> [Flag] {
+        static func get(value: Int) -> [Flag] {
             var flags = [Flag]()
             for flag in Flag.allCases {
                 if (value & flag.rawValue) == flag.rawValue {
@@ -262,7 +268,7 @@ extension Member {
         case deafen(Bool)
         
         /// Voice channel to move the member to if they are connected to voice. Set to `nil` to disconnect the member from the voice channel.
-        case move(GuildChannel?)
+        case move(VoiceChannel?)
         
         /// When the members timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future), set to `nil` to remove the timeout.
         case timeout(Date?)

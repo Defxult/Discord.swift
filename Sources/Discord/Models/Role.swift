@@ -32,37 +32,37 @@ public class Role : Object, Hashable {
     public var guild: Guild { bot!.getGuild(guildId)! }
     
     /// Role name.
-    public internal(set) var name: String
+    public let name: String
     
     /// Role color.
-    public internal(set) var color: Color?
+    public let color: Color?
     
     /// Whether the role should be displayed separately in the sidebar.
-    public internal(set) var hoist: Bool
+    public let hoist: Bool
     
     /// The role icon.
-    public internal(set) var icon: Asset?
+    public let icon: Asset?
     
     /// The role unicode emoji.
-    public internal(set) var unicodeEmoji: String?
+    public let unicodeEmoji: String?
     
     /// Position of this role.
-    public internal(set) var position: Int
+    public let position: Int
     
     /// Permissions for the role.
-    public internal(set) var permissions: Permissions
+    public let permissions: Permissions
     
     /// Whether this role is managed by an integration.
     public let managed: Bool
     
     /// Whether the role should be mentionable.
-    public internal(set) var mentionable: Bool
+    public let mentionable: Bool
     
     /// The tags this role has.
-    public internal(set) var tags: Tag?
+    public private(set) var tags: Tag?
 
     /// Your bot instance.
-    public weak private(set) var bot: Discord?
+    public weak private(set) var bot: Bot?
     
     // Needed for .delete() & .guild
     private let guildId: Snowflake
@@ -93,7 +93,7 @@ public class Role : Object, Hashable {
 
     // --------------------------------------------------------------------------------
 
-    init(bot: Discord, roleData: JSON, guildId: Snowflake) {
+    init(bot: Bot, roleData: JSON, guildId: Snowflake) {
         self.bot = bot
         id = Conversions.snowflakeToUInt(roleData["id"])
         name = roleData["name"] as! String

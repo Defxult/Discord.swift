@@ -158,10 +158,10 @@ extension Application {
         /// Intent required for bots in under 100 guilds to receive presence update events, found in Bot Settings.
         case gatewayPresenceLimited = 8192
         
-        /// Intent required for bots in **100 or more guilds** to receive member-related events like ``DiscordEvent/guildMemberJoin``.
+        /// Intent required for bots in **100 or more guilds** to receive member-related events like ``GatewayEvent/guildMemberJoin``.
         case gatewayGuildMembers = 16384
         
-        /// Intent required for bots in under 100 guilds to receive member-related events like ``DiscordEvent/guildMemberJoin``, found in Bot Settings.
+        /// Intent required for bots in under 100 guilds to receive member-related events like ``GatewayEvent/guildMemberJoin``, found in Bot Settings.
         case gatewayGuildMembersLimited = 32768
         
         /// Indicates unusual growth of an app that prevents verification.

@@ -9,3 +9,4 @@ DerivedData/
 .netrc
 Tests/DiscordTests/DiscordTests.swift
 .swiftpm/xcode/xcshareddata/xcschemes/Discord.xcscheme
+Package.resolved

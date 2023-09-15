@@ -188,8 +188,8 @@ public enum Intents : Int, CaseIterable {
     /// Enables all intents.
     public static let all = Set<Intents>().union(Intents.allCases)
     
-    /// All intents enabled except ``dmTyping``, & ``guildMessageTyping``.
-    public static let `default` = Intents.all(except: [.dmTyping, .guildMessageTyping])
+    /// All intents enabled except ``dmTyping``, ``guildMessageTyping``, and ``guildPresences``.
+    public static let `default` = Intents.all(except: [.dmTyping, .guildMessageTyping, .guildPresences])
     
     /// Disables all intents.
     public static let none = Set<Intents>()

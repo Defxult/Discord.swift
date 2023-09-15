@@ -63,19 +63,48 @@ public enum HTTPError : Error {
 
 /// Represents a Discord gateway error.
 public enum GatewayError : Error {
+    
+    /// Something went wrong.
     case unknownError(_ message: String)
+    
+    /// An invalid opcode was sent.
     case unknownOpcode(_ message: String)
+    
+    /// An invalid payload was sent.
     case decodeError(_ message: String)
+    
+    /// A payload was sent prior to identifying.
     case notAuthenticated(_ message: String)
+    
+    /// The token sent with the identify payload was incorrect.
     case authenticationFailed(_ message: String)
+    
+    /// More than one identify payload was sent.
     case alreadyAuthenticated(_ message: String)
-    case invalidSeq(_ message: String)
+    
+    /// The sequence sent when resuming the session was invalid.
+    case invalidSequence(_ message: String)
+    
+    /// Too many payloads are being sent.
     case rateLimited(_ message: String)
+    
+    /// The session has timed out.
     case sessionTimedOut(_ message: String)
+    
+    /// An invalid shard was sent when identifying
     case invalidShard(_ message: String)
+    
+    /// Sharding your connection is required in order to connect.
     case shardingRequired(_ message: String)
+    
+    /// An invalid version of the gateway was sent.
     case invalidApiVersion(_ message: String)
+    
+    /// Invalid intents were sent.
     case invalidIntents(_ message: String)
+    
+    /// A disallowed intent was sent. An intent may have been specified that you have
+    /// not enabled or are not approved for. Verify your privileged intents are enabled in your developer portal.
     case disallowedIntents(_ message: String)
 }
 
