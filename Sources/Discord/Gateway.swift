@@ -176,7 +176,6 @@ class Gateway {
         // When reconnecting, a RESUME URL must be used
         let resumeUrl = wsResume!.resumeGatewayURL!
         let cmps = extractURLComponents(URLComponents(string: resumeUrl)!)
-        Log.message("This is a resume URL: \(resumeUrl)")
         
         let connection = WebSocket.connect(
             scheme: cmps.scheme,
