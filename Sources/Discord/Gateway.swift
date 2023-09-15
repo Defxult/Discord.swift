@@ -24,6 +24,7 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 import WebSocketKit
+import Vapor
 
 fileprivate struct ResumePayload {
     
@@ -150,11 +151,13 @@ class Gateway {
     private var heartbeatInterval = 0
     private var receivedReconnectRequest = false
     
-    // Anything less than a `maxFrameSize` of 1 << 19 errors with `messageTooLarge`. There
-    // will never be a payload sent of this size but, because I don't know an ideal number,
-    // I just set it to its maximum to potentially avoid any future problems.
-    private let config = WebSocketClient.Configuration(maxFrameSize: Int(UInt32.max))
-        
+    private let settings = (
+        port: 443,
+        query: "v=10&encoding=json",
+        config: WebSocketClient.Configuration(maxFrameSize: 1 << 20),
+        loop: MultiThreadedEventLoopGroup(numberOfThreads: 2)
+    )
+    
     init(bot: Bot) {
         self.bot = bot
     }
@@ -171,14 +174,25 @@ class Gateway {
         ]
         
         // When reconnecting, a RESUME URL must be used
-        let url = wsResume!.resumeGatewayURL!
+        let resumeUrl = wsResume!.resumeGatewayURL!
+        let cmps = extractURLComponents(URLComponents(string: resumeUrl)!)
+        Log.message("This is a resume URL: \(resumeUrl)")
         
-        try! await WebSocket.connect(to: url, configuration: config, on: bot.http.app.eventLoopGroup, onUpgrade: { socket in
-            self.websocketSetup(websocket: socket)
-            
-            Log.message("[Reconnect] connection successful - sending RESUME payload...")
-            self.sendFrame(resumePayload)
-        })
+        let connection = WebSocket.connect(
+            scheme: cmps.scheme,
+            host: cmps.host,
+            port: settings.port,
+            query: settings.query,
+            configuration: settings.config,
+            on: settings.loop,
+            onUpgrade: { socket in
+                self.websocketSetup(websocket: socket)
+                Log.message("[Reconnect] connection successful - sending RESUME payload...")
+                self.sendFrame(resumePayload)
+            }
+        )
+        
+        try! await connection.get()
     }
     
     /// Binds all core functions of the websocket connection to the class.
@@ -217,15 +231,33 @@ class Gateway {
         heartbeatTask?.cancel()
     }
     
+    /// Simply splits the scheme and host from the standard get gateway bot/resume URLs.
+    private func extractURLComponents(_ components: URLComponents) -> (scheme: String, host: String) {
+        return (components.scheme!, components.host!)
+    }
+    
     /// Establish a new gateway connection. This is a handshake, not a resume.
     func startNewSession() async throws {
+        let results = try await bot.http.getGatewayBot()
+        let cmps = extractURLComponents(results.info)
+        
         resetGatewayValues()
-        let info = try await bot.http.getGatewayBot()
-        shards = info.shards
-        try await WebSocket.connect(to: info.url, configuration: config, on: bot.http.app.eventLoopGroup, onUpgrade: { socket in
-            self.websocketSetup(websocket: socket)
-            Log.message("gateway connection established - receiver & onClose set")
-        })
+        shards = results.shards
+                
+        let connection = WebSocket.connect(
+            scheme: cmps.scheme,
+            host: cmps.host,
+            port: settings.port,
+            query: settings.query,
+            configuration: settings.config,
+            on: settings.loop,
+            onUpgrade: { socket in
+                self.websocketSetup(websocket: socket)
+                Log.message("gateway connection established - receiver & onClose set")
+            }
+        )
+        
+        try await connection.get()
     }
     
     /// Handles when the websocket is closed by Discord.
@@ -275,7 +307,7 @@ class Gateway {
                     break
                 }
             default:
-                // The only "unknown" error that should happen is `.normalClosure` via `Bot.connect()`,
+                // The only "unknown" error that should happen is `.normalClosure` via `Bot.disconnect()`,
                 // everything else is unexpected.
                 if code != .normalClosure {
                     throw GatewayError.unknownError("unrecognized gateway close code: \(code)")
@@ -493,8 +525,7 @@ class Gateway {
                 if let pinnedDate = data["last_pin_timestamp"] as? String { pinnedAt = Conversions.stringDateToDate(iso8601: pinnedDate) }
                 dispatch({ await $0.onChannelPinsUpdate(channel: channel, pinnedAt: pinnedAt) })
             }
-        
-        // MARK: TODO ❌
+            
         case .threadCreate:
             let guild = bot.getGuild(getGuildId(data))!
             let thread = ThreadChannel(bot: bot, threadData: data, guildId: guild.id)
@@ -507,7 +538,6 @@ class Gateway {
             guild.cacheChannel(thread)
             dispatch({ await $0.onThreadCreate(thread: thread) })
             
-        // MARK: TODO ❌
         case .threadUpdate:
             let threadId = Conversions.snowflakeToUInt(data["id"])
             let guildId = getGuildId(data)
@@ -520,8 +550,7 @@ class Gateway {
                 guild.cacheChannel(afterThread)
                 dispatch({ await $0.onThreadUpdate(before: beforeThread, after: afterThread) })
             }
-        
-        // MARK: TODO ❌
+            
         case .threadDelete:
             let threadId = Conversions.snowflakeToUInt(data["id"])
             let guildId = getGuildId(data)
@@ -533,8 +562,7 @@ class Gateway {
             }
             
             dispatch({ await $0.onRawThreadDelete(payload: (threadId, guildId, parentId)) })
-        
-        // MARK: TODO ⚠️
+            
         case .threadListSync:
             // Discord says: "Sent when the current user *gains* access to a channel". When testing, basically if
             // a channel containing threads was not visible to the bot, and the permissions were changed so the

@@ -1685,7 +1685,7 @@ class HTTPClient {
     /// Returns an object with a valid WSS URL, as well as other information,
     /// https://discord.com/developers/docs/topics/gateway#get-gateway
     /// https://discord.com/developers/docs/topics/gateway#get-gateway-bot
-    func getGatewayBot() async throws -> (url: String, shards: Int) {
+    func getGatewayBot() async throws -> (info: URLComponents, shards: Int) {
         let response = try await request.client.get(URI(string: route("/gateway/bot")), headers: ["Authorization": "Bot \(token)"])
         let data = try JSONSerialization.jsonObject(with: response.body!) as! JSON
         
@@ -1697,14 +1697,9 @@ class HTTPClient {
         
         let shards = data["shards"] as! Int
         let url = data["url"] as! String
+        let wss = URLComponents(string: url)!
         
-        var wss = URLComponents(string: url)!
-        wss.queryItems = [
-            .init(name: "v", value: "10"),
-            .init(name: "encoding", value: "json")
-        ]
-        
-        return (wss.description, shards)
+        return (wss, shards)
     }
     
     static func strJsonToDict(_ str: String) -> JSON {
