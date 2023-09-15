@@ -470,7 +470,7 @@ struct Log {
 // MARK: Other
 
 extension String {
-    static var empty: String { "" }
+    static let empty = ""
 }
 
 typealias JSON = [String: Any]
