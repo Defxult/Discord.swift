@@ -4,7 +4,7 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.1.0-beta&color=ff992b">
+    <img src="https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.1.1-beta&color=ff992b">
     <a href="https://discord-swift.gitbook.io/discord.swift/"><img src="https://img.shields.io/static/v1?label=guide&style=for-the-badge&message=gitbook&color=5865f2"></a>
 </p>
 
