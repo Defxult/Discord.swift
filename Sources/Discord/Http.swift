@@ -139,7 +139,7 @@ class HTTPClient {
         return headers
     }
     
-    /// Adds the percent enocding for a reaction.
+    /// Adds the percent encoding for a reaction.
     private func handleReaction(_ emoji: String) -> String {
         let customEmojiRegex = "<a?:[a-zA-Z]+:[0-9]{17,20}>"
         
@@ -1664,9 +1664,10 @@ class HTTPClient {
             message.guildId = cached.guildId
         }
         
-        // Alternatively, if the message was not found in the cache (expired or `Discord.messagesCacheMaxSize` is zero)
+        // Alternatively, if the message was not found in the cache (expired or `Bot.cacheManager.messages` is zero)
         // this endpoint provides the channel_id. So grab the `guildId` based on the channel.
         else {
+            // Channels are loaded with GUILD_CREATE, so this should always execute
             if let channel = bot.getChannel(message.channelId) as? GuildChannel {
                 message.guildId = channel.guild.id
             }
