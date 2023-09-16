@@ -333,9 +333,7 @@ public class Guild : Object, Hashable, Updateable  {
     }
     
     func cacheChannel(_ channel: GuildChannel) {
-        if bot!.cacheManager.channels {
-            channelsCache.updateValue(channel, forKey: channel.id)
-        }
+        channelsCache.updateValue(channel, forKey: channel.id)
     }
     
     @discardableResult

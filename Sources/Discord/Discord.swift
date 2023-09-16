@@ -567,19 +567,19 @@ public class Bot {
 public struct CacheManager {
     
     /// Has all caching capabilities enabled and a max message cache size of 10,000.
-    public static let scaled = CacheManager(messages: 10000, users: true, members: true, channels: true)
+    public static let scaled = CacheManager(messages: 10_000, users: true, members: true)
     
     /// Has all caching capabilities enabled and a max message cache size of 1,500.
-    public static let `default` = CacheManager(messages: 1500, users: true, members: true, channels: true)
+    public static let `default` = CacheManager(messages: 1500, users: true, members: true)
     
-    /// Has `members` and `channels` caching capabilities enabled and a max message cache size of 500.
-    public static let limited = CacheManager(messages: 500, users: false, members: true, channels: true)
+    /// Has `users` and `members` caching capabilities enabled and a max message cache size of 500.
+    public static let limited = CacheManager(messages: 500, users: false, members: true)
     
     /// Has all caching capabilities disabled and a max message cache size of 100.
-    public static let restricted = CacheManager(messages: 100, users: false, members: false, channels: false)
+    public static let restricted = CacheManager(messages: 100, users: false, members: false)
     
     /// Has all caching capabilities disabled and a max message cache size of 0.
-    public static let none = CacheManager(messages: 0, users: false, members: false, channels: false)
+    public static let none = CacheManager(messages: 0, users: false, members: false)
     
     /// The amount of messages that are allowed to be cached.
     public let messages: Int
@@ -590,9 +590,6 @@ public struct CacheManager {
     /// Whether ``Member``s are cached.
     public let members: Bool
     
-    /// Whether ``GuildChannel``s are cached.
-    public let channels: Bool
-    
     /// Initializes the cache manager. Controls what will/won't be cached.
     /// - Parameters:
     ///   - messages: The amount of messages that are allowed to be cached.
@@ -601,11 +598,10 @@ public struct CacheManager {
     /// - Note: Depending on what you enable/disable, it can have adverse effects. For example, if you have `members` caching disabled, events
     ///         such as ``EventListener/onGuildMemberUpdate(before:after:)`` will not be dispatched. It should also be mentioned
     ///         that your bot `User` and `Member` objects are always cached regardless of the setting.
-    public init(messages: Int, users: Bool, members: Bool, channels: Bool) {
+    public init(messages: Int, users: Bool, members: Bool) {
         self.messages = max(0, messages)
         self.users = users
         self.members = members
-        self.channels = channels
     }
 }
 
