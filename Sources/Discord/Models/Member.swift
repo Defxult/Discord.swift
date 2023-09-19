@@ -68,7 +68,7 @@ public class Member : Object, Hashable {
     /// Whether the user has not yet passed the guild's Membership Screening requirements.
     public let isPending: Bool
 
-    /// When the user's timeout will expire and the user will be able to communicate in the guild again.
+    /// When the user's timeout will expire and the user will be able to communicate in the guild again. If `nil`, the member is not timed out.
     public private(set) var timedOutUntil: Date?
     
     /// User object for the member. Contains information such as their ID, username, avatar, etc.
@@ -198,6 +198,14 @@ public class Member : Object, Hashable {
         for r in roles {
             try await bot!.http.removeRoleFromMember(guildId: guild.id, userId: id, roleId: r.id, reason: reason)
         }
+    }
+    
+    /// Get a role the member currently has.
+    /// - Parameter id: Role ID.
+    /// - Returns: The role with the specified ID if the member currently has that role, or `nil` if the member doesn't have the role.
+    @discardableResult
+    public func getRole(_ id: Snowflake) -> Role? {
+        return roles.first(where: { $0.id == id })
     }
     
     /// Removes the member from the guild.
