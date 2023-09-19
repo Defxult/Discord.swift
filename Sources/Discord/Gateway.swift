@@ -1013,7 +1013,12 @@ class Gateway {
             let userObj = data["user"] as! JSON
             let userId = Conversions.snowflakeToUInt(userObj["id"])
             if let user = bot.getUser(userId) {
+                // Update the user object data
                 user.update(userObj)
+                
+                // Update the user presence data
+                user.update(data)
+                
                 let status = User.Status(rawValue: data["status"] as! String)!
                 
                 var activities = [User.Activity]()

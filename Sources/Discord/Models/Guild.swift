@@ -318,6 +318,11 @@ public class Guild : Object, Hashable, Updateable  {
             for th in guildData["threads"] as! [JSON] {
                 cacheChannel(ThreadChannel(bot: bot, threadData: th, guildId: id))
             }
+            for pr in guildData["presences"] as! [JSON] {
+                // `pr` contains a user object. Get the user related this presence and update it
+                let userId = Conversions.snowflakeToUInt((pr["user"] as! JSON)["id"])
+                bot.getUser(userId)?.update(pr)
+            }
             for st in guildData["stage_instances"] as! [JSON] {
                 stageInstances.append(StageInstance(bot: bot, stageInstanceData: st))
             }

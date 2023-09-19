@@ -57,11 +57,32 @@ public class User : Object, Updateable, Hashable {
     /// The public flags on a user's account.
     public private(set) var flags: [User.Flag]
     
+    // ----- Presence related -----
+    
+    /// The user's status.
+    public private(set) var status: User.Status?
+    
+    /// The user's current activities.
+    public private(set) var activities = [User.Activity]()
+    
+    /// Platform(s) the user is currently on and their status.
+    public private(set) var platform: User.Platform?
+    
+    // ----------------------------
+    
     // Hashable
     public static func == (lhs: User, rhs: User) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
     // ---------- API Separated ----------
+    
+    /// Whether the user is actively on mobile.
+    public var isOnMobile: Bool {
+        if let platform {
+            return platform.mobile != nil
+        }
+        return false
+    }
 
     /// Mention the user.
     public let mention: String
@@ -89,7 +110,10 @@ public class User : Object, Updateable, Hashable {
         
         let flagValue = userData["public_flags"] as? Int
         flags = flagValue != nil ? User.Flag.get(flagValue!) : []
-
+        
+        // Note: If `Intents.guildPresences` is enabled, properties `.status` and `.activites`
+        // are added/updated via `.update()`. See `if fromGateway { }` in `Guild.init()` for reference
+        
         mention = Markdown.mentionUser(id: id)
     }
     
@@ -121,6 +145,22 @@ public class User : Object, Updateable, Hashable {
                 }
             case "global_name":
                 displayName = v as? String
+            
+            // ----- Presence related -----
+                
+            case "status":
+                status = Status(rawValue: v as! String)
+                
+            case "activities":
+                activities.removeAll()
+                for actObj in v as! [JSON] {
+                    activities.append(Activity(activityData: actObj))
+                }
+                
+            case "client_status":
+                platform = Platform(clientStatusData: v as! JSON)
+                
+            // ----------------------------
             default:
                 break
             }
@@ -141,6 +181,25 @@ extension User {
         case dnd = "dnd"
         case online = "online"
         case offline = "offline"
+    }
+    
+    /// Represents which platform the user is currently on and their status.
+    public struct Platform {
+        
+        /// Active desktop session (Windows, Linux, Mac).
+        public private(set) var desktop: Status?
+        
+        /// Active mobile session (iOS, Android).
+        public private(set) var mobile: Status?
+        
+        /// Active web sesison (browser, bot user).
+        public private(set) var web: Status?
+        
+        init(clientStatusData: JSON) {
+            if let d = clientStatusData["desktop"] { desktop = Status(rawValue: d as! String) }
+            if let m = clientStatusData["mobile"] { mobile = Status(rawValue: m as! String) }
+            if let w = clientStatusData["web"] { web = Status(rawValue: w as! String) }
+        }
     }
     
     /// Represents a user's activity.
