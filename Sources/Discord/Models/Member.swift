@@ -89,7 +89,7 @@ public class Member : Object, Hashable {
     }
     
     /// The user's voice state. Contains information such as ``VoiceChannel/State/selfMuted`` and more.
-    public var voice: VoiceChannel.State? { guild.voiceStates.first(where: { $0.user.id == id }) }
+    public var voice: VoiceChannel.State? { guild.voiceStates.first(where: { $0.userId == id }) }
     
     /// All guilds the bot and member shares. This is reliant on whether the guild has been chunked. If the guilds
     /// the bot and member shares have not been ``Guild/chunked`` and or the ``Intents/guildPresences``

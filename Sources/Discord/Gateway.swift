@@ -1093,7 +1093,7 @@ class Gateway {
                 if let _ = Conversions.snowflakeToOptionalUInt(data["channel_id"]) {
                     vcState.update(data)
                 } else {
-                    vcState.guild.voiceStates.removeAll(where: { $0.sessionId == vcState.sessionId && $0.user.id == vcState.user.id })
+                    vcState.guild.voiceStates.removeAll(where: { $0.sessionId == vcState.sessionId && $0.userId == vcState.userId })
                 }
                 dispatch({ await $0.onVoiceStateUpdate(voiceState: vcState) })
             } else {

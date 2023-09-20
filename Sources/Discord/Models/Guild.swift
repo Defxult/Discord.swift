@@ -915,7 +915,7 @@ public class Guild : Object, Hashable, Updateable  {
     /// - Parameter id: ID of the member.
     /// - Returns: The members voice state, or `nil` if not found.
     public func getVoiceState(_ id: Snowflake) -> VoiceChannel.State? {
-        return voiceStates.first(where: { $0.user.id == id })
+        return voiceStates.first(where: { $0.userId == id })
     }
     
 //    /// Get the amount of members that would be kicked via ``Guild/prune(days:includeRoles:computePruneCount:)``.

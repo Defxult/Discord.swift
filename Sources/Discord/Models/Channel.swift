@@ -1226,11 +1226,21 @@ public class VoiceChannel : GuildChannelMessageable, Hashable {
     /// The members currently in the channel.
     public var members: [Member] {
         var members = [Member]()
-        for userId in guild.voiceStates.map({ $0.user.id }) {
+        for userId in guild.voiceStates.map({ $0.userId }) {
             if let member = guild.getMember(userId) {
                 members.append(member)
             }
         }
+        
+        // `VoiceState` comes with a member object. This should be appended to the `members`
+        // array because the above logic is dependent on whether the member is in the cache.
+        // If a member was not cached, and then joins a voice channel, they will not be apart of
+        // `members` because `guild.getMember()` would return `nil`. Since `VoiceState` comes with
+        // their member object, add it to the total `members`. Also, since there's a chance the member
+        // was already cached, remove any duplicates of `members` and `voiceStateMembers` with a `Set`
+        let voiceStateMembers = guild.voiceStates.compactMap({ $0.member })
+        members = [Member](Set<Member>(members + voiceStateMembers))
+        
         return members
     }
     
@@ -1360,16 +1370,17 @@ extension VoiceChannel {
         /// The channel the user is connected to.
         public internal(set) var channel: VoiceChannel?
         
-        /// The user this voice state is for.
-        public var user: User { bot!.getUser(userId)! }
-        private let userId: Snowflake
+        /// The user ID this voice state is for.
+        public let userId: Snowflake
         
         /// The session ID for this voice state.
         public let sessionId: String
         
-        /// The guild this voice state belongs to.
-        public var guild: Guild { bot!.getGuild(guildId)! }
-        private let guildId: Snowflake
+        /// The guild ID this voice state belongs to.
+        public let guildId: Snowflake
+        
+        /// The member this voice state is for.
+        public private(set) var member: Member?
         
         /// Whether this user is deafened by the guild.
         public internal(set) var guildDeafened: Bool
@@ -1395,6 +1406,16 @@ extension VoiceChannel {
         /// The time at which the user requested to speak.
         public internal(set) var requestedToSpeakAt: Date?
         
+        // ---------- API Separated ----------
+        
+        /// The user this voice state is for.
+        public var user: User? { bot!.getUser(userId) }
+        
+        /// The guild this voice state belongs to.
+        public var guild: Guild { bot!.getGuild(guildId)! }
+        
+        // -----------------------------------
+        
         private weak var bot: Bot?
 
         init(bot: Bot, voiceStateData: JSON, guildId: Snowflake) {
@@ -1404,6 +1425,10 @@ extension VoiceChannel {
             if let chId = channelId {
                 channel = bot.getChannel(chId) as? VoiceChannel
             }
+            if let memberObj = voiceStateData["member"] as? JSON {
+                member = .init(bot: bot, memberData: memberObj, guildId: guildId)
+            }
+            
             userId = Conversions.snowflakeToUInt(voiceStateData["user_id"])
             sessionId = voiceStateData["session_id"] as! String
             guildDeafened = voiceStateData["deaf"] as! Bool
