@@ -312,7 +312,7 @@ public class Guild : Object, Hashable, Updateable  {
             }
             for mem in guildData["members"] as! [JSON] {
                 let member = Member(bot: bot, memberData: mem, guildId: id)
-                bot.cacheUser(member.user!)
+                bot.cacheUser(member.user)
                 cacheMember(member)
             }
             for th in guildData["threads"] as! [JSON] {
