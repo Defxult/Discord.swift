@@ -319,7 +319,7 @@ public class Guild : Object, Hashable, Updateable  {
                 cacheChannel(ThreadChannel(bot: bot, threadData: th, guildId: id))
             }
             for pr in guildData["presences"] as! [JSON] {
-                // `pr` contains a user object. Get the user related this presence and update it
+                // `pr` contains a user object. Get the user related to this presence and update it
                 let userId = Conversions.snowflakeToUInt((pr["user"] as! JSON)["id"])
                 bot.getUser(userId)?.update(pr)
             }
@@ -860,6 +860,20 @@ public class Guild : Object, Hashable, Updateable  {
     /// - Returns: The member that matches the given ID, or `nil` if not found.
     public func getMember(_ id: Snowflake) -> Member? {
         return membersCache[id]
+    }
+    
+    /// Retrieve a member by their name from this guilds internal cache.
+    /// - Parameter name: Member ``Member/nick``, ``User/displayName``, or ``User/name``. The search is conducted in that order.
+    /// - Returns: The member matching the provided name, or `nil` if not found.
+    public func getMember(name: String) -> Member? {
+        for member in members {
+            if member.nick == name ||
+                member.user.displayName == name ||
+                member.user.name == name {
+                return member
+            }
+        }
+        return nil
     }
     
     /// Retrieve a role from this guilds internal cache.
