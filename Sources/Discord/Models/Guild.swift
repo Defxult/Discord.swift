@@ -213,12 +213,6 @@ public class Guild : Object, Hashable, Updateable  {
     /// Whether the guild is available for use. If `false`, it's best not to do anything with it until it becomes available again.
     public internal(set) var isAvailable = true
     
-    /// Mention the "Channels & Roles" channel with the *Customize* tab pre-selected.
-    public let mentionChannelAndRoles = "<id:customize>"
-    
-    /// Mention the "Channels & Roles" channel with the *Browse Channels* tab pre-selected.
-    public let mentionBrowseChannels = "<id:browse>"
-    
     /// Whether this guild has been chunked via ``chunkMembers()``.
     public private(set) var chunked = false
 

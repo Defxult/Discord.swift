@@ -194,6 +194,12 @@ public struct Markdown {
         "[\(title)](\(suppressEmbed ? suppressLinkEmbed(url: url) : url))"
     }
     
+    /// Mention the "Channels & Roles" channel with the *Browse Channels* tab pre-selected.
+    public static let mentionBrowseChannels = "<id:browse>"
+    
+    /// Mention the "Channels & Roles" channel with the *Customize* tab pre-selected.
+    public static let mentionChannelAndRoles = "<id:customize>"
+    
     /// Mentions the channel.
     /// - Parameter id: ID of the channel.
     /// - Returns: The channel in a mentioned format.
