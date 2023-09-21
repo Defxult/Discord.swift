@@ -226,7 +226,7 @@ extension User {
         /// What the player is currently doing.
         public let details: String?
         
-        /// User's current party status.
+        /// User's current party status, or text used for a custom status.
         public let state: String?
         
         /// Emoji used for a custom status.
@@ -238,13 +238,51 @@ extension User {
         /// Images for the presence and their hover texts.
         public private(set) var assets: ActivityAssets?
         
+        /// Flags for the activity.
+        public let flags: [ActivityFlag]
+        
         /// Custom buttons shown in the Rich Presence (max 2).
         public private(set) var buttons: [ActivityButton]?
         
         init(activityData: JSON) {
             name = activityData["name"] as! String
-            type = ActivityType(rawValue: activityData["type"] as! Int)!
             url = activityData["url"] as? String
+            state = activityData["state"] as? String
+            if let emojiObj = activityData["emoji"] as? JSON {
+                emoji = PartialEmoji(partialEmojiData: emojiObj)
+            }
+            
+            let actType = activityData["type"] as! Int
+            switch actType {
+            case 0:
+                type = .game(name)
+            case 1:
+                type = .streaming(name, url: url!)
+            case 2:
+                type = .listening(name)
+            case 3:
+                type = .watching(name)
+            case 4:
+                var status = String.empty
+                if let e = emoji?.description {
+                    status.append(e)
+                    status.append(" ")
+                }
+                status.append(state ?? .empty)
+                
+                // If the user only has an emoji as their custom status, remove the
+                // excess white space from the above `.append()`
+                status.trimSuffix { $0 == " " }
+                
+                type = .custom(status)
+            case 5:
+                type = .competing(name)
+            default:
+                // Default to `.game` so in the future if more are added this can
+                // simply be updated to the correct type
+                type = .game(name)
+            }
+            
             createdAt = Date(timeIntervalSince1970: (activityData["created_at"] as! TimeInterval) / 1000)
             
             if let timestampsObj = activityData["timestamps"] as? JSON {
@@ -253,11 +291,6 @@ extension User {
             
             applicationId = Conversions.snowflakeToOptionalUInt(activityData["application_id"])
             details = activityData["details"] as? String
-            state = activityData["state"] as? String
-            
-            if let emojiObj = activityData["emoji"] as? JSON {
-                emoji = PartialEmoji(partialEmojiData: emojiObj)
-            }
             
             if let partyObj = activityData["party"] as? JSON {
                 party = ActivityParty(activityPartyData: partyObj)
@@ -267,12 +300,37 @@ extension User {
                 assets = ActivityAssets(activityAssetsData: assetsObj, applicationId: applicationId)
             }
             
+            flags = ActivityFlag.get((activityData["flags"] as? Int) ?? 0)
+            
             if let buttonsArrayObjs = activityData["buttons"] as? [JSON] {
                 buttons = []
                 for buttonObj in buttonsArrayObjs {
                     buttons!.append(ActivityButton(activityButtonData: buttonObj))
                 }
             }
+        }
+    }
+    
+    /// Represents an activity flag.
+    public enum ActivityFlag : Int, CaseIterable {
+        case instance = 1
+        case join = 2
+        case spectate = 4
+        case joinRequest = 8
+        case sync = 16
+        case play = 32
+        case partyPrivacyFriends = 64
+        case partyPrivacyVoiceChannel = 128
+        case embedded = 256
+        
+        static func get(_ actFlagValue: Int) -> [ActivityFlag] {
+            var flags = [ActivityFlag]()
+            for flag in ActivityFlag.allCases {
+                if (actFlagValue & flag.rawValue) == flag.rawValue {
+                    flags.append(flag)
+                }
+            }
+            return flags
         }
     }
     
@@ -334,55 +392,41 @@ extension User {
     }
     
     /// Represents a user's activity type.
-    public enum ActivityType : Int {
+    public enum ActivityType {
         
-        /// "Playing Rocket League"
-        case game = 0
+        /// "Playing {name}"
+        case game(String)
         
-        /// "Streaming Rocket League".  This supports Twitch. Only https://twitch.tv/ URLs will work.
-        case streaming = 1
+        /// "Streaming {name}". This supports Twitch and YouTube. Only https://twitch.tv/ and  https://youtube.com/ URLs will work.
+        case streaming(String, url: String)
         
-        /// "Listening to Spotify"
-        case listening = 2
+        /// "Listening to {name}"
+        case listening(String)
         
-        /// "Watching YouTube Together".  This supports YouTube. Only https://youtube.com/ URLs will work.
-        case watching = 3
+        /// "Watching {name}".
+        case watching(String)
         
         /// "🙂 I am cool"
-        case custom = 4
+        case custom(String)
         
-        /// "Competing in Arena World Champions"
-        case competing = 5
-    }
-    
-    /// Represents the information used to update the bots presence via ``Bot/updatePresence(status:activity:)``.
-    public struct PresenceActivity {
+        /// "Competing in {name}"
+        case competing(String)
         
-        /// The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``,  a `url` must be set.
-        public var type: ActivityType
-        
-        /// The name of the activity.
-        public var name: String
-        
-        /// The associated URL when using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``.
-        public var url: String?
-        
-        /// Initializes a presence activity for use in ``Bot/updatePresence(status:activity:)``.
-        /// - Parameters:
-        ///   - type: The activity type. Bots cannot use type ``User/ActivityType/custom``. If using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``,  a `url` must be set.
-        ///   - name: The name of the activity.
-        ///   - url: The associated URL when using type ``User/ActivityType/streaming`` or ``User/ActivityType/watching``.
-        public init(_ type: ActivityType, name: String, url: String? = nil) {
-            self.type = type
-            self.name = name
-            self.url = url
-        }
-        
-        func convert() throws -> [JSON] {
-            var payload: JSON = ["name": name, "type": type.rawValue]
-            if type == .streaming {
-                if let url { payload["url"] = url }
-                else { throw DiscordError.generic("When updating the presence with \(type), a URL must be set") }
+        func convert() -> [JSON] {
+            var payload: JSON
+            switch self {
+            case .game(let name):
+                payload = ["name": name, "type": 0]
+            case .streaming(let name, url: let url):
+                payload = ["name": name, "type": 1, "url": url]
+            case .listening(let name):
+                payload = ["name": name, "type": 2]
+            case .watching(let name):
+                payload = ["name": name, "type": 3]
+            case .custom(let name):
+                payload = ["name": name, "type": 4]
+            case .competing(let name):
+                payload = ["name": name, "type": 5]
             }
             return [payload]
         }

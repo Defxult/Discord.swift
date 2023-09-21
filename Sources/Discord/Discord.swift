@@ -140,13 +140,13 @@ public class Bot {
     ///   - status: The current status.
     ///   - activity: The activity. Can be set to things such as "Listening to {value}", "Watching {value}", etc. Can be `nil` for no activity.
     /// - Note: Certain combinations are ignored by Discord. Some examples are setting the bots `status` to offline or setting a custom status.
-    public func updatePresence(status: User.Status, activity: User.PresenceActivity?) throws {
+    public func updatePresence(status: User.Status, activity: User.ActivityType?) {
         if let gw {
             var d: JSON = ["status": status.rawValue, "afk": false]
             
             // Requires unix time in milliseconds
             d["since"] = status == .idle ? Date.now.timeIntervalSince1970 * 1000 : NIL
-            d["activities"] = activity == nil ? [] : try activity!.convert()
+            d["activities"] = activity?.convert() ?? []
             
             let payload: JSON = ["op": Opcode.presenceUpdate, "d": d]
             gw.sendFrame(payload)
