@@ -316,8 +316,8 @@ public class Button : Component, InternalComponent {
         self.label = label
         self.emoji = emoji
         
-        if style == .link { self.customId = String.empty }
-        else { self.customId = customId ?? Int.random(in: 1_000...99_999).description }
+        if style == .link { self.customId = .empty }
+        else { self.customId = customId ?? UUID().uuidString.prefix(while: { $0 != "-" }).lowercased() }
         
         self.url = url
         self.disabled = disabled
@@ -332,7 +332,7 @@ public class Button : Component, InternalComponent {
             emoji = partial.description!
         }
         
-        customId = (buttonData["custom_id"] as? String) ?? String.empty
+        customId = (buttonData["custom_id"] as? String) ?? .empty
         url = buttonData["url"] as? String
         disabled = Conversions.optionalBooltoBool(buttonData["disabled"])
     }
