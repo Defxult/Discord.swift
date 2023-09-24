@@ -88,6 +88,7 @@ public class Bot {
     var guildsCache = [Snowflake: Guild]()
     var msgCacheLock = NSLock()
     var isConnected = false
+    var onceExecute: (() async -> Void)? = nil
     
     var http: HTTPClient!
     var gw: Gateway?
@@ -329,17 +330,27 @@ public class Bot {
         }
     }
     
-    // Get the bot ID. If it's connected to Discord, get it from the `ClientUser`.
-    // Otherwise, get it via `applicationInfo()`
-    func getClientID() async throws -> Snowflake {
-        if let user { return user.id }
-        else { return (try await applicationInfo()).id }
-    }
-    
     /// Retrieves the bots application information.
     /// - Returns: The bots application information.
     public func applicationInfo() async throws -> Application {
         return try await http.getCurrentBotApplicationInformation()
+    }
+    
+    /// Connect to Discord.
+    /// - Attention: This method is blocking to maintain the connection to Discord.
+    public func connect() async throws {
+        if gw == nil {
+            gw = Gateway(bot: self)
+            try await gw!.startNewSession()
+            isConnected = true
+            if let onceExecute {
+                await onceExecute()
+                self.onceExecute = nil
+            }
+            while isConnected {
+                await sleep(200)
+            }
+        }
     }
     
     /// Create a guild. Your bot must be in less than 10 guilds to use this.
@@ -357,7 +368,7 @@ public class Bot {
     }
     
     /**
-     Creates a DM channel between the bot and the user.
+     Creates a DM channel between the bot and a user.
      
      Creating the DM channel does not automatically send the user a DM. That must be done separately:
      ```swift
@@ -376,6 +387,16 @@ public class Bot {
     public func disableAllListeners() {
         for listener in listeners {
             listener.isEnabled = false
+        }
+    }
+    
+    /// Disconnects the bot from Discord and releases the block from ``connect()``.
+    public func disconnect() {
+        if let gw {
+            _ = gw.ws.close(code: .normalClosure)
+            gw.resetGatewayValues()
+            self.gw = nil
+            isConnected = false
         }
     }
     
@@ -399,6 +420,13 @@ public class Bot {
             }
             return nil
         }
+    }
+    
+    // Get the bot ID. If it's connected to Discord, get it from the `ClientUser`.
+    // Otherwise, get it via `applicationInfo()`
+    func getClientID() async throws -> Snowflake {
+        if let user { return user.id }
+        else { return (try await applicationInfo()).id }
     }
     
     /// Retrieve an emoji from the bots internal cache.
@@ -450,6 +478,14 @@ public class Bot {
             if let member = guild.getMember(id) { return member }
         }
         return nil
+    }
+    
+    /// Set the closure that's executed when the bot has connected to Discord. Unlike ``EventListener/onConnect(user:)`` and ``EventListener/onReady(user:)``,
+    /// tasks under those events can be executed multiple times throughout uptime. This guarantees the closure given will be executed exactly one time. The closure
+    /// will not be executed after the **initial connection** is successful.
+    /// - Parameter execute: The closure to execute when a connection to Discord is successful.
+    public func once(_ execute: @escaping () async -> Void) {
+        onceExecute = execute
     }
     
     /// Request a guild. This is an API call. For general use purposes, use ``getGuild(_:)`` instead if you have the ``Intents/guilds`` intent enabled.
@@ -522,29 +558,6 @@ public class Bot {
     public func waitUntilReady() async {
         while gw?.initialState?.dispatched != true {
             await sleep(150)
-        }
-    }
-    
-    /// Connect to Discord.
-    /// - Attention: This method is blocking to maintain the connection to Discord.
-    public func connect() async throws {
-        if gw == nil {
-            gw = Gateway(bot: self)
-            try await gw!.startNewSession()
-            isConnected = true
-            while isConnected {
-                await sleep(150)
-            }
-        }
-    }
-    
-    /// Disconnects the bot from Discord and releases the block from ``connect()``.
-    public func disconnect() {
-        if let gw {
-            _ = gw.ws.close(code: .normalClosure)
-            gw.resetGatewayValues()
-            self.gw = nil
-            isConnected = false
         }
     }
     
