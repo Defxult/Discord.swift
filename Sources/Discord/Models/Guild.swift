@@ -862,8 +862,8 @@ public class Guild : Object, Hashable, Updateable  {
     public func getMember(name: String) -> Member? {
         for member in members {
             if member.nick == name ||
-                member.user.displayName == name ||
-                member.user.name == name {
+                member.user?.displayName == name ||
+                member.user?.name == name {
                 return member
             }
         }
