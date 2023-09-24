@@ -28,7 +28,7 @@ import Foundation
 public class Member : Object, Hashable {
     
     /// The members ID.
-    public var id: Snowflake { user.id }
+    public var id: Snowflake { user!.id }
     
     /// The user's guild nickname.
     public let nick: String?
@@ -40,7 +40,7 @@ public class Member : Object, Hashable {
     /// The user's guild avatar.
     public var guildAvatar: Asset? {
         if let guildAvatarHash {
-            let baseUrl = "/guilds/\(guild.id)/users/\(id)/avatars/"
+            let baseUrl = "/guilds/\(guild.id)/users/\(user!.id)/avatars/"
             return Asset(hash: guildAvatarHash, fullURL: baseUrl + Asset.imageType(hash: guildAvatarHash))
         }
         return nil
@@ -72,7 +72,7 @@ public class Member : Object, Hashable {
     public private(set) var timedOutUntil: Date?
     
     /// User object for the member. Contains information such as their ID, username, avatar, etc.
-    public let user: User
+    public private(set) var user: User?
     
     /// The members flags. Contains information such as ``Flag/didRejoin`` and more.
     public private(set) var flags: [Member.Flag]
@@ -131,8 +131,9 @@ public class Member : Object, Hashable {
             timedOutUntil = Conversions.stringDateToDate(iso8601: timedOutDate)
         }
 
-        let userObj = memberData["user"] as! JSON
-        user = User(userData: userObj)
+        if let userObj = memberData["user"] as? JSON {
+            user = User(userData: userObj)
+        }
         
         flags = Flag.get(value: memberData["flags"] as! Int)
     }
@@ -142,7 +143,7 @@ public class Member : Object, Hashable {
     ///   - deleteMessageSeconds: Number of seconds to delete messages for, between 0 and 604800 (7 days). For example, if set to 172800 (2 days), 2 days worth of messages will be deleted.
     ///   - reason: The reason for banning the member. This shows up in the guilds audit log.
     public func ban(deleteMessageSeconds: Int = 0, reason: String? = nil) async throws {
-        try await guild.ban(user: user, deleteMessageSeconds: deleteMessageSeconds, reason: reason)
+        try await guild.ban(user: user!, deleteMessageSeconds: deleteMessageSeconds, reason: reason)
     }
     
     /// Edit the member.
@@ -216,7 +217,7 @@ public class Member : Object, Hashable {
     /// Whether the member was mentioned in the message. See ``User/mentionedIn(_:)`` for the ``User`` variant.
     /// - Parameter message: The message to check if the member was mentioned.
     public func mentionedIn(_ message: Message) -> Bool {
-        return message.mentionedUsers.contains(user)
+        return message.mentionedUsers.contains(user!)
     }
     
     /// Timeout the member for up to 28 days.

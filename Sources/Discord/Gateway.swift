@@ -745,7 +745,7 @@ class Gateway {
             let guild = bot.getGuild(guildId)!
             for cm in data["members"] as! [JSON] {
                 let chunkedMember = Member(bot: bot, memberData: cm, guildId: guildId)
-                bot.cacheUser(chunkedMember.user)
+                bot.cacheUser(chunkedMember.user!)
                 guild.cacheMember(chunkedMember)
             }
             
@@ -1014,10 +1014,11 @@ class Gateway {
             let userObj = data["user"] as! JSON
             let userId = Conversions.snowflakeToUInt(userObj["id"])
             if let user = bot.getUser(userId) {
-                // Update the user object/presence data
-                for d in [userObj, data] {
-                    user.update(d)
-                }
+                // Update the user object data
+                user.update(userObj)
+                
+                // Update the user presence data
+                user.update(data)
                 
                 let status = User.Status(rawValue: data["status"] as! String)!
                 
