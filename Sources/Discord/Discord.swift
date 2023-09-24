@@ -111,9 +111,9 @@ public class Bot {
         guildsCache.updateValue(guild, forKey: guild.id)
     }
     
-    func cacheUser(_ user: User) {
-        if cacheManager.users || user.id == self.user!.id {
-            usersCache.updateValue(user, forKey: user.id)
+    func cacheUser(_ u: User) {
+        if cacheManager.users || u.id == self.user!.id {
+            usersCache.updateValue(u, forKey: u.id)
         }
     }
     
@@ -415,7 +415,7 @@ public class Bot {
             return dm
         }
         else {
-            for (_, guild) in guildsCache {
+            for guild in guildsCache.values {
                 if let channel = guild.getChannel(id) { return channel }
             }
             return nil
