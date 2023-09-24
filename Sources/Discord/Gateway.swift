@@ -309,7 +309,8 @@ class Gateway {
                 // The only "unknown" error that should happen is `.normalClosure` via `Bot.disconnect()`,
                 // everything else is unexpected.
                 if code != .normalClosure {
-                    throw GatewayError.unknownError("unrecognized gateway close code: \(code)")
+                    Log.message("unexpected gateway error (\(code)) dispatched by WebSocket" + end)
+                    Task { try await self.startNewSession() }
                 }
             }
         }
@@ -1340,12 +1341,12 @@ open class EventListener {
     
     // MARK: Ready
     
-    /// Dispatched when the bot has connected to Discord and the internal cache has finished its initial preperation.
+    /// Dispatched when the bot has connected to Discord and the internal cache has completed its initial preparation.
     /// - Parameter user: The bot user who's ready.
     open func onReady(user: ClientUser) async {}
     
     /// Dispatched when the bot has connected to Discord. This is different from ``onReady(user:)`` because this will dispatch as
-    /// soon as the connection is successful. Meaning depending on how many guilds the bot is in, the internal cache may or may not be ready.
+    /// soon as the connection is successful. Meaning depending on how many guilds the bot is in, the initial preparation of the internal cache may or may not be complete.
     /// - Parameter user: The bot user who connected.
     open func onConnect(user: ClientUser) async {}
     
