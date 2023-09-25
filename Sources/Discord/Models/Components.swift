@@ -395,6 +395,9 @@ public class SelectMenu : Component, InternalComponent {
 
     /// Placeholder text if nothing is selected; max 150 characters.
     public var placeholder: String?
+    
+    /// List of default values for auto-populated menu types. Number of default values must be in the range defined by `minValues` and `maxValues`.
+    public var defaultValues: [DefaultValue]?
 
     /// Minimum number of items that must be chosen; min 0, max 25.
     public var minValues: Int
@@ -412,6 +415,7 @@ public class SelectMenu : Component, InternalComponent {
     ///   - options: Specified choices in a select menu (only required and available when the `type` is ``MenuType-swift.enum/text``); max 25.
     ///   - channelTypes: Channel types to include in the channel select component when the `type` is ``MenuType-swift.enum/channel``.
     ///   - placeholder: Placeholder text if nothing is selected; max 150 characters.
+    ///   - defaultValues: List of default values for auto-populated menu types. Number of default values must be in the range defined by `minValues` and `maxValues`.
     ///   - minValues: Minimum number of items that must be chosen; min 0, max 25.
     ///   - maxValues: Maximum number of items that can be chosen; max 25.
     ///   - disabled: Whether the select menu is disabled.
@@ -421,6 +425,7 @@ public class SelectMenu : Component, InternalComponent {
         options: [Option]? = nil,
         channelTypes: [ChannelType]? = nil,
         placeholder: String? = nil,
+        defaultValues: [DefaultValue]? = nil,
         minValues: Int = 1,
         maxValues: Int = 1,
         disabled: Bool = false) {
@@ -429,6 +434,7 @@ public class SelectMenu : Component, InternalComponent {
             self.options = options
             self.channelTypes = channelTypes
             self.placeholder = placeholder
+            self.defaultValues = defaultValues
             self.minValues = minValues
             self.maxValues = maxValues
             self.disabled = disabled
@@ -454,6 +460,11 @@ public class SelectMenu : Component, InternalComponent {
         }
         
         placeholder = selectMenuData["placeholder"] as? String
+        
+        if let defaultValuesObjs = selectMenuData["default_values"] as? [JSON] {
+            defaultValues = defaultValuesObjs.map({ .init(defaultValueData: $0) })
+        }
+        
         minValues = (selectMenuData["min_values"] as? Int) ?? 1
         maxValues = (selectMenuData["max_values"] as? Int) ?? 1
         disabled = Conversions.optionalBooltoBool(selectMenuData["disabled"])
@@ -476,6 +487,9 @@ public class SelectMenu : Component, InternalComponent {
         if let placeholder {
             payload["placeholder"] = placeholder
         }
+        if let defaultValues {
+            payload["default_values"] = defaultValues.map({ $0.convert() })
+        }
         if let options {
             if menuType == .text {
                 payload["options"] = options.map({ $0.convert() })
@@ -487,6 +501,60 @@ public class SelectMenu : Component, InternalComponent {
 }
 
 extension SelectMenu {
+    
+    /// Represents a select menu's default values.
+    public struct DefaultValue {
+        
+        /// ID of a user, role, or channel.
+        public var id: Snowflake
+        
+        /// Type of value that `id` represents. Either ``SelectMenu/MenuType-swift.enum/user``, ``SelectMenu/MenuType-swift.enum/role``, or ``SelectMenu/MenuType-swift.enum/channel``.
+        public var type: MenuType
+        
+        /// Initializes a select menu's default values.
+        /// - Parameters:
+        ///   - id: ID of a user, role, or channel.
+        ///   - type: Type of value that `id` represents. Either ``SelectMenu/MenuType-swift.enum/user``, ``SelectMenu/MenuType-swift.enum/role``, or ``SelectMenu/MenuType-swift.enum/channel``.
+        public init(id: Snowflake, type: MenuType) {
+            self.id = id
+            self.type = type
+        }
+        
+        init(defaultValueData: JSON) {
+            id = Conversions.snowflakeToUInt(defaultValueData["id"])
+            type = {
+                switch defaultValueData["type"] as! String {
+                case "user":
+                    return MenuType.user
+                case "role":
+                    return MenuType.role
+                case "channel":
+                    return MenuType.channel
+                default:
+                    // It doesn't matter which one is here because Discord will return one of those 3
+                    return .user
+                }
+            }()
+        }
+        
+        func convert() -> JSON { 
+            [
+                "id": id,
+                "type": {
+                    switch type {
+                    case .user:
+                        return "user"
+                    case .role:
+                        return "role"
+                    case .channel:
+                        return "channel"
+                    default:
+                        return String.empty
+                    }
+                }()
+            ]
+        }
+    }
     
     /// Represents a select menus option.
     public class Option {
