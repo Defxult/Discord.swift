@@ -214,7 +214,7 @@ public class Guild : Object, Hashable, Updateable  {
     public internal(set) var isAvailable = true
     
     /// Whether this guild has been chunked via ``chunkMembers()``.
-    public private(set) var chunked = false
+    public private(set) var isChunked = false
 
     // --------------------------------------------------------------------------------
     
@@ -459,7 +459,7 @@ public class Guild : Object, Hashable, Updateable  {
             ]
             
             bot!.gw!.sendFrame(payload)
-            chunked = true
+            isChunked = true
         }
     }
     
