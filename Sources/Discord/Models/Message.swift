@@ -186,6 +186,23 @@ public class Message : Object, Hashable, Updateable {
     
     /// Mention the message.
     public var mention: String { jumpUrl.replacing(#/[<>]/#, with: String.empty) }
+    
+    /// Extracts the emojis the bot is aware of from the message.
+    public var customEmojis: Set<Emoji> {
+        let matches = content.matches(of: Emoji.regex)
+        if !matches.isEmpty {
+            var found = Set<Emoji>()
+            for match in matches {
+                let idGroup = content[match.range].firstMatch(of: #/:[0-9]{17,20}>/#)!.description
+                let emojiId = idGroup.filter(\.isNumber)
+                if let emoji = bot!.getEmoji(Conversions.snowflakeToUInt(emojiId)) {
+                    found.insert(emoji)
+                }
+            }
+            return found
+        }
+        return []
+    }
 
     // --------------------------------------------------------------------------------
     

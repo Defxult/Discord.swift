@@ -88,6 +88,8 @@ public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
     private let rolesData: [String]
     private let guildId: Snowflake
     
+    static let regex = #/<a?:.+?:[0-9]{17,20}>/#
+    
     // Hashable
     public static func == (lhs: Emoji, rhs: Emoji) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
@@ -225,7 +227,7 @@ public struct PartialEmoji {
     public static func fromString(_ emoji: String) -> PartialEmoji {
         
         // Guild emoji
-        if let range = emoji.firstRange(of: #/<a?:.+?:[0-9]{17,20}>/#) {
+        if let range = emoji.firstRange(of: Emoji.regex) {
             let emojiSubStr = emoji[range]
             
             let nameRange = emojiSubStr.firstRange(of: #/:.+?:/#)!
