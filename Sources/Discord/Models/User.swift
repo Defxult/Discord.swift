@@ -272,7 +272,7 @@ extension User {
                 
                 // If the user only has an emoji as their custom status, remove the
                 // excess white space from the above `.append()`
-                status.trimSuffix { $0 == " " }
+                status.trimSuffix(while: \.isWhitespace)
                 
                 type = .custom(status)
             case 5:

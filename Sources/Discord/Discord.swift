@@ -46,7 +46,7 @@ public class Bot {
     public var guilds: [Guild] { [Guild](guildsCache.values) }
     
     /// All users the bot can see.
-    public var users: [User] { [User](usersCache.values) }
+    public internal(set) var users = Set<User>()
     
     /// Messages the bot has cached.
     public internal(set) var cachedMessages = Set<Message>()
@@ -84,14 +84,13 @@ public class Bot {
     
     var pendingApplicationCommands = [PendingAppCommand]()
     var pendingModals = [String: (Interaction) async -> Void]()
-    var usersCache = [Snowflake: User]()
     var guildsCache = [Snowflake: Guild]()
     var msgCacheLock = NSLock()
     var isConnected = false
-    var onceExecute: (() async -> Void)? = nil
-    
     var http: HTTPClient!
     var gw: Gateway?
+    
+    private var onceExecute: (() async -> Void)? = nil
     
     /// Initializes the Discord bot.
     /// - Parameters:
@@ -111,9 +110,9 @@ public class Bot {
         guildsCache.updateValue(guild, forKey: guild.id)
     }
     
-    func cacheUser(_ u: User) {
-        if cacheManager.users || u.id == self.user!.id {
-            usersCache.updateValue(u, forKey: u.id)
+    func cacheUser(_ user: User) {
+        if cacheManager.users || user.id == self.user!.id {
+            users.insert(user)
         }
     }
     
@@ -415,7 +414,7 @@ public class Bot {
             return dm
         }
         else {
-            for guild in guildsCache.values {
+            for guild in guilds {
                 if let channel = guild.getChannel(id) { return channel }
             }
             return nil
@@ -465,7 +464,7 @@ public class Bot {
     /// - Parameter id: The ID of the user.
     /// - Returns: The user matching the provided ID, or `nil` if not found.
     public func getUser(_ id: Snowflake) -> User? {
-        return usersCache[id]
+        return users.first(where: { $0.id == id })
     }
     
     /// Retrieve a member from the bots internal cache.
