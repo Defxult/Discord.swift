@@ -410,7 +410,7 @@ public class SelectMenu : Component, InternalComponent {
     ///   - menuType: Type of select menu.
     ///   - customId: ID for the select menu; max 100 characters.
     ///   - options: Specified choices in a select menu (only required and available when the `type` is ``MenuType-swift.enum/text``); max 25.
-    ///   - channelTypes: Channel types to include in the channel select component when the `type` is ``MenuType-swift.enum/channels``.
+    ///   - channelTypes: Channel types to include in the channel select component when the `type` is ``MenuType-swift.enum/channel``.
     ///   - placeholder: Placeholder text if nothing is selected; max 150 characters.
     ///   - minValues: Minimum number of items that must be chosen; min 0, max 25.
     ///   - maxValues: Maximum number of items that can be chosen; max 25.
@@ -469,7 +469,7 @@ public class SelectMenu : Component, InternalComponent {
         ]
 
         if let channelTypes {
-            if menuType == .channels {
+            if menuType == .channel {
                 payload["channel_types"] = channelTypes.map({ $0.rawValue })
             }
         }
@@ -551,7 +551,7 @@ extension SelectMenu {
         case user = 5
         case role = 6
         case mentionable = 7
-        case channels = 8
+        case channel = 8
     }
 }
 
