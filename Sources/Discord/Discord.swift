@@ -622,7 +622,7 @@ public struct CacheManager {
 public struct Version : CustomStringConvertible {
     public let major = 0
     public let minor = 1
-    public let patch = 1
+    public let patch = 2
     public let releaseLevel = ReleaseLevel.beta
 
     /// The string representation of the library version.
