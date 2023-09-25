@@ -53,10 +53,10 @@ public class Role : Object, Hashable {
     public let permissions: Permissions
     
     /// Whether this role is managed by an integration.
-    public let managed: Bool
+    public let isManaged: Bool
     
     /// Whether the role should be mentionable.
-    public let mentionable: Bool
+    public let isMentionable: Bool
     
     /// The tags this role has.
     public private(set) var tags: Tag?
@@ -110,8 +110,8 @@ public class Role : Object, Hashable {
         let permValue = Int(Conversions.snowflakeToUInt(roleData["permissions"]))
         permissions = Permissions(permsValue: permValue)
         
-        managed = roleData["managed"] as! Bool
-        mentionable = roleData["mentionable"] as! Bool
+        isManaged = roleData["managed"] as! Bool
+        isMentionable = roleData["mentionable"] as! Bool
 
         if let tempTagsData = roleData["tags"] as? JSON {
             tags = Tag(tagData: tempTagsData)
@@ -138,7 +138,7 @@ public class Role : Object, Hashable {
             hoist: hoist,
             icon: try await icon?.download(),
             unicodeEmoji: unicodeEmoji,
-            mentionable: mentionable,
+            mentionable: isMentionable,
             reason: reason
         )
     }

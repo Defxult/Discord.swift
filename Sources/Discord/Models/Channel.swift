@@ -233,8 +233,8 @@ public protocol Channel : Object {
 
 extension Channel {
     
-    /// Whether the channel conforms to protocol ``Messageable``.
-    /// - Note: This simply verifies if the channel can have messages sent to it. It does not verify if your bot has the proper permissions to send a message to that channel.
+    /// Whether the channel conforms to protocol ``Messageable``. This simply verifies if the channel can have
+    /// messages sent to it. It does not verify if your bot has the proper permissions to send a message to that channel.
     public var isMessageable: Bool {
         if let _ = self as? Messageable { return true }
         return false
@@ -1126,7 +1126,7 @@ extension ForumChannel {
         public let name: String
         
         /// Whether this tag can only be added to or removed from threads by a member with the ``Permission/manageThreads`` permission.
-        public let moderated: Bool
+        public let isModerated: Bool
         
         /// Emoji for the tag.
         public let emoji: PartialEmoji
@@ -1134,7 +1134,7 @@ extension ForumChannel {
         init(tagData: JSON) {
             id = Conversions.snowflakeToUInt(tagData["id"])
             name = tagData["name"] as! String
-            moderated = tagData["moderated"] as! Bool
+            isModerated = tagData["moderated"] as! Bool
                         
             // From discord: At most one of emoji_id and emoji_name may be set to a non-null value.
             if let _ = tagData["emoji_id"] as? String {
@@ -1154,7 +1154,7 @@ extension ForumChannel {
         public init(name: String, moderated: Bool, emoji: PartialEmoji) {
             id = 0
             self.name = name
-            self.moderated = moderated
+            self.isModerated = moderated
             self.emoji = emoji
         }
         
@@ -1162,7 +1162,7 @@ extension ForumChannel {
             var payload: JSON = [
                 "id": id,
                 "name": name,
-                "moderated": moderated
+                "moderated": isModerated
             ]
             if let emojiId = emoji.id {
                 payload["emoji_id"] = emojiId
@@ -1383,25 +1383,25 @@ extension VoiceChannel {
         public private(set) var member: Member?
         
         /// Whether this user is deafened by the guild.
-        public internal(set) var guildDeafened: Bool
+        public internal(set) var isGuildDeafened: Bool
         
         /// Whether this user is muted by the guild.
-        public internal(set) var guildMuted: Bool
+        public internal(set) var isGuildMuted: Bool
         
         /// Whether this user is locally deafened.
-        public internal(set) var selfDeafened: Bool
+        public internal(set) var isSelfDeafened: Bool
         
         /// Whether this user is locally muted.
-        public internal(set) var selfMuted: Bool
+        public internal(set) var isSelfMuted: Bool
         
         /// Whether this user is streaming using "Go Live".
-        public internal(set) var streaming: Bool
+        public internal(set) var isStreaming: Bool
         
         /// Whether this user's camera is enabled.
-        public internal(set) var cameraEnabled: Bool
+        public internal(set) var isCameraEnabled: Bool
         
         /// Whether this user is muted by the current user.
-        public internal(set) var suppressed: Bool
+        public internal(set) var isSuppressed: Bool
         
         /// The time at which the user requested to speak.
         public internal(set) var requestedToSpeakAt: Date?
@@ -1431,13 +1431,13 @@ extension VoiceChannel {
             
             userId = Conversions.snowflakeToUInt(voiceStateData["user_id"])
             sessionId = voiceStateData["session_id"] as! String
-            guildDeafened = voiceStateData["deaf"] as! Bool
-            guildMuted = voiceStateData["mute"] as! Bool
-            selfDeafened = voiceStateData["self_deaf"] as! Bool
-            selfMuted = voiceStateData["self_mute"] as! Bool
-            streaming = Conversions.optionalBooltoBool(voiceStateData["self_stream"])
-            cameraEnabled = voiceStateData["self_video"] as! Bool
-            suppressed = voiceStateData["suppress"] as! Bool
+            isGuildDeafened = voiceStateData["deaf"] as! Bool
+            isGuildMuted = voiceStateData["mute"] as! Bool
+            isSelfDeafened = voiceStateData["self_deaf"] as! Bool
+            isSelfMuted = voiceStateData["self_mute"] as! Bool
+            isStreaming = Conversions.optionalBooltoBool(voiceStateData["self_stream"])
+            isCameraEnabled = voiceStateData["self_video"] as! Bool
+            isSuppressed = voiceStateData["suppress"] as! Bool
             
             let requestDate = voiceStateData["request_to_speak_timestamp"] as? String
             requestedToSpeakAt = requestDate != nil ? Conversions.stringDateToDate(iso8601: requestDate!) : nil
@@ -1460,19 +1460,19 @@ extension VoiceChannel {
                         }
                     }
                 case "deaf":
-                    guildDeafened = v as! Bool
+                    isGuildDeafened = v as! Bool
                 case "mute":
-                    guildMuted = v as! Bool
+                    isGuildMuted = v as! Bool
                 case "self_deaf":
-                    selfDeafened = v as! Bool
+                    isSelfDeafened = v as! Bool
                 case "self_mute":
-                    selfMuted = v as! Bool
+                    isSelfMuted = v as! Bool
                 case "self_stream":
-                    streaming = Conversions.optionalBooltoBool(v)
+                    isStreaming = Conversions.optionalBooltoBool(v)
                 case "self_video":
-                    cameraEnabled = v as! Bool
+                    isCameraEnabled = v as! Bool
                 case "suppress":
-                    suppressed = v as! Bool
+                    isSuppressed = v as! Bool
                 case "request_to_speak_timestamp":
                     let requestDate = v as? String
                     requestedToSpeakAt = requestDate != nil ? Conversions.stringDateToDate(iso8601: requestDate!) : nil
@@ -1537,7 +1537,7 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     // --------- The below properties are apart of the thread metadata ---------
     
     /// Whether the thread is archived (closed).
-    public internal(set) var archived: Bool
+    public internal(set) var isArchived: Bool
     
     /// When to automatically archive (close) the thread.
     public internal(set) var autoArchiveDuration: ArchiveDuration
@@ -1546,7 +1546,7 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     public internal(set) var archiveTimestamp: Date
     
     /// Whether the thread is locked.
-    public internal(set) var locked: Bool
+    public internal(set) var isLocked: Bool
     
     /// Timestamp when the thread was created. Only available for threads created after January 9, 2022.
     public let createdAt: Date?
@@ -1590,10 +1590,10 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
 
         // Metadata
         let metadata = threadData["thread_metadata"] as! JSON
-        archived = metadata["archived"] as! Bool
+        isArchived = metadata["archived"] as! Bool
         autoArchiveDuration = ArchiveDuration(rawValue: metadata["auto_archive_duration"] as! Int)!
         archiveTimestamp = Conversions.stringDateToDate(iso8601: metadata["archive_timestamp"] as! String)!
-        locked = metadata["locked"] as! Bool
+        isLocked = metadata["locked"] as! Bool
         createdAt = metadata["create_timestamp"] as? String == nil ? nil : Conversions.stringDateToDate(iso8601: metadata["create_timestamp"] as! String)
     }
     

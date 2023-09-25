@@ -36,7 +36,7 @@ public struct Asset : Downloadable, Hashable {
     // --------- API Separate ---------
  
     /// Whether the asset is animated.
-    public let animated: Bool
+    public let isAnimated: Bool
     
     // --------------------------------
     
@@ -46,7 +46,7 @@ public struct Asset : Downloadable, Hashable {
 
     init(hash: String, fullURL: String) {
         self.hash = hash
-        animated = hash.starts(with: "a_")
+        isAnimated = hash.starts(with: "a_")
         if fullURL.starts(with: "/") {
             url = APIRoute.cdn.rawValue + fullURL
         } else {

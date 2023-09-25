@@ -61,12 +61,12 @@ public struct ApplicationCommandPermissions {
     public let type: ApplicationCommandPermissionType
     
     /// Whether the permission is allowed.
-    public let allowed: Bool
+    public let isAllowed: Bool
     
     init(appCommandPermsData: JSON, guildId: Snowflake) {
         id = Conversions.snowflakeToUInt(appCommandPermsData["id"])
         type = .getType(id: id, guildId: guildId, value: appCommandPermsData["type"] as! Snowflake)
-        allowed = appCommandPermsData["permission"] as! Bool
+        isAllowed = appCommandPermsData["permission"] as! Bool
     }
 }
 

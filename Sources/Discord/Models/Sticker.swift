@@ -68,7 +68,7 @@ public struct GuildSticker : Object, Hashable {
     public let format: Sticker.Format
     
     /// Whether this guild sticker can be used, may be false due to loss of server boosts.
-    public let available: Bool
+    public let isAvailable: Bool
     
     /// The guild this sticker belongs to.
     public var guild: Guild { bot!.getGuild(guildId)! }
@@ -94,7 +94,7 @@ public struct GuildSticker : Object, Hashable {
         
         // Discord says this is optional, so there's a chance it might not be there. But I can't find any
         // circumstances as to why it wouldn't be present, so a forced cast will do for now.
-        available = guildStickerData["available"] as! Bool
+        isAvailable = guildStickerData["available"] as! Bool
         
         guildId = Conversions.snowflakeToUInt(guildStickerData["guild_id"])
         

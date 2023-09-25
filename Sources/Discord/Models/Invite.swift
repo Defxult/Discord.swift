@@ -195,7 +195,7 @@ public class Invite : PartialInvite {
     public let maxAge: Int
 
     /// Whether this invite only grants temporary membership.
-    public let temporary: Bool
+    public let isTemporary: Bool
 
     /// When this invite was created.
     public let createdAt: Date
@@ -229,7 +229,7 @@ public class Invite : PartialInvite {
         uses = inviteData["uses"] as! Int
         maxAge = inviteData["max_age"] as! Int
         maxUses = inviteData["max_uses"] as! Int
-        temporary = inviteData["temporary"] as! Bool
+        isTemporary = inviteData["temporary"] as! Bool
         createdAt = Conversions.stringDateToDate(iso8601: inviteData["created_at"] as! String)!
         
         if let scheduledEventObj = inviteData["guild_scheduled_event"] as? JSON {

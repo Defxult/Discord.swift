@@ -113,8 +113,8 @@ public class UI {
     ///         you must edit the message with the updated UI.
     public func enableAllItems() {
         for item in items {
-            if item.type == .button { (item as! Button).disabled = false }
-            if item.type == .selectMenu { (item as! SelectMenu).disabled = false }
+            if item.type == .button { (item as! Button).isDisabled = false }
+            if item.type == .selectMenu { (item as! SelectMenu).isDisabled = false }
         }
     }
     
@@ -123,8 +123,8 @@ public class UI {
     ///         you must edit the message with the updated UI.
     public func disableAllItems() {
         for item in items {
-            if item.type == .button { (item as! Button).disabled = true }
-            if item.type == .selectMenu { (item as! SelectMenu).disabled = true }
+            if item.type == .button { (item as! Button).isDisabled = true }
+            if item.type == .selectMenu { (item as! SelectMenu).isDisabled = true }
         }
     }
     
@@ -275,7 +275,7 @@ public class Button : Component, InternalComponent {
     public var url: String?
     
     /// Whether the button is disabled.
-    public var disabled: Bool
+    public var isDisabled: Bool
     
     /**
      Initializes a message component button.
@@ -320,7 +320,7 @@ public class Button : Component, InternalComponent {
         else { self.customId = customId ?? UUID().uuidString.prefix(while: { $0 != "-" }).lowercased() }
         
         self.url = url
-        self.disabled = disabled
+        self.isDisabled = disabled
     }
     
     init(_ buttonData: JSON) {
@@ -334,11 +334,11 @@ public class Button : Component, InternalComponent {
         
         customId = (buttonData["custom_id"] as? String) ?? .empty
         url = buttonData["url"] as? String
-        disabled = Conversions.optionalBooltoBool(buttonData["disabled"])
+        isDisabled = Conversions.optionalBooltoBool(buttonData["disabled"])
     }
     
     func convert() -> JSON {
-        var payload: JSON = ["type": type.rawValue, "style": style.rawValue, "disabled": disabled]
+        var payload: JSON = ["type": type.rawValue, "style": style.rawValue, "disabled": isDisabled]
         
         if let label { payload["label"] = label }
         if let emoji { payload["emoji"] = PartialEmoji.fromString(emoji).convert() }
@@ -406,7 +406,7 @@ public class SelectMenu : Component, InternalComponent {
     public var maxValues: Int
 
     /// Whether select menu is disabled.
-    public var disabled: Bool
+    public var isDisabled: Bool
     
     /// Initializes a select menu.
     /// - Parameters:
@@ -437,7 +437,7 @@ public class SelectMenu : Component, InternalComponent {
             self.defaultValues = defaultValues
             self.minValues = minValues
             self.maxValues = maxValues
-            self.disabled = disabled
+            self.isDisabled = disabled
     }
     
     init(_ selectMenuData: JSON) {
@@ -467,7 +467,7 @@ public class SelectMenu : Component, InternalComponent {
         
         minValues = (selectMenuData["min_values"] as? Int) ?? 1
         maxValues = (selectMenuData["max_values"] as? Int) ?? 1
-        disabled = Conversions.optionalBooltoBool(selectMenuData["disabled"])
+        isDisabled = Conversions.optionalBooltoBool(selectMenuData["disabled"])
     }
     
     func convert() -> JSON {
@@ -476,7 +476,7 @@ public class SelectMenu : Component, InternalComponent {
             "custom_id": customId,
             "min_values": minValues,
             "max_values": maxValues,
-            "disabled": disabled
+            "disabled": isDisabled
         ]
 
         if let channelTypes {
@@ -572,7 +572,7 @@ extension SelectMenu {
         public var emoji: PartialEmoji?
         
         /// Whether this option will show as selected by default.
-        public var `default`: Bool
+        public var isDefault: Bool
         
         /// Initializes an option for a select menu.
         /// - Parameters:
@@ -586,7 +586,7 @@ extension SelectMenu {
             self.value = value ?? label
             self.description = description
             self.emoji = emoji
-            self.default = `default`
+            self.isDefault = `default`
         }
         
         init(optionData: JSON) {
@@ -597,14 +597,14 @@ extension SelectMenu {
             if let emojiObj = optionData["emoji"] as? JSON { emoji = PartialEmoji(partialEmojiData: emojiObj) }
             
             if optionData.contains(where: { $0.key == "default" }) {
-                self.default = optionData["default"] as! Bool
+                isDefault = optionData["default"] as! Bool
             } else {
-                self.default = false
+                isDefault = false
             }
         }
         
         func convert() -> JSON {
-            var payload: JSON = ["label": label, "value": value, "default": self.default]
+            var payload: JSON = ["label": label, "value": value, "default": isDefault]
             
             if let description { payload["description"] = description }
             if let emoji { payload["emoji"] = emoji.convert() }
@@ -645,7 +645,7 @@ public class TextInput : Component, InternalComponent {
     public var maxLength: Int
     
     /// Whether this component is required to be filled.
-    public var required: Bool
+    public var isRequired: Bool
     
     /// Pre-filled value for this component; max 4000 characters.
     public var value: String?
@@ -672,7 +672,7 @@ public class TextInput : Component, InternalComponent {
         self.customId = customId
         self.minLength = minLength
         self.maxLength = maxLength
-        self.required = required
+        self.isRequired = required
         self.value = value
         self.placeholder = placeholder
     }
@@ -683,7 +683,7 @@ public class TextInput : Component, InternalComponent {
             "custom_id": customId,
             "style": style.rawValue,
             "label": label,
-            "required": required,
+            "required": isRequired,
             "min_length": minLength,
             "max_length": maxLength
         ]

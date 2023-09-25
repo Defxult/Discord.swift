@@ -50,16 +50,16 @@ public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
     public let user: User?
     
     /// Whether this emoji must be wrapped in colons to use.
-    public let requireColons: Bool
+    public let requiresColons: Bool
     
     /// Whether this emoji is managed by an integration.
-    public let managed: Bool
+    public let isManaged: Bool
     
     /// Whether this emoji is animated.
-    public let animated: Bool
+    public let isAnimated: Bool
     
-    /// Whether this emoji can be used. May be false due to a loss of Server Boosts.
-    public let available: Bool
+    /// Whether this emoji can be used. May be `false` due to a loss of Server Boosts.
+    public let isAvailable: Bool
 
     /// Your bot instance.
     public weak private(set) var bot: Bot?
@@ -81,7 +81,7 @@ public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
     public let url: String
     
     /// The `PartialEmoji` representation of the emoji.
-    public var asPartial: PartialEmoji { PartialEmoji(id: id, name: name, animated: animated) }
+    public var asPartial: PartialEmoji { PartialEmoji(id: id, name: name, animated: isAnimated) }
     
     // --------------------------------------------------------------------------------
     
@@ -106,12 +106,12 @@ public struct Emoji : Object, Downloadable, CustomStringConvertible, Hashable {
         let userData = emojiData["user"] as? JSON
         user = userData != nil ? User(userData: userData!) : nil
 
-        requireColons = emojiData["require_colons"] as! Bool
-        managed = emojiData["managed"] as! Bool
-        animated = emojiData["animated"] as! Bool
-        available = emojiData["available"] as! Bool
-        description = animated ? "<a:\(name):\(id)>" : "<:\(name):\(id)>"
-        url = APIRoute.cdn.rawValue + "/emojis/\(id).\(animated ? "gif" : "png")"
+        requiresColons = emojiData["require_colons"] as! Bool
+        isManaged = emojiData["managed"] as! Bool
+        isAnimated = emojiData["animated"] as! Bool
+        isAvailable = emojiData["available"] as! Bool
+        description = isAnimated ? "<a:\(name):\(id)>" : "<:\(name):\(id)>"
+        url = APIRoute.cdn.rawValue + "/emojis/\(id).\(isAnimated ? "gif" : "png")"
     }
     
     /// Edit the emoji.
@@ -168,7 +168,7 @@ public struct PartialEmoji {
     
     /// Whether this emoji is animated. If created via ``PartialEmoji/init(_:)``, this will be `nil`. This is typically available
     /// when this was created via ``GatewayEvent/messageReactionAdd``.
-    public private(set) var animated: Bool?
+    public private(set) var isAnimated: Bool?
     
     /// Returns the raw representation of the partial emoji.
     public var description: String? {
@@ -176,7 +176,7 @@ public struct PartialEmoji {
         else {
             // Guild emoji
             if let name, let id {
-                if let isAnim = animated {
+                if let isAnim = isAnimated {
                     return isAnim ? "<a:\(name):\(id)>" : "<:\(name):\(id)>"
                 }
                 else { return "<:\(name):\(id)>" }
@@ -193,7 +193,7 @@ public struct PartialEmoji {
     init(partialEmojiData: JSON) {
         id = Conversions.snowflakeToOptionalUInt(partialEmojiData["id"])
         name = partialEmojiData["name"] as? String
-        animated = partialEmojiData["animated"] as? Bool
+        isAnimated = partialEmojiData["animated"] as? Bool
     }
     
     /// Create a partial standard emoji. When creating a standard emoji, `id` and `animated` will be `nil`.
@@ -201,7 +201,7 @@ public struct PartialEmoji {
     public init(_ emoji: String) {
         name = emoji
         id = nil
-        animated = nil
+        isAnimated = nil
     }
     
     /// Create a partial guild emoji.
@@ -212,12 +212,12 @@ public struct PartialEmoji {
     public init(id: Snowflake, name: String, animated: Bool) {
         self.id = id
         self.name = name
-        self.animated = animated
+        self.isAnimated = animated
     }
     
     func convert() -> JSON {
         var payload: JSON = ["id": nullable(id), "name": name as Any]
-        if let animated { payload["animated"] = animated }
+        if let isAnimated { payload["animated"] = isAnimated }
         return payload
     }
 

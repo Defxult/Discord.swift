@@ -321,7 +321,7 @@ public struct ApplicationCommandOption {
     public let description: String
     
     /// If the parameter is required. If `true`, this option must be before all other options that are not required.
-    public let required: Bool
+    public let isRequired: Bool
     
     /// Name localizations for the option.
     public private(set) var nameLocalizations: [Locale: String]?
@@ -387,7 +387,7 @@ public struct ApplicationCommandOption {
             self.type = type
             self.name = ApplicationCommand.verifyName(name)
             self.description = description
-            // self.required is set below
+            // self.isRequired is set below
             self.choices = choices
             self.channelTypes = channelTypes
             self.options = options
@@ -404,8 +404,8 @@ public struct ApplicationCommandOption {
             // and subcommand groups (as noted in the init documentation now), but just in case (and to make it less of a headache)
             // just set `required` to `false`.
             let subs = [ApplicationCommandOptionType.subCommand, ApplicationCommandOptionType.subCommandGroup]
-            if subs.contains(type) { self.required = false }
-            else { self.required = required }
+            if subs.contains(type) { isRequired = false }
+            else { isRequired = required }
             
             // Discord: "autocomplete may not be set to true if choices are present."
             if let _ = choices { self.autocomplete = false }
@@ -425,7 +425,7 @@ public struct ApplicationCommandOption {
             descriptionLocalizations = convertToLocalizations(descLocals)
         }
         
-        required = Conversions.optionalBooltoBool(appCommandOptionData["required"])
+        isRequired = Conversions.optionalBooltoBool(appCommandOptionData["required"])
         
         if let choicesObjs = appCommandOptionData["choices"] as? [JSON] {
             choices = []
@@ -460,7 +460,7 @@ public struct ApplicationCommandOption {
             "type": type.rawValue,
             "name": name,
             "description": description,
-            "required": required
+            "required": isRequired
         ]
         
         if let choices { payload["choices"] = choices.map({ $0.convert() }) }
@@ -1034,7 +1034,7 @@ public class ApplicationCommandInteractionDataOption {
     public private(set) var options: [ApplicationCommandInteractionDataOption]?
     
     /// If this is `true`, this option is the currently focused option for autocomplete.
-    public let focused: Bool?
+    public let isFocused: Bool?
     
     init(_ appCommandInteractionDataOption: JSON) {
         name = appCommandInteractionDataOption["name"] as! String
@@ -1048,7 +1048,7 @@ public class ApplicationCommandInteractionDataOption {
             }
         }
         
-        focused = Conversions.optionalBooltoBool(appCommandInteractionDataOption["focused"])
+        isFocused = Conversions.optionalBooltoBool(appCommandInteractionDataOption["focused"])
     }
 }
 

@@ -511,7 +511,7 @@ extension User {
 public class ClientUser : User {
     
     /// Whether the user has two factor enabled on their account.
-    public let mfaEnabled: Bool
+    public let isMfaEnabled: Bool
     
     /// The user's chosen language option.
     public let locale: Locale?
@@ -524,7 +524,7 @@ public class ClientUser : User {
 
     init(bot: Bot, clientUserData: JSON) {
         self.bot = bot
-        mfaEnabled = clientUserData["mfa_enabled"] as! Bool
+        isMfaEnabled = clientUserData["mfa_enabled"] as! Bool
         
         let loc = clientUserData["locale"] as? String
         locale = loc == nil ? nil : Locale(rawValue: loc!)

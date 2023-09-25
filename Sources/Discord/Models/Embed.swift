@@ -474,7 +474,7 @@ public class Embed {
                 fieldObjs.append([
                     "name": f.name,
                     "value": f.value,
-                    "inline": f.inline
+                    "inline": f.isInline
                 ])
             }
             payload["fields"] = fieldObjs
@@ -670,18 +670,18 @@ extension Embed {
         public let value: String
         
         /// Whether or not this field should display inline.
-        public let inline: Bool
+        public let isInline: Bool
 
         fileprivate init(name: String, value: String, inline: Bool = false) {
             self.name = name
             self.value = value
-            self.inline = inline
+            self.isInline = inline
         }
 
         init(fieldData: JSON) {
             name = fieldData["name"] as! String
             value = fieldData["value"] as! String
-            inline = fieldData["inline"] as! Bool
+            isInline = fieldData["inline"] as! Bool
         }
     }
 }

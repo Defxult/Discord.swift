@@ -631,7 +631,7 @@ extension Message {
         public let width: Int?
         
         /// Whether this attachment is ephemeral.
-        public let ephemeral: Bool
+        public let isEphemeral: Bool
         
         // ------------ API Separated ------------
         
@@ -650,7 +650,7 @@ extension Message {
             proxyUrl = attachmentData["proxy_url"] as! String
             height = attachmentData["height"] as? Int
             width = attachmentData["width"] as? Int
-            ephemeral = Conversions.optionalBooltoBool(attachmentData["ephemeral"])
+            isEphemeral = Conversions.optionalBooltoBool(attachmentData["ephemeral"])
             spoiler = filename.starts(with: "SPOILER_")
         }
         
@@ -665,7 +665,7 @@ extension Message {
                 "proxy_url": proxyUrl,
                 "height": height as Any,
                 "weight": width as Any,
-                "ephemeral": ephemeral
+                "ephemeral": isEphemeral
             ]
         }
     }

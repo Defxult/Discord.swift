@@ -50,7 +50,7 @@ public struct AutoModerationRule : Object {
     public private(set) var actions = [AutoModerationRule.Action]()
     
     /// Whether the rule is enabled.
-    public let enabled: Bool
+    public let isEnabled: Bool
     
     /// The roles that should not be affected by the rule.
     public private(set) var exemptRoles = [Role]()
@@ -78,7 +78,7 @@ public struct AutoModerationRule : Object {
             actions.append(AutoModerationRule.Action(actionData: actionObj))
         }
 
-        enabled = autoModData["enabled"] as! Bool
+        isEnabled = autoModData["enabled"] as! Bool
 
         for roleId in autoModData["exempt_roles"] as! [String] {
             exemptRoles.append(guild.getRole(Conversions.snowflakeToUInt(roleId))!)

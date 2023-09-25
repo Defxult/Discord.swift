@@ -24,8 +24,6 @@ DEALINGS IN THE SOFTWARE.
 
 /// Represents a color on Discord.
 public struct Color : Hashable {
-
-    private static let maximumColorValue = 16_777_215
     
     /// Returns a `Color` with its value set to `0x5865f2`.
     public static let blurple = Color(value: 0x5865f2)
@@ -99,6 +97,8 @@ public struct Color : Hashable {
     
     /// The color value.
     public var value: Int { didSet { value = Color.verifyValue(value) } }
+    
+    private static let maximumColorValue = 16_777_215
     
     // Hashable
     public static func == (lhs: Color, rhs: Color) -> Bool { lhs.value == rhs.value }
