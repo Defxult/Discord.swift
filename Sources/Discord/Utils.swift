@@ -200,6 +200,9 @@ public struct Markdown {
     /// Mention the "Channels & Roles" channel with the *Customize* tab pre-selected.
     public static let mentionChannelAndRoles = "<id:customize>"
     
+    /// Mention the "Server Guide" channel.
+    public static let mentionServerGuide = "<id:guide>"
+    
     /// Mentions the channel.
     /// - Parameter id: ID of the channel.
     /// - Returns: The channel in a mentioned format.
@@ -388,6 +391,7 @@ extension Date {
 // MARK: Conversions
 
 struct Conversions {
+    private init() {}
     
     static func bitfield(_ seq: any Sequence<Int>) -> Int {
         var value = 0
