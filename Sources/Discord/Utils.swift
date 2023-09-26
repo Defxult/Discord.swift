@@ -46,17 +46,11 @@ public func channelLink(guildId: Snowflake, channelId: Snowflake) -> String {
     "https://discord.com/channels/\(guildId)/\(channelId)"
 }
 
-/**
- Get the value for a variable in your environment. This is typically used to retrieve your Discord bot token, but can be used for anything.
- 
- ```swift
- let bot = Bot(token: getVariable("TOKEN")!, intents: Intents.default)
- ```
- - Parameter variable: The environment variable.
- - Returns: The value associated with the variable, or `nil` if not found.
- */
-public func getVariable(_ variable: String) -> String? {
-    ProcessInfo.processInfo.environment[variable]
+/// Get the value for a variable in your environment.
+/// - Parameter key: The environment variable.
+/// - Returns: The value associated with the key, or `nil` if not found.
+public func getVariable(_ key: String) -> String? {
+    ProcessInfo.processInfo.environment[key]
 }
 
 /// Constructs a message link.
@@ -194,13 +188,13 @@ public struct Markdown {
         "[\(title)](\(suppressEmbed ? suppressLinkEmbed(url: url) : url))"
     }
     
-    /// Mention the "Channels & Roles" channel with the *Browse Channels* tab pre-selected.
+    /// Mentions the "Channels & Roles" channel with the *Browse Channels* tab pre-selected.
     public static let mentionBrowseChannels = "<id:browse>"
     
-    /// Mention the "Channels & Roles" channel with the *Customize* tab pre-selected.
+    /// Mentions the "Channels & Roles" channel with the *Customize* tab pre-selected.
     public static let mentionChannelAndRoles = "<id:customize>"
     
-    /// Mention the "Server Guide" channel.
+    /// Mentions the "Server Guide" channel.
     public static let mentionServerGuide = "<id:guide>"
     
     /// Mentions the channel.
