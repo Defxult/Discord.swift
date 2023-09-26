@@ -303,15 +303,16 @@ class Gateway {
                         """
                     throw GatewayError.disallowedIntents(message)
                 default:
-                    break
+                    return
                 }
             default:
-                // The only "unknown" error that should happen is `.normalClosure` via `Bot.disconnect()`,
-                // everything else is unexpected.
+                // The only "unknown" error that *should* happen is `.normalClosure` via `Bot.disconnect()` or an
+                // external connection issue Everything else is unexpected.
                 if code != .normalClosure {
                     Log.message("unexpected gateway error (\(code)) dispatched by WebSocket" + end)
                     Task { try await self.startNewSession() }
                 }
+                bot.listeners.forEachAsync { await $0.onDisconnect() }
             }
         }
     }
@@ -1350,6 +1351,11 @@ open class EventListener {
     /// soon as the connection is successful. Meaning depending on how many guilds the bot is in, the initial preparation of the internal cache may or may not be complete.
     /// - Parameter user: The bot user who connected.
     open func onConnect(user: ClientUser) async {}
+    
+    // MARK: Disconnect
+    
+    /// Dispatched when the bot has disconnected from Discord.
+    open func onDisconnect() async {}
     
     
     
