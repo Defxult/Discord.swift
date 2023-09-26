@@ -457,7 +457,7 @@ struct Conversions {
 
 // MARK: Log
 struct Log {
-    static private var enabled: Bool { ProcessInfo.processInfo.environment["d.swift-internal-logging"] != nil ? true : false }
+    static private var enabled: Bool { ProcessInfo.processInfo.environment["D_SWIFT_INTERNAL_LOG"] != nil ? true : false }
     
     static func message(_ message: Any, withTimestamp: Bool = true) {
         if enabled {
