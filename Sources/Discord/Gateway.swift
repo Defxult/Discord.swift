@@ -1340,10 +1340,10 @@ open class EventListener {
     /// Initialize a new event listener.
     /// - Parameters:
     ///   - name: Name of the event listener. Must be unique.
-    ///   - isEnabled: Whether the event listener is enabled.
-    public init(name: String, isEnabled: Bool = true) {
+    ///   - enabled: Whether the event listener is enabled.
+    public init(name: String, enabled: Bool = true) {
         self.name = name.lowercased()
-        self.isEnabled = isEnabled
+        self.isEnabled = enabled
     }
     
     // MARK: Ready
