@@ -352,6 +352,21 @@ public class Bot {
         }
     }
     
+    private func clearCache() {
+        dms.removeAll()
+        users.removeAll()
+        msgCacheLock.lock()
+        for messageId in Set<Snowflake>(cachedMessages.map({ $0.id })) {
+            removeCachedMessage(messageId)
+        }
+        msgCacheLock.unlock()
+        for guild in guilds {
+            guild.channelsCache.removeAll()
+            guild.membersCache.removeAll()
+        }
+        guildsCache.removeAll()
+    }
+    
     /// Create a guild. Your bot must be in less than 10 guilds to use this.
     /// - Parameters:
     ///   - name: Name of the guild.
@@ -389,12 +404,16 @@ public class Bot {
         }
     }
     
-    /// Disconnects the bot from Discord and releases the block from ``connect()``.
+    /// Disconnects the bot from Discord, releases the block from ``connect()`` and clears the cache.
     public func disconnect() {
         if let gw {
-            _ = gw.ws.close(code: .normalClosure)
+            try! gw.ws.close(code: .normalClosure).wait()
             gw.resetGatewayValues()
+            clearCache()
+            try! gw.settings.loop.syncShutdownGracefully()
             self.gw = nil
+            
+            // Must be last
             isConnected = false
         }
     }

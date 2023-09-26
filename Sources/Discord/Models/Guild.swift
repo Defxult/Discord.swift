@@ -146,7 +146,7 @@ public class Guild : Object, Hashable, Updateable  {
 
     /// All members in the guild.
     public var members: [Member] { [Member](membersCache.values) }
-    private var membersCache = [Snowflake: Member]()
+    var membersCache = [Snowflake: Member]()
     
     /// Total number of members in the guild.
     public internal(set) var memberCount = 0

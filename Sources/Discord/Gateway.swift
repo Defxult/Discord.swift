@@ -151,7 +151,7 @@ class Gateway {
     private var heartbeatInterval = 0
     private var receivedReconnectRequest = false
     
-    private let settings = (
+    let settings = (
         port: 443,
         query: "v=10&encoding=json",
         config: WebSocketClient.Configuration(maxFrameSize: 1 << 20),
@@ -207,6 +207,11 @@ class Gateway {
         while true {
             await sleep(heartbeatInterval)
             sendHeartbeat()
+            do {
+                try Task.checkCancellation()
+            } catch {
+                return
+            }
         }
     }
     
