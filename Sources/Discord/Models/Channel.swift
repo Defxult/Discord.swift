@@ -202,6 +202,8 @@ extension Messageable {
         if let closure = `while` {
             let task = Task {
                 while true {
+                    do { try Task.checkCancellation() }
+                    catch { break }
                     try await bot!.http.triggerTypingIndicator(channelId: id)
                     
                     // The delay isn't 10s because once it hits the 10s mark, the "is typing"
