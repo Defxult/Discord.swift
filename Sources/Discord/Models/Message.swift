@@ -636,7 +636,7 @@ extension Message {
         // ------------ API Separated ------------
         
         /// Whether this attachment is marked as a spoiler.
-        public let spoiler: Bool
+        public let isSpoiler: Bool
         
         // ---------------------------------------
 
@@ -651,7 +651,7 @@ extension Message {
             height = attachmentData["height"] as? Int
             width = attachmentData["width"] as? Int
             isEphemeral = Conversions.optionalBooltoBool(attachmentData["ephemeral"])
-            spoiler = filename.starts(with: "SPOILER_")
+            isSpoiler = filename.starts(with: "SPOILER_")
         }
         
         func convert() -> JSON {
