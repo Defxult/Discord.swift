@@ -298,7 +298,7 @@ extension Application {
         public let permissions: Permissions
 
         init(installParamsData: JSON) {
-            scopes = OAuth2Scopes.getScopes(installParamsData["scopes"] as! [String])
+            scopes = OAuth2Scopes.get(installParamsData["scopes"] as! [String])
             permissions = Permissions(permsValue: Int(installParamsData["permissions"] as! String)!)
         }
     }
@@ -392,7 +392,7 @@ public enum OAuth2Scopes : String, CaseIterable {
     /// This generates a webhook that is returned in the oauth token response for authorization code grants.
     case webhookIncoming = "webhook.incoming"
     
-    static func getScopes(_ scopes: [String]) -> Set<OAuth2Scopes> {
+    static func get(_ scopes: [String]) -> Set<OAuth2Scopes> {
         var oAuth2Scopes = Set<OAuth2Scopes>()
         for scope in scopes {
             if let s = OAuth2Scopes(rawValue: scope) {

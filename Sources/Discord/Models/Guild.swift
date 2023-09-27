@@ -1543,7 +1543,7 @@ extension Guild {
             else { application = nil }
             
             if let scopes = integrationData["scopes"] as? [String] {
-                self.scopes = OAuth2Scopes.getScopes(scopes)
+                self.scopes = OAuth2Scopes.get(scopes)
             }
         }
         

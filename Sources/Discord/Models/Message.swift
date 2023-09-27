@@ -704,7 +704,7 @@ extension Message {
         /// The activity type.
         public let type: ActivityType
         
-        /// The  party ID from a riich presence event.
+        /// The party ID from a riich presence event.
         public let partyId: String?
         
         init(activityData: JSON) {
