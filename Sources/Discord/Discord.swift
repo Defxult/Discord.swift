@@ -23,6 +23,7 @@ DEALINGS IN THE SOFTWARE.
 */
 
 import Foundation
+import Vapor
 
 /// Represents a Discord bot.
 public class Bot {
@@ -85,12 +86,14 @@ public class Bot {
     var pendingApplicationCommands = [PendingAppCommand]()
     var pendingModals = [String: (Interaction) async -> Void]()
     var guildsCache = [Snowflake: Guild]()
-    var msgCacheLock = NSLock()
     var isConnected = false
     var http: HTTPClient!
-    var gw: Gateway?
-    
+    var gw: Gateway!
     private var onceExecute: (() async -> Void)? = nil
+    
+    private let msgCacheLock = NSLock()
+    private let sema = DispatchSemaphore(value: 0)
+    private let app = Vapor.Application()
     
     /// Initializes the Discord bot.
     /// - Parameters:
@@ -103,7 +106,8 @@ public class Bot {
         self.intents = intents
         self.sharding = sharding
         self.cacheManager = cacheManager
-        http = .init(bot: self, token: token, version: version)
+        gw = Gateway(bot: self, elg: app.eventLoopGroup)
+        http = .init(bot: self, token: token, version: version, app: app)
     }
     
     func cacheGuild(_ guild: Guild) {
@@ -141,16 +145,14 @@ public class Bot {
     ///   - activity: The activity. Can be set to things such as "Listening to {value}", "Watching {value}", etc. Can be `nil` for no activity.
     /// - Note: Certain combinations are ignored by Discord. Some examples are setting the bots `status` to offline or setting a custom status.
     public func updatePresence(status: User.Status, activity: User.ActivityType?) {
-        if let gw {
-            var d: JSON = ["status": status.rawValue, "afk": false]
-            
-            // Requires unix time in milliseconds
-            d["since"] = status == .idle ? Date.now.timeIntervalSince1970 * 1000 : NIL
-            d["activities"] = activity?.convert() ?? []
-            
-            let payload: JSON = ["op": Opcode.presenceUpdate, "d": d]
-            gw.sendFrame(payload)
-        }
+        var d: JSON = ["status": status.rawValue, "afk": false]
+        
+        // Requires unix time in milliseconds
+        d["since"] = status == .idle ? Date.now.timeIntervalSince1970 * 1000 : NIL
+        d["activities"] = activity?.convert() ?? []
+        
+        let payload: JSON = ["op": Opcode.presenceUpdate, "d": d]
+        gw.sendFrame(payload)
     }
     
     /// Retrieve all global application commands. If you need the commands for a specific guild, use ``Guild/applicationCommands()``.
@@ -336,18 +338,15 @@ public class Bot {
     }
     
     /// Connect to Discord.
-    /// - Attention: This method is blocking to maintain the connection to Discord.
-    public func connect() async throws {
-        if gw == nil {
-            gw = Gateway(bot: self)
-            try await gw!.startNewSession()
+    public func connect() {
+        if !isConnected {
+            try! app.eventLoopGroup.any().makeFutureWithTask {
+                try! await self.gw.startNewSession()
+            }.wait()
             isConnected = true
             if let onceExecute {
-                await onceExecute()
+                Task { await onceExecute() }
                 self.onceExecute = nil
-            }
-            while isConnected {
-                await sleep(200)
             }
         }
     }
@@ -365,6 +364,13 @@ public class Bot {
             guild.membersCache.removeAll()
         }
         guildsCache.removeAll()
+    }
+    
+    /// Disconnect from Discord and releases the block from ``run()``.
+    public func close() {
+        disconnect()
+        app.shutdown()
+        sema.signal()
     }
     
     /// Create a guild. Your bot must be in less than 10 guilds to use this.
@@ -404,16 +410,12 @@ public class Bot {
         }
     }
     
-    /// Disconnects the bot from Discord, releases the block from ``connect()`` and clears the cache.
+    /// Disconnect from Discord and clears the cache.
     public func disconnect() {
-        if let gw {
+        if isConnected {
             try! gw.ws.close(code: .normalClosure).wait()
             gw.resetGatewayValues()
             clearCache()
-            try! gw.settings.loop.syncShutdownGracefully()
-            self.gw = nil
-            
-            // Must be last
             isConnected = false
         }
     }
@@ -572,9 +574,15 @@ public class Bot {
         return try await http.getWebhookWithToken(webhookId: webhookId, webhookToken: webhookToken)
     }
     
+    /// Connect to Discord and blocks the app from exiting.
+    public func run() {
+        connect()
+        sema.wait()
+    }
+    
     /// Block further execution until the ``EventListener/onReady(user:)`` event has been dispatched.
     public func waitUntilReady() async {
-        while gw?.initialState?.dispatched != true {
+        while gw.initialState?.dispatched != true {
             await sleep(150)
         }
     }

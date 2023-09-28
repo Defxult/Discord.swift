@@ -24,7 +24,6 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 import WebSocketKit
-import Vapor
 
 fileprivate struct ResumePayload {
     
@@ -141,25 +140,25 @@ class Gateway {
     
     var ws: WebSocket!
     var heartbeatTask: Task<(), Never>?
-    var initialState: InitialState? = nil
+    var initialState: InitialState?
     
     private var bot: Bot
     private var wsResume: ResumePayload?
     private var gp: GatewayPayload?
     private var shards: Int?
-    
     private var heartbeatInterval = 0
     private var receivedReconnectRequest = false
     
-    let settings = (
+    private let elg: EventLoopGroup
+    private let settings = (
         port: 443,
         query: "v=10&encoding=json",
-        config: WebSocketClient.Configuration(maxFrameSize: 1 << 20),
-        loop: MultiThreadedEventLoopGroup(numberOfThreads: 2)
+        config: WebSocketClient.Configuration(maxFrameSize: 1 << 20)
     )
     
-    init(bot: Bot) {
+    init(bot: Bot, elg: EventLoopGroup) {
         self.bot = bot
+        self.elg = elg
     }
     
     /// Sends the RESUME payload for reconnects.
@@ -177,21 +176,19 @@ class Gateway {
         let resumeUrl = wsResume!.resumeGatewayURL!
         let cmps = extractURLComponents(URLComponents(string: resumeUrl)!)
         
-        let connection = WebSocket.connect(
+        try! await WebSocket.connect(
             scheme: cmps.scheme,
             host: cmps.host,
             port: settings.port,
             query: settings.query,
             configuration: settings.config,
-            on: settings.loop,
+            on: elg,
             onUpgrade: { socket in
                 self.websocketSetup(websocket: socket)
                 Log.message("[Reconnect] connection successful - sending RESUME payload...")
                 self.sendFrame(resumePayload)
             }
-        )
-        
-        try! await connection.get()
+        ).get()
     }
     
     /// Binds all core functions of the websocket connection to the class.
@@ -248,20 +245,18 @@ class Gateway {
         resetGatewayValues()
         shards = results.shards
                 
-        let connection = WebSocket.connect(
+        try await WebSocket.connect(
             scheme: cmps.scheme,
             host: cmps.host,
             port: settings.port,
             query: settings.query,
             configuration: settings.config,
-            on: settings.loop,
+            on: elg,
             onUpgrade: { socket in
                 self.websocketSetup(websocket: socket)
                 Log.message("gateway connection established - receiver & onClose set")
             }
-        )
-        
-        try await connection.get()
+        ).get()
     }
     
     /// Handles when the websocket is closed by Discord.

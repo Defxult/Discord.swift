@@ -113,14 +113,14 @@ class HTTPClient {
     let token: String
     let baseHeaders: HTTPHeaders
     let request: Request
+    let app: Vapor.Application
     
     var rateLimits = [String: RateLimit]()
     
-    let app = Vapor.Application()
-    
-    init(bot: Bot, token: String, version: Version) {
+    init(bot: Bot, token: String, version: Version, app: Vapor.Application) {
         self.bot = bot
         self.token = token
+        self.app = app
         self.request = Request(application: app, on: app.eventLoopGroup.any())
         
         baseHeaders = [
