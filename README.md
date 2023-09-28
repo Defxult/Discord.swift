@@ -55,7 +55,7 @@ bot.addUserCommand(
 )
 
 try! await bot.syncApplicationCommands() // Only needs to be done once
-try! await bot.connect()
+bot.run()
 ```
 
 ## Event Listener Example
@@ -78,7 +78,7 @@ class MyListener : EventListener {
 }
 
 try! bot.addListeners(MyListener(name: "example"))
-try! await bot.connect()
+bot.run()
 ```
 ## Swift Package Manager
 ```swift
