@@ -377,6 +377,10 @@ class Gateway {
 
                 sendFrame(identity)
 
+                // It's unlikely, but if the session is ever invalidated, cancel the current
+                // continuous heartbeat (if any) so two separate heartbeats wont be sent
+                heartbeatTask?.cancel()
+                
                 heartbeatTask = Task(priority: .background, operation: {
                     await indefHeartbeat()
                 })
