@@ -1389,11 +1389,6 @@ open class EventListener {
     /// - Parameter user: The bot user who connected.
     open func onConnect(user: ClientUser) async {}
     
-    // MARK: Disconnect
-    
-    /// Dispatched when the bot has disconnected from Discord.
-    open func onDisconnect() async {}
-    
     
     
     // MARK: Audit Log
