@@ -1048,21 +1048,25 @@ class Gateway {
             let userObj = data["user"] as! JSON
             let userId = Conversions.snowflakeToUInt(userObj["id"])
             if let user = bot.getUser(userId) {
-                // Update the user object data
+                // Update the partial user object data
                 user.update(userObj)
                 
-                // Update the user presence data
-                user.update(data)
-                
+                // Update the presence data
                 let status = User.Status(rawValue: data["status"] as! String)!
-                
-                var activities = [User.Activity]()
-                for activityObj in data["activities"] as! [JSON] {
-                    activities.append(User.Activity(activityData: activityObj))
-                }
+                let platform = User.Platform(clientStatusData: data["client_status"] as! JSON)
+                let activities = {
+                    var acts = [User.Activity]()
+                    for actObj in data["activities"] as! [JSON] {
+                        acts.append(User.Activity(activityData: actObj))
+                    }
+                    return acts
+                }()
+                user.status = status
+                user.platform = platform
+                user.activities = activities
                 
                 dispatch({ await $0.onUserUpdate(user: user) })
-                dispatch({ await $0.onPresenceUpdate(user: user, status: status, activities: activities.count == 0 ? nil : activities) })
+                dispatch({ await $0.onPresenceUpdate(user: user, status: status, activities: activities, platform: platform) })
             }
             
         case .stageInstanceCreate:
@@ -1895,9 +1899,10 @@ open class EventListener {
     /// - Parameters:
     ///   - user: The user who's presence was updated.
     ///   - status: The user's updated status.
-    ///   - activities: The user's updated activity. Will be `nil` if no activity was updated.
+    ///   - activities: The user's updated activity. Will be an empty array if no activity was updated.
+    ///   - platform: The user's updated platform.
     /// - Requires: Intent ``Intents/guildPresences``.
-    open func onPresenceUpdate(user: User, status: User.Status, activities: [User.Activity]?) async {}
+    open func onPresenceUpdate(user: User, status: User.Status, activities: [User.Activity], platform: User.Platform) async {}
     
     
     

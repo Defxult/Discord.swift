@@ -60,13 +60,13 @@ public class User : Object, Updateable, Hashable {
     // ----- Presence related -----
     
     /// The user's status.
-    public private(set) var status: User.Status?
+    public internal(set) var status: User.Status?
     
     /// The user's current activities.
-    public private(set) var activities = [User.Activity]()
+    public internal(set) var activities = [User.Activity]()
     
     /// Platform(s) the user is currently on and their status.
-    public private(set) var platform: User.Platform?
+    public internal(set) var platform: User.Platform?
     
     // ----------------------------
     
@@ -111,8 +111,8 @@ public class User : Object, Updateable, Hashable {
         let flagValue = userData["public_flags"] as? Int
         flags = flagValue != nil ? User.Flag.get(flagValue!) : []
         
-        // Note: If `Intents.guildPresences` is enabled, properties `.status` and `.activites`
-        // are added/updated via `.update()`. See `if fromGateway { }` in `Guild.init()` for reference
+        // Note: If Intents.guildPresences is enabled, properties .status, .activites, and .platform
+        // are *initially set* in User.update() via `if fromGateway { }` in Guild.init()
         
         mention = Markdown.mentionUser(id: id)
     }
