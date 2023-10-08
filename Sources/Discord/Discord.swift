@@ -348,7 +348,6 @@ public class Bot {
             try! app.eventLoopGroup.any().makeFutureWithTask {
                 try! await self.gw.startNewSession()
             }.wait()
-            isConnected = true
             if let onceExecute {
                 Task { await onceExecute() }
                 self.onceExecute = nil
@@ -419,7 +418,7 @@ public class Bot {
     public func disconnect() {
         if isConnected {
             try! gw.ws.close(code: .normalClosure).wait()
-            gw.resetGatewayValues()
+            gw.resetGatewayValues(withCancel: true)
             clearCache()
             isConnected = false
         }
