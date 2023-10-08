@@ -391,6 +391,17 @@ public class Bot {
         }
     }
     
+    /// Creates a test entitlement to a given SKU for a given guild or user. Discord will act as though that user or guild has entitlement to your premium offering.
+    /// After creating a test entitlement, you'll need to reload your Discord app. After doing so, you'll see that your server or user now has premium access.
+    /// - Parameters:
+    ///   - sku: SKU to grant the entitlement to.
+    ///   - ownerId: ID of the guild or user to grant the entitlement to.
+    ///   - type: `1` for a guild subscription, `2` for a user subscription.
+    /// - Returns: The test entitlement.
+    public func createTestEntitlement(sku: Application.Sku, ownerId: Snowflake, type: Int) async throws -> Application.Entitlement {
+        return try await http.createTestEntitlement(botId: try await getClientID(), skuId: sku.id, ownerId: ownerId, type: type)
+    }
+    
     /**
      Creates a DM channel between the bot and a user.
      
@@ -429,6 +440,37 @@ public class Bot {
         for listener in listeners {
             listener.isEnabled = true
         }
+    }
+    
+    /// Retrieve all entitlements for a given app, active and expired.
+    /// - Parameters:
+    ///   - user: User to look up entitlements for.
+    ///   - skus: SKU's to check entitlements for.
+    ///   - before: Retrieve entitlements before this date.
+    ///   - after: Retrieve entitlements after this date.
+    ///   - limit: Number of entitlements to return, 1-100.
+    ///   - guild: Guild to look up entitlements for.
+    ///   - excludeEnded: Whether entitlements should be omitted.
+    /// - Returns: The entitlements matching the parameters.
+    public func entitlements(
+        user: User? = nil,
+        skus: [Application.Sku]? = nil,
+        before: Date? = nil,
+        after: Date? = nil,
+        limit: Int = 100,
+        guild: Guild? = nil,
+        excludeEnded: Bool = false
+    ) async throws -> [Application.Entitlement] {
+        return try await http.listEntitlements(
+            botId: try await getClientID(),
+            userId: user?.id,
+            skuIds: skus?.map({ $0.id }),
+            before: before,
+            after: after,
+            limit: limit,
+            guildId: guild?.id,
+            excludeEnded: excludeEnded
+        )
     }
     
     /// Retrieve a channel from the bots internal cache.
@@ -582,6 +624,11 @@ public class Bot {
     public func run() {
         connect()
         sema.wait()
+    }
+    
+    /// Retrieve all SKU's for a given application
+    public func skus() async throws -> [Application.Sku] {
+        return try await http.listSkus(botId: try await getClientID())
     }
     
     /// Block further execution until the ``EventListener/onReady(user:)`` event has been dispatched.

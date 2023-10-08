@@ -620,6 +620,9 @@ public class Interaction {
     /// Set of permissions the app or bot has within the channel the interaction was sent from.
     public let appPermissions: Permissions? = nil
     
+    /// For monetized apps, any entitlements for the invoking user, representing access to premium ``Application/Sku``s.
+    public let entitlements: [Application.Entitlement]
+    
     // ----------------------- API Separated -----------------------
     
     /// Whether the interaction has been responded to.
@@ -664,6 +667,8 @@ public class Interaction {
         token = interactionData["token"] as! String
         
         if let msgObj = interactionData["message"] as? JSON { message = Message(bot: bot, messageData: msgObj) }
+        
+        entitlements = (interactionData["entitlements"] as! [JSON]).map({ Application.Entitlement(bot: bot, appEntitlementData: $0) })
     }
     
     /// Send a followup message. This is used when the interaction has already been responded to.
@@ -808,6 +813,18 @@ public class Interaction {
     /// Deletes the original response.
     public func deleteOriginalResponse() async throws {
         try await bot!.http.deleteOriginalInteractionResponse(botId: bot!.user!.id, interactionToken: token)
+    }
+    
+    /// Respond to any interaction (except modal submits and ping interactions) with an ephemeral message shown to the user that ran the interaction, instructing them that
+    /// whatever they tried to do requires the premium benefits of your app. It also contains an "Upgrade" button to subscribe.
+    /// The response message is static, but will be automatically updated with the name of your premium SKU.
+    public func respondWithPremiumRequired() async throws {
+        try await bot!.http.createInteractionResponse(
+            interactionId: id,
+            interactionToken: token,
+            json: ["type": InteractionCallbackType.premiumRequired],
+            files: nil
+        )
     }
     
     /// Respond to a Discord ping interaction. This is only used if you're recieving webhook-based interactions.
@@ -963,6 +980,9 @@ public enum InteractionCallbackType : Int {
     
     /// Respond to an interaction with a popup modal.
     case modal
+    
+    /// Respond to an interaction with an upgrade button, only available for apps with monetization enabled.
+    case premiumRequired
 }
 
 /// Represents the data from an application command or autocomplete.

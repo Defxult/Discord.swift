@@ -22,6 +22,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 */
 
+import Foundation
+
 /// Represents the application information for the bot.
 public struct Application : Object {
     
@@ -145,6 +147,128 @@ public struct Application : Object {
 }
 
 extension Application {
+    
+    /// Represents premium offerings that can be made available to your application's users or guilds.
+    public struct Sku {
+        
+        /// ID of SKU.
+        public let id: Snowflake
+        
+        /// Type of SKU.
+        public let type: SkuType?
+        
+        /// ID of the parent application.
+        public let applicationId: Snowflake
+        
+        /// Customer-facing name of your premium offering.
+        public let name: String
+        
+        /// System-generated URL slug based on the SKU's name.
+        public let slug: String
+        
+        /// The SKU's flags.
+        public let flags: [SkuFlag]
+        
+        init(skuData: JSON) {
+            id = Conversions.snowflakeToUInt(skuData["id"])
+            type = SkuType(rawValue: skuData["type"] as! Int)
+            applicationId = Conversions.snowflakeToUInt(skuData["application_id"])
+            name = skuData["name"] as! String
+            slug = skuData["slug"] as! String
+            flags = SkuFlag.get(value: skuData["flags"] as! Int)
+        }
+    }
+    
+    /// Represents a ``Sku``s type.
+    public enum SkuType : Int {
+        
+        /// Represents a recurring subscription.
+        case subscription = 5
+        
+        /// System-generated group for each subscription Sku created.
+        case subscriptionGroup
+    }
+    
+    /// Represents a ``Sku``s flags.
+    public enum SkuFlag : Int {
+        
+        /// A guild subscription.
+        case guild = 128
+        
+        /// A user subscription.
+        case user = 256
+        
+        static func get(value: Int) -> [SkuFlag] {
+            var flags = [SkuFlag]()
+            switch value {
+            case 1 << 7:
+                flags.append(.guild)
+            case 1 << 8:
+                flags.append(.user)
+            default: 
+                break
+            }
+            return flags
+        }
+    }
+    
+    /// Represent a user or guild that has access to a premium offering in your application.
+    public struct Entitlement {
+        
+        /// ID of the entitlement.
+        public let id: Snowflake
+        
+        /// ID of the SKU.
+        public let skuId: Snowflake
+        
+        /// ID of the user that is granted access to the entitlement's sku.
+        public let userId: Snowflake?
+        
+        /// ID of the guild that is granted access to the entitlement's sku.
+        public let guildId: Snowflake?
+        
+        /// ID of the parent application.
+        public let applicationId: Snowflake
+        
+        /// Type of entitlement.
+        public let type: EntitlementType?
+        
+        /// Not applicable for App Subscriptions. Subscriptions are not consumed and will be `false`.
+        public let consumed: Bool
+        
+        /// Start date at which the entitlement is valid. Not present when using test entitlements.
+        public let startsAt: Date?
+        
+        /// Date at which the entitlement is no longer valid. Not present when using test entitlements.
+        public let endsAt: Date?
+        
+        /// Your bot instance.
+        public private(set) weak var bot: Bot?
+        
+        init(bot: Bot, appEntitlementData: JSON) {
+            id = Conversions.snowflakeToUInt(appEntitlementData["id"])
+            skuId = Conversions.snowflakeToUInt(appEntitlementData["sku_id"])
+            userId = Conversions.snowflakeToOptionalUInt(appEntitlementData["user_id"])
+            guildId = Conversions.snowflakeToOptionalUInt(appEntitlementData["guild_id"])
+            applicationId = Conversions.snowflakeToUInt(appEntitlementData["application_id"])
+            type = EntitlementType(rawValue: appEntitlementData["type"] as! Int)
+            consumed = appEntitlementData["consumed"] as! Bool
+            startsAt = Conversions.stringDateToDate(iso8601: appEntitlementData["starts_at"] as! String)
+            endsAt = Conversions.stringDateToDate(iso8601: appEntitlementData["ends_at"] as! String)
+        }
+        
+        /// Deletes a currently-active test entitlement. 
+        public func delete() async throws {
+            try await bot!.http.deleteTestEntitlement(botId: bot!.user!.id, entitlementId: id)
+        }
+    }
+    
+    /// Represents an ``Entitlement`` type.
+    public enum EntitlementType : Int {
+        
+        /// Entitlement was purchased as an app subscription.
+        case applicationSubscription = 8
+    }
 
     /// Represents the bots flags.
     public enum Flag : Int, CaseIterable {

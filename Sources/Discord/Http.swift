@@ -364,6 +364,53 @@ class HTTPClient {
     
     // MARK: Other HTTP Methods
     
+    /// Returns all SKUs for a given application. Because of how our SKU and subscription systems work, you will see two SKUs for your premium offering.
+    /// https://discord.com/developers/docs/monetization/skus#list-skus
+    func listSkus(botId: Snowflake) async throws -> [Application.Sku] {
+        let data = try await request(.GET, route("/applications/\(botId)/skus")) as! [JSON]
+        let skus = data.map({ Application.Sku(skuData: $0) })
+        return skus
+    }
+    
+    /// Returns all entitlements for a given app, active and expired.
+    /// https://discord.com/developers/docs/monetization/entitlements#list-entitlements
+    func listEntitlements(
+        botId: Snowflake,
+        userId: Snowflake?,
+        skuIds: [Snowflake]?,
+        before: Date?,
+        after: Date?,
+        limit: Int,
+        guildId: Snowflake?,
+        excludeEnded: Bool
+    ) async throws -> [Application.Entitlement] {
+        var payload: JSON = ["limit": limit, "exclude_ended": excludeEnded]
+        
+        if let userId { payload["user_id"] = userId }
+        if let skuIds { payload["sku_ids"] = skuIds }
+        if let before { payload["before"] = before.asSnowflake }
+        if let after { payload["after"] = after.asSnowflake }
+        if let guildId { payload["guild_id"] = guildId }
+        
+        let data = try await request(.GET, route("/applications/\(botId)/entitlements"), json: payload) as! [JSON]
+        let entitlements = data.map({ Application.Entitlement(bot: bot, appEntitlementData: $0) })
+        return entitlements
+    }
+    
+    /// Creates a test entitlement to a given SKU for a given guild or user. Discord will act as though that user or guild has entitlement to your premium offering.
+    /// https://discord.com/developers/docs/monetization/entitlements#create-test-entitlement
+    func createTestEntitlement(botId: Snowflake, skuId: Snowflake, ownerId: Snowflake, type: Int) async throws -> Application.Entitlement {
+        let payload: JSON = ["sku_id": skuId.description, "owner_id": ownerId.description, "owner_type": type]
+        let data = try await request(.POST, route("/applications/\(botId)/entitlements"), json: payload) as! JSON
+        return .init(bot: bot, appEntitlementData: data)
+    }
+    
+    /// Deletes a currently-active test entitlement. Discord will act as though that user or guild no longer has entitlement to your premium offering.
+    /// https://discord.com/developers/docs/monetization/entitlements#delete-test-entitlement
+    func deleteTestEntitlement(botId: Snowflake, entitlementId: Snowflake) async throws {
+        _ = try await request(.DELETE, route("/applications/\(botId)/entitlements/\(entitlementId)"))
+    }
+    
     /// Returns the guilds onboarding.
     /// https://discord.com/developers/docs/resources/guild#get-guild-onboarding
     func getGuildOnboarding(guildId: Snowflake) async throws -> Guild.Onboarding {

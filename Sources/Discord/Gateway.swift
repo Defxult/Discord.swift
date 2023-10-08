@@ -577,6 +577,15 @@ class Gateway {
                 dispatch({ await $0.onChannelPinsUpdate(channel: channel, pinnedAt: pinnedAt) })
             }
             
+        case .entitlementCreate:
+            dispatch({ await $0.onEntitlementCreate(entitlement: .init(bot: self.bot, appEntitlementData: data)) })
+            
+        case .entitlementUpdate:
+            dispatch({ await $0.onEntitlementUpdate(entitlement: .init(bot: self.bot, appEntitlementData: data)) })
+            
+        case .entitlementDelete:
+            dispatch({ await $0.onEntitlementDelete(entitlement: .init(bot: self.bot, appEntitlementData: data)) })
+            
         case .threadCreate:
             let guild = bot.getGuild(getGuildId(data))!
             let thread = ThreadChannel(bot: bot, threadData: data, guildId: guild.id)
@@ -1245,6 +1254,15 @@ public enum GatewayEvent : String, CaseIterable {
 
     /// Message was pinned or unpinned.
     case channelPinsUpdate = "CHANNEL_PINS_UPDATE"
+    
+    /// User subscribed to a SKU.
+    case entitlementCreate = "ENTITLEMENT_CREATE"
+    
+    /// Entitlement was updated.
+    case entitlementUpdate = "ENTITLEMENT_UPDATE"
+    
+    /// Entitlement was deleted.
+    case entitlementDelete = "ENTITLEMENT_DELETE"
 
     /// Thread created, also fired when being added to a private thread.
     case threadCreate = "THREAD_CREATE"
@@ -1502,6 +1520,19 @@ open class EventListener {
     ///   - pinnedAt: Time at which the most recent pinned message was pinned.
     open func onChannelPinsUpdate(channel: GuildChannel, pinnedAt: Date?) async {}
     
+    // MARK: Entitlement
+    
+    /// Dispatched when a user subscribes to a SKU.
+    open func onEntitlementCreate(entitlement: Application.Entitlement) async {}
+    
+    /// Dispatched when a user's subscription was renewed for the next billing period. The ``Application/Entitlement/endsAt`` property will have the new expiration date.
+    /// If a user's subscription is cancelled, ``onEntitlementDelete(entitlement:)`` will not be dispatched. Instead, you will simply not receive ``onEntitlementUpdate(entitlement:)``
+    /// with a new ``Application/Entitlement/endsAt`` at the end of the billing period.
+    open func onEntitlementUpdate(entitlement: Application.Entitlement) async {}
+    
+    /// Dispatched when a user's entitlement is deleted. Entitlement deletions are infrequent, and occur when Discord issues a refund for a subscription
+    /// or Discord removes an entitlement from a user via internal tooling.
+    open func onEntitlementDelete(entitlement: Application.Entitlement) async {}
     
     
     // MARK: Thread
