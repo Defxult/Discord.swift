@@ -122,13 +122,18 @@ public class Bot {
     
     func cacheMessage(_ message: Message) {
         guard !(cacheManager.messages == 0) else { return }
-        msgCacheLock.lock()
-        
-        if cachedMessages.count == cacheManager.messages {
-            let oldestMessage = cachedMessages.sorted(by: { $0.expires < $1.expires }).first!
-            cachedMessages.remove(oldestMessage)
+        msgCacheWithLock {
+            if cachedMessages.count == cacheManager.messages {
+                let oldestMessage = cachedMessages.sorted(by: { $0.expires < $1.expires }).first!
+                cachedMessages.remove(oldestMessage)
+            }
+            cachedMessages.insert(message)
         }
-        cachedMessages.insert(message)
+    }
+    
+    private func msgCacheWithLock(_ execute: () -> Void) {
+        msgCacheLock.lock()
+        execute()
         msgCacheLock.unlock()
     }
     
@@ -354,11 +359,11 @@ public class Bot {
     private func clearCache() {
         dms.removeAll()
         users.removeAll()
-        msgCacheLock.lock()
-        for messageId in Set<Snowflake>(cachedMessages.map({ $0.id })) {
-            removeCachedMessage(messageId)
+        msgCacheWithLock {
+            for messageId in cachedMessages.map({ $0.id }) {
+                removeCachedMessage(messageId)
+            }
         }
-        msgCacheLock.unlock()
         for guild in guilds {
             guild.channelsCache.removeAll()
             guild.membersCache.removeAll()
