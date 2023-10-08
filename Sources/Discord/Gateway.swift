@@ -614,15 +614,44 @@ class Gateway {
             }
             
         case .guildCreate:
-            let guild = Guild(bot: bot, guildData: data, fromGateway: true)
-            initialState!.guildsCreated += 1
-            bot.cacheGuild(guild)
-            dispatch({ await $0.onGuildCreate(guild: guild) })
-            dispatch({ await $0.onGuildAvailable(guild: guild) })
+            // Since this is the raw guild, the key is "id" instead of "guild_id"
+            let insertedKey: JSON = ["guild_id": data["id"] as Any]
+            let guildId = getGuildId(insertedKey)
             
-            if initialState!.expectedGuilds == initialState!.guildsCreated {
-                initialState!.dispatched = true
-                dispatch({ await $0.onReady(user: self.bot.user!) })
+            // When this is dispatched and the `if let` executes (found in cache), that means the guild is now
+            // available from a recent .onUnavailable(). Since it's already cached, there's no need to replace
+            // it because Bot.cacheGuild() uses Dictionary.updateValue(). Instead, just update the guild data and
+            // merge the members together. If the new (available) guild replaced the old one, that would also replace its
+            // members which could significantly reduce the amount of members in the members cache, especially
+            // if that guild was chunked.
+            if let guild = bot.getGuild(guildId) {
+                guild.update(data)
+                
+                let incomingMembers = {
+                    var members = [Snowflake: Member]()
+                    for obj in data["members"] as! [JSON] {
+                        let member = Member(bot: bot, memberData: obj, guildId: guildId)
+                        members[member.id] = member
+                    }
+                    return members
+                }()
+                
+                guild.membersCache.merge(incomingMembers) { (_, new) in new }
+                dispatch({ await $0.onGuildAvailable(guild: guild) })
+                
+            } else {
+                let guild = Guild(bot: bot, guildData: data, fromGateway: true)
+                
+                bot.cacheGuild(guild)
+                initialState!.guildsCreated += 1
+                
+                dispatch({ await $0.onGuildCreate(guild: guild) })
+                dispatch({ await $0.onGuildAvailable(guild: guild) })
+                
+                if initialState!.expectedGuilds == initialState!.guildsCreated {
+                    initialState!.dispatched = true
+                    dispatch({ await $0.onReady(user: self.bot.user!) })
+                }
             }
             
         case .guildUpdate:
