@@ -53,7 +53,7 @@ public class Bot {
     public internal(set) var cachedMessages = Set<Message>()
     
     /// Whether automatic sharding is enabled. If your bot is in 2500 or more guilds, this *must* be enabled.
-    public internal(set) var sharding: Bool
+    public let sharding: Bool
     
     /// The global allowed mentions.
     public static var allowedMentions = AllowedMentions.default
@@ -611,7 +611,7 @@ public struct CacheManager {
     /// Has all caching capabilities enabled and a max message cache size of 1,500.
     public static let `default` = CacheManager(messages: 1500, users: true, members: true)
     
-    /// Has `users` and `members` caching capabilities enabled and a max message cache size of 500.
+    /// Has `users` caching capabilities disabled and a max message cache size of 500.
     public static let limited = CacheManager(messages: 500, users: false, members: true)
     
     /// Has all caching capabilities disabled and a max message cache size of 100.

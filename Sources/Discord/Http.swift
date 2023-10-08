@@ -1708,15 +1708,13 @@ class HTTPClient {
     }
     
     static func buildEndpoint(_ path: APIRoute, endpoint: String) -> String {
-        guard endpoint.starts(with: "/") else {
-            fatalError("Endpoint must start with /")
-        }
+        precondition(endpoint.starts(with: "/"), "Endpoint must start with /")
         return path.rawValue + endpoint
     }
     
     /// Creates the full HTTP endpoint.
     private func route(_ url: String, route: APIRoute = .base) -> String {
-        guard url.starts(with: "/") else { fatalError("URL route must begin with /") }
+        precondition(url.starts(with: "/"), "URL route must begin with /")
         return route.rawValue + url
     }
     

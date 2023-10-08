@@ -1082,7 +1082,7 @@ public class Guild : Object, Hashable, Updateable  {
         return try await bot!.http.getGuildTemplates(guildId: id)
     }
     
-    /// Updates the properties of the guild when received via gateway event`GUILD_UPDATE`.
+    /// Updates the properties of the guild when received via gateway event `GUILD_UPDATE` and possibly `GUILD_CREATE`.
     func update(_ data: JSON) {
         for (k, v) in data {
             switch k {
