@@ -467,9 +467,9 @@ class Gateway {
             }
         case .messageComponent:
             if let cachedMsg = interaction.bot!.getMessage(interaction.message!.id) {
-                // Reset the onTimeout timer. With each interaction this is reset because I don't want the
+                // Reset the onTimeout scheduler. With each interaction this is reset because I don't want the
                 // components to be disabled (by default) when components are in active use
-                cachedMsg.ui?.startOnTimeoutTimer()
+                cachedMsg.ui?.startOnTimeoutScheduler()
                 
                 await cachedMsg.ui?.onInteraction(interaction)
             }
@@ -984,8 +984,8 @@ class Gateway {
             let guildId = Conversions.snowflakeToOptionalUInt(data["guild_id"])
             
             if let message = bot.getMessage(messageId) {
-                // Before the message is removed from the cache, invalidate the UI onTimeout timer
-                message.ui?.timer?.invalidate()
+                // Before the message is removed from the cache, cancel the UI onTimeout scheduler
+                message.ui?.scheduler?.cancel()
                 
                 bot.removeCachedMessage(message.id)
                 dispatch({ await $0.onMessageDelete(message: message) })

@@ -23,6 +23,8 @@ DEALINGS IN THE SOFTWARE.
  */
 
 import Foundation
+import NIOCore
+import NIOPosix
 
 /// Represents a components type.
 public enum ComponentType : Int {
@@ -69,12 +71,17 @@ public class UI {
     /// The message the UI is attached to.
     public private(set) var attachedMessage: Message? = nil
     
-    var timer: Timer? = nil
+    let elg = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+    var scheduler: Scheduled<()>? = nil
     
     /// Initializes a UI.
     /// - Parameter timeout: The amount of time in seconds for when the UI times out and the `onTimeout` closure is called.
     public init(timeout: TimeInterval = 120) {
-        self.timeout = timeout < 0 ? 120 : timeout
+        self.timeout = timeout < 0 ? 0 : timeout
+    }
+    
+    deinit {
+        try? elg.syncShutdownGracefully()
     }
     
     /// Add an item to the UI.
@@ -151,15 +158,11 @@ public class UI {
         return self
     }
     
-    func startOnTimeoutTimer() {
-        timer?.invalidate()
-        DispatchQueue.main.async {
-            self.timer = .scheduledTimer(withTimeInterval: self.timeout, repeats: false, block: { _ in
-                Task {
-                    await self.onTimeout(self.attachedMessage)
-                }
-            })
-        }
+    func startOnTimeoutScheduler() {
+        scheduler?.cancel()
+        scheduler = elg.any().scheduleTask(in: .seconds(Int64(timeout)), {
+            Task { await self.onTimeout(self.attachedMessage) }
+        })
     }
     
     func convert() throws -> [JSON] {
@@ -195,7 +198,7 @@ public class UI {
         if let ui, let cachedMessage = message.bot!.getMessage(message.id) {
             cachedMessage.ui = ui
             ui.attachedMessage = cachedMessage
-            ui.startOnTimeoutTimer()
+            ui.startOnTimeoutScheduler()
         }
     }
     

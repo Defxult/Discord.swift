@@ -91,6 +91,7 @@ public class Bot {
     var gw: Gateway!
     private var onceExecute: (() async -> Void)? = nil
     
+    let loop: EventLoop
     private let msgCacheLock = NSLock()
     private let sema = DispatchSemaphore(value: 0)
     private let app = Vapor.Application()
@@ -106,6 +107,7 @@ public class Bot {
         self.intents = intents
         self.sharding = sharding
         self.cacheManager = cacheManager
+        loop = app.eventLoopGroup.any()
         gw = Gateway(bot: self, elg: app.eventLoopGroup)
         http = .init(bot: self, token: token, version: version, app: app)
     }
@@ -139,7 +141,7 @@ public class Bot {
     
     func removeCachedMessage(_ messageId: Snowflake) {
         if let message = cachedMessages.first(where: { $0.id == messageId }) {
-            message.cacheExpireTimer?.invalidate()
+            message.cacheExpireScheduler?.cancel()
             cachedMessages.remove(message)
         }
     }
@@ -521,7 +523,7 @@ public class Bot {
     /// - Returns: The message matching the provided ID, or `nil` if not found.
     public func getMessage(_ id: Snowflake) -> Message? {
         if let msg = cachedMessages.first(where: { $0.id == id }) {
-            msg.setExpires()
+            msg.setScheduler()
             return msg
         }
         return nil

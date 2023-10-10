@@ -23,6 +23,7 @@ DEALINGS IN THE SOFTWARE.
 */
 
 import Foundation
+import NIOCore
 
 /// Represents a Discord message.
 public class Message : Object, Hashable, Updateable {
@@ -209,13 +210,15 @@ public class Message : Object, Hashable, Updateable {
     /// Your bot instance.
     public weak private(set) var bot: Bot?
     
-    static var cacheExpire: Date { Calendar.current.date(byAdding: .hour, value: 3, to: .now)! }
-    var cacheExpireTimer: Timer? = nil
+    var guildId: Snowflake?
+    
+    var cacheExpireScheduler: Scheduled<()>? = nil
+    var expires: Date! // initialized in setScheduler()
+    static let expireAfter = 5
+    static var cacheExpire: Date { Calendar.current.date(byAdding: .hour, value: Message.expireAfter, to: .now)! }
     
     let channelId: Snowflake
-    var guildId: Snowflake?
     let mentionRoleStrings: [String]
-    var expires: Date
     let temp: JSON
     
     init(bot: Bot, messageData: JSON) {
@@ -295,8 +298,7 @@ public class Message : Object, Hashable, Updateable {
             }
         }
         
-        expires = Message.cacheExpire
-        setExpires()
+        setScheduler()
         
         // This was moved to the end because `self` cannot be used before all stored proprties have been initalized.
         if let reactionObjs = messageData["reactions"] as? [JSON] {
@@ -479,13 +481,14 @@ public class Message : Object, Hashable, Updateable {
         try await bot!.http.crosspostMessage(channelId: channel.id, messageId: id)
     }
     
-    func setExpires() {
+    func setScheduler() {
+        // Set/reset the expiration date. This method is called during this init() or
+        // when a message is retrieved via Bot.getMessage()
         expires = Message.cacheExpire
-        cacheExpireTimer?.invalidate()
-        DispatchQueue.main.async {
-            self.cacheExpireTimer = .scheduledTimer(withTimeInterval: self.expires.timeIntervalSince(.now), repeats: false, block: { [self] _ in
-                bot!.removeCachedMessage(id)
-            })
+        
+        cacheExpireScheduler?.cancel()
+        cacheExpireScheduler = bot!.loop.scheduleTask(in: .hours(Int64(Message.expireAfter))) {
+            self.bot!.removeCachedMessage(self.id)
         }
     }
     
