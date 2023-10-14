@@ -331,7 +331,7 @@ public class Bot {
         for addedListener in listeners {
             let currentListenerNames = self.listeners.map({ $0.name })
             if currentListenerNames.contains(addedListener.name) {
-                throw DiscordError.generic("An event listener with the name '\(addedListener.name)' has already been added")
+                throw DiscordError.generic("an event listener with the name '\(addedListener.name)' has already been added")
             } else {
                 self.listeners.append(addedListener)
             }
@@ -607,19 +607,12 @@ public class Bot {
         return try await http.getWebhook(webhookId: id)
     }
     
-    /// Request a webhook by its URL. Unlike ``requestWebhookFrom(id:)``, this does not require authentification. Meaning this can be called prior to connecting to Discord via ``connect()``.
+    /// Request a webhook by its URL. Unlike ``requestWebhookFrom(id:)``, this does not require authentification. Meaning this can be called prior to connecting to Discord.
     /// - Parameter url: The webhooks URL.
     /// - Returns: The webhook matching the given URL.
     public func requestWebhookFrom(url: String) async throws -> Webhook {
-        let webhookUrlRegex = #/https://discord\.com/api/webhooks/[0-9]{17,20}/\S+/#
-        guard let _ = url.wholeMatch(of: webhookUrlRegex) else {
-            throw DiscordError.generic("Invalid webhook URL")
-        }
-        let split = Array(url.split(separator: "/").suffix(2))
-        let webhookId = split[0].description
-        let webhookToken = split[1].description
-        
-        return try await http.getWebhookWithToken(webhookId: webhookId, webhookToken: webhookToken)
+        let info = try Webhook.extractFromURL(url)
+        return try await http.getWebhookWithToken(webhookId: info.id, webhookToken: info.token!)
     }
     
     /// Connect to Discord and blocks the app from exiting.

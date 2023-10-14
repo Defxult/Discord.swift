@@ -1619,7 +1619,7 @@ class HTTPClient {
     
     /// Same as ``getWebhook()``, except this call does not require authentication and returns no user in the webhook object.
     /// https://discord.com/developers/docs/resources/webhook#get-webhook-with-token
-    func getWebhookWithToken(webhookId: String, webhookToken: String) async throws -> Webhook {
+    func getWebhookWithToken(webhookId: Snowflake, webhookToken: String) async throws -> Webhook {
         let data = try await request(.GET, route("/webhooks/\(webhookId)/\(webhookToken)")) as! JSON
         return .init(bot: bot, webhookData: data)
     }

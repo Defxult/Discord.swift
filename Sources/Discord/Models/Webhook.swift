@@ -80,6 +80,22 @@ public struct Webhook : Object {
         url = token == nil ? nil : "https://discord.com/api/webhooks/\(id)/\(token!)"
     }
     
+    static func extractFromURL(_ url: String) throws -> (id: Snowflake, token: String?) {
+        let webhookUrlRegex = #/https://discord\.com/api/webhooks/[0-9]{17,20}/\S+/#
+        let invalid = "invalid webhook URL"
+        guard let _ = url.wholeMatch(of: webhookUrlRegex) else {
+            throw DiscordError.generic(invalid)
+        }
+        let split = Array(url.split(separator: "/").suffix(2))
+        // Verify the first element are all numbers (the ID)
+        if !split[0].allSatisfy(\.isNumber) {
+            throw DiscordError.generic(invalid)
+        }
+        let webhookId = split[0].description
+        let webhookToken = split.count > 1 ? split[1].description : nil
+        return (Conversions.snowflakeToUInt(webhookId), webhookToken)
+    }
+    
     /// Deletes the webhook.
     public func delete() async throws {
         try await bot!.http.deleteWebhook(webhookId: id)
