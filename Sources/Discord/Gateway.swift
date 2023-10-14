@@ -24,6 +24,7 @@ DEALINGS IN THE SOFTWARE.
 
 import Foundation
 import WebSocketKit
+import NIOCore
 
 fileprivate struct ResumePayload {
     
@@ -136,10 +137,22 @@ extension Array<JSON> {
     }
 }
 
+fileprivate enum HeartbeatResponse {
+    
+    /// Heartbeat was sent and ACK by Discord.
+    case acknowledged
+    
+    /// Heartbeat was sent but NOT ACK  by Discord.
+    case noResponse
+    
+    /// Response was reset after a heartbeat was sent and ACK by Discord (or initial value at startup)
+    case reset
+}
+
 class Gateway {
     
     var ws: WebSocket!
-    var heartbeatTask: Task<(), Never>?
+    var heartbeatTask: RepeatedTask? = nil
     var initialState: InitialState?
     
     private var bot: Bot
@@ -149,14 +162,11 @@ class Gateway {
     private var heartbeatInterval = 0
     private var receivedReconnectRequest = false
     private var nilClose = false
-    
-    // Client heartbeat ACKs have 3 values:
-    // n > 0    heartbeat was sent and ACK by Discord
-    // n == -1  client heartbeat ACK was reset after a successfull heartbeat ACK (or initial value at startup)
-    // n == 0   heartbeat ACK was NOT sent by Discord after a heartbeat was sent
-    private var clientHeartbeatAcks = -1
+    private var heartbeatAllowed = true
+    private var clientHeartbeatResponse = HeartbeatResponse.reset
     
     private let elg: EventLoopGroup
+    private let loop: EventLoop
     private let danglingClose: UInt16 = 9900
     private let settings = (
         port: 443,
@@ -167,6 +177,7 @@ class Gateway {
     init(bot: Bot, elg: EventLoopGroup) {
         self.bot = bot
         self.elg = elg
+        self.loop = elg.any()
     }
     
     /// Close the connection with anything other than code 1000 or 1001 and reconnect.
@@ -213,18 +224,13 @@ class Gateway {
         ws.onClose.whenComplete { _ in try! self.websocketClosed() }
     }
     
-    /// The continuous heartbeat required by Discord.
-    private func indefHeartbeat() async {
-        Log.message("starting INDEFINITE HEARTBEAT...")
-        while true {
-            await sleep(heartbeatInterval)
-            sendHeartbeat()
-            do {
-                try Task.checkCancellation()
-            } catch {
-                return
-            }
-        }
+    /// Cancels the existing heartbeat (if any) and starts a new one.
+    private func startHeartbeat(log: String) {
+        Log.message(log)
+        heartbeatTask?.cancel()
+        heartbeatTask = loop.scheduleRepeatedTask(initialDelay: .seconds(20), delay: .milliseconds(Int64(heartbeatInterval)), { _ in
+            self.sendHeartbeat()
+        })
     }
     
     /// Send a heartbeat to the gateway. Sent during indefinite heartbeat or a requested one.
@@ -234,20 +240,26 @@ class Gateway {
             "d": wsResume == nil ? NIL : wsResume!.sequence
         ]
         sendFrame(payload)
+        Log.message("heartbeat sent")
         
         // Verify the heartbeat was ACK'd. Discord ACKs are pretty much instant
         // so a 1.1 second delay should be more than enough.
-        elg.any().scheduleTask(in: .milliseconds(1100)) {
-            if self.clientHeartbeatAcks > 0 {
-                self.clientHeartbeatAcks = -1
+        loop.scheduleTask(in: .milliseconds(1100)) { [self] in
+            if clientHeartbeatResponse == .acknowledged {
+                clientHeartbeatResponse = .reset
                 Log.message("heartbeat ACK (client)")
             } else {
-                self.clientHeartbeatAcks = 0
+                clientHeartbeatResponse = .noResponse
                 Task {
-                    try await self.danglingReconnect(log: "client did not receive HEARTBEAT ACK after a heartbeat was sent - attempting dangling reconnecting...")
+                    try await danglingReconnect(log: "client did not receive HEARTBEAT ACK after a heartbeat was sent - attempting dangling reconnecting...")
                 }
             }
         }
+    }
+    
+    private func suspendHeartbeat(log: String) {
+        heartbeatTask?.cancel()
+        Log.message("heartbeat suspended - \(log)")
     }
     
     /// Shortcut for sending data (as `ByteBuffer`) through the websocket.
@@ -259,7 +271,7 @@ class Gateway {
     func resetGatewayValues(withCancel: Bool) {
         receivedReconnectRequest = false
         nilClose = false
-        clientHeartbeatAcks = -1
+        clientHeartbeatResponse = .reset
         if withCancel {
             heartbeatTask?.cancel()
         }
@@ -294,6 +306,7 @@ class Gateway {
     
     /// Handles when the websocket is closed by Discord.
     private func websocketClosed() throws {
+        suspendHeartbeat(log: "gateway disconnected")
         
         func new(log: String) {
             Log.message(log + " - starting new session...")
@@ -388,14 +401,15 @@ class Gateway {
                 }
             
             case Opcode.hello:
-                let reset = { (log: String) -> Void in
+                let reset = { [self] (log: String) -> Void in
                     Log.message(log)
-                    self.resetGatewayValues(withCancel: false)
+                    resetGatewayValues(withCancel: false)
+                    startHeartbeat(log: "heartbeat reset after reconnect")
                 }
                 // Discord states there's no need to re-identify after a RECONNECT
-                if receivedReconnectRequest { reset("received HELLO from RECONNECT - ignoring"); return }
+                if receivedReconnectRequest { reset("received HELLO from RECONNECT REQUEST - ignoring"); return }
                 else if nilClose { reset("received HELLO from NIL CLOSE RECONNECT - ignoring"); return }
-                else if clientHeartbeatAcks == 0 { reset("received HELLO from FAILED HEARTBEAT ACK RECONNECT - ignoring"); return }
+                else if clientHeartbeatResponse == .noResponse { reset("received HELLO from FAILED HEARTBEAT ACK RECONNECT - ignoring"); return }
                 
                 Log.message("received HELLO - identifying...")
                 let opHello = HTTPClient.strJsonToDict(message)
@@ -423,14 +437,7 @@ class Gateway {
                 ]
 
                 sendFrame(identity)
-
-                // It's unlikely, but if the session is ever invalidated, cancel the current
-                // continuous heartbeat (if any) so two separate heartbeats wont be sent
-                heartbeatTask?.cancel()
-                
-                heartbeatTask = Task(priority: .background, operation: {
-                    await indefHeartbeat()
-                })
+                startHeartbeat(log: "starting INDEFINITE HEARTBEAT from IDENTIFY")
                 
             case Opcode.invalidSession:
                 Log.message("gateway SESSION INVALIDATED - starting new session...")
@@ -447,7 +454,7 @@ class Gateway {
                 
             case Opcode.heartbeatAck:
                 Log.message("heartbeat ACK")
-                clientHeartbeatAcks += 2
+                clientHeartbeatResponse = .acknowledged
             
             default:
                 break
