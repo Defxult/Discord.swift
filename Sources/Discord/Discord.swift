@@ -347,7 +347,7 @@ public class Bot {
     /// Connect to Discord.
     public func connect() {
         if !isConnected {
-            try! app.eventLoopGroup.any().makeFutureWithTask {
+            try! loop.makeFutureWithTask {
                 try! await self.gw.startNewSession()
             }.wait()
             if let onceExecute {
@@ -427,13 +427,15 @@ public class Bot {
         }
     }
     
-    /// Disconnect from Discord and clears the cache.
-    public func disconnect() {
+    /// Disconnect from Discord.
+    /// - Parameter clearCache: Whether to clear the cache once disconnected.
+    public func disconnect(clearCache: Bool = true) {
         if isConnected {
-            try! gw.ws.close(code: .normalClosure).wait()
+            isConnected = false // needs to be before ws.close()
+            gw.ws.close(code: .normalClosure, promise: nil)
             gw.resetGatewayValues(withCancel: true)
-            clearCache()
-            isConnected = false
+            gw.heartbeatTask = nil
+            if clearCache { self.clearCache() }
         }
     }
     
