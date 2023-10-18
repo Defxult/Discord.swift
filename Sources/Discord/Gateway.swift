@@ -358,22 +358,14 @@ class Gateway {
             }
         }
         
-        if ws.closeCode == nil {
-            // A new session must be started here. If the connection is closed with a nil close code,
-            // vapor disconnected (for whatever reason). If that occurs, simply reconnecting somehow makes
-            // the stability of the connection even worse by having it disconnect randomly more frequently,
-            // sometimes significantly more frequent. Creating a brand new connection "refreshes" connection
-            // stability.
-            Log.message("connection closed with nil close code - starting new session...")
-            newConnection(type: .session)
-        } else {
-            // If the end user did not terminate the connection, we should always reconnect.
-            // Also, if this is reached, that means it did not `return`. If it returned, a new
-            // session was required, not a reconnect. Additionally, .isConnected will never be
-            // set to `false` unless done so by the end user via Bot.disconnect() or Bot.close()
-            if bot.isConnected {
-                newConnection(type: .reconnect)
-            }
+        // If the end user did not terminate the connection, we should always reconnect.
+        // Also, if this is reached, that means it did not `return`. If it returned within
+        // the `switch` statement, a new session was required, not a reconnect. Additionally,
+        // .isConnected will never be set to `false` unless done so by the end user via
+        // Bot.disconnect() or Bot.close()
+        if bot.isConnected {
+            if ws.closeCode == nil { Log.message("gateway closed with nil close code - reconnecting...") }
+            newConnection(type: .reconnect)
         }
     }
     
