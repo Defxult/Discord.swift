@@ -120,7 +120,8 @@ public class Guild : Object, Hashable, Updateable  {
     /// The maximum amount of users in a video channel.
     public private(set) var maxVideoChannelUsers: Int?
     
-    /// Approximate number of members in this guild.
+    /// Approximate number of members in this guild. Will always be `nil` unless accessed via
+    /// ``Bot/requestGuild(_:withCounts:)`` with parameter `withCounts` set as `true`.
     public private(set) var approximateMemberCount: Int?
     
     /// Approximate number of non-offline members in this guild.
@@ -149,6 +150,7 @@ public class Guild : Object, Hashable, Updateable  {
     var membersCache = [Snowflake: Member]()
     
     /// Total number of members in the guild.
+    /// - Note: This requires intent ``Intents/guildMembers`` to remain up-to-date.
     public internal(set) var memberCount = 0
 
     /// All active stage instances.
