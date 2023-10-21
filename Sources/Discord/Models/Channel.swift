@@ -1513,6 +1513,9 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
     /// Permission overwrites for the channel. Will always be empty for a thread channel.
     public let overwrites = [PermissionOverwrites]()
     
+    /// The ID of the user that started the thread.
+    public let ownerId: Snowflake
+    
     /// The ID of the last message sent in the thread.
     public internal(set) var lastMessageId: Snowflake?
     
@@ -1581,6 +1584,7 @@ public class ThreadChannel : GuildChannelMessageable, Hashable {
         slowmode = threadData["rate_limit_per_user"] as! Int
         memberCount = threadData["member_count"] as! Int
         messageCount = threadData["message_count"] as! Int
+        ownerId = Conversions.snowflakeToUInt(threadData["owner_id"])
         
         if let tagIdStrs = threadData["applied_tags"] as? [String] {
             var tagIds = [Snowflake]()
