@@ -636,6 +636,19 @@ extension Message {
         /// Whether this attachment is ephemeral.
         public let isEphemeral: Bool
         
+        // ------------ Authenticated URL Parameters ------------
+        
+        /// When the attachment URL will expire.
+        public let expires: Date
+        
+        /// When the URL was issued.
+        public let issued: Date
+        
+        /// Unique signature that remains valid until the URL `expires`.
+        public let signature: String
+        
+        // ------------------------------------------------------
+        
         // ------------ API Separated ------------
         
         /// Whether this attachment is marked as a spoiler.
@@ -655,6 +668,17 @@ extension Message {
             width = attachmentData["width"] as? Int
             isEphemeral = Conversions.optionalBooltoBool(attachmentData["ephemeral"])
             isSpoiler = filename.starts(with: "SPOILER_")
+            
+            // Converts the `ex` and `is` timestamps. These timestamp are not in the raw
+            // unix timestamps but in hex
+            let toDate = { (value: String) -> Date in
+                let timestamp = Int(value, radix: 16)!
+                return Date(timeIntervalSince1970: TimeInterval(timestamp))
+            }
+            let cmps = URLComponents(string: url)!
+            expires = toDate(cmps.queryItems!.first(where: { $0.name == "ex" })!.value!)
+            issued = toDate(cmps.queryItems!.first(where: { $0.name == "is" })!.value!)
+            signature = cmps.queryItems!.first(where: { $0.name == "hm" })!.value!
         }
         
         func convert() -> JSON {
