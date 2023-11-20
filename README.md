@@ -9,9 +9,7 @@
 </p>
 
 
-A Discord API library written in Swift, kept up-to-date with the latest features. Simple, elegant, and easy to use. Have fun creating your own bot! 🤖 Whether it's for moderation, only for you and your friends, or something entirely unique!
-
-Enjoying the library? Don't forget to leave a ⭐️ 😄. 
+A Discord API library written in Swift.
 
 ## 🌍 Links
 - [Discord server](https://discord.gg/TYDZeruQ7N)
@@ -20,7 +18,6 @@ Enjoying the library? Don't forget to leave a ⭐️ 😄.
 - [Setup guide](https://discord-swift.gitbook.io/discord.swift/overview/getting-started)
 
 ## 😎 Key Features
-- Linux support
 - Asynchronous functionality using `async` and `await`
 - Full application command support
     - [x] Slash commands
