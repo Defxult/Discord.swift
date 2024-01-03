@@ -1,13 +1,3 @@
-<p align="center">
-    <h1 align="center">Discord.swift</h1>
-</p>
-
-<p align="center">
-    <img src="https://img.shields.io/static/v1?label=version&style=for-the-badge&message=0.1.4-beta&color=ff992b">
-    <a href="https://discord-swift.gitbook.io/discord.swift/overview/getting-started"><img src="https://img.shields.io/static/v1?label=guide&style=for-the-badge&message=gitbook&color=5865f2"></a>
-</p>
-
-
 A Discord API library written in Swift.
 
 ## 🌍 Links
