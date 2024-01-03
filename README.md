@@ -1,5 +1,4 @@
 <p align="center">
-    <img src="https://cdn.discordapp.com/attachments/655186216060321816/1121466989190324296/icon_3.png" width="230" height="230">
     <h1 align="center">Discord.swift</h1>
 </p>
 
