@@ -12,7 +12,6 @@
 A Discord API library written in Swift.
 
 ## 🌍 Links
-- [Discord server](https://discord.gg/TYDZeruQ7N)
 - [Changelog](https://discord-swift.gitbook.io/discord.swift/resources/changelog)
 - [Documentation](https://discord-swift.gitbook.io/discord.swift/resources/documentation)
 - [Setup guide](https://discord-swift.gitbook.io/discord.swift/overview/getting-started)
