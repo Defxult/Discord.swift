@@ -8,7 +8,6 @@ body:
         Thank you for taking the time to submit an issue! These improve the library and makes the overall experience much better.
         
         
-        If you'd like real-time assistance, consider joining our Discord at https://discord.gg/TYDZeruQ7N instead.
   - type: textarea
     attributes:
       label: Describe the bug
