@@ -1,11 +1,10 @@
 A Discord API library written in Swift.
 
-## 🌍 Links
-- [Changelog](https://discord-swift.gitbook.io/discord.swift/resources/changelog)
-- [Documentation](https://discord-swift.gitbook.io/discord.swift/resources/documentation)
+## Links
 - [Setup guide](https://discord-swift.gitbook.io/discord.swift/overview/getting-started)
+- [Changelog](https://discord-swift.gitbook.io/discord.swift/resources/changelog)
 
-## 😎 Key Features
+## Key Features
 - Asynchronous functionality using `async` and `await`
 - Full application command support
     - [x] Slash commands
